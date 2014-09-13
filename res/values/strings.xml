@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Copyright (C) 2014 Román Ginés Martínez Ferrández <rgmf@riseup.net>
+ *
+ * This program (LibreSportGPS) is free software: you can 
+ * redistribute it and/or modify it under the terms of the GNU General 
+ * Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+ -->
+ 
+<resources>
+    
+    <!-- Error messages. -->
+    <string name="db_error_to_create_track">The track cannot be created in the database.</string>
+
+    <string name="app_name">LibreSportGPS</string>
+    <string name="display_track">Display Track</string>
+    <string name="gps_disabled">GPS disabled.</string>
+    <string name="gps_disabled_hint">GPS is disabled. Do you want to enable it?</string>
+    <string name="waiting_gps">Waiting for a better GPS signal... Please try later.</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_search">Search</string>
+    <string name="current_speed_hint">Current Speed</string>
+    <string name="average_speed_hint">Average Speed</string>
+    <string name="max_speed_hint">Max. Speed</string>
+    <string name="distance_hint">Distance</string>
+    <string name="distance_unit">km</string>
+    <string name="speed_unit">km/h</string>
+    <string name="start_time_hint">Start Time</string>
+    <string name="activity_time_hint">Activity Time</string>
+    <string name="title_activity_display_track">DisplayTrack</string>
+    <string name="title_start_section">Tracks</string>
+    <string name="title_data_section">Data View</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_example">Example action</string>
+    <string name="menu_display_track">Ver Track</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_exit">Exit</string>
+    <string name="stop_activity">Stop Activity</string>
+    <string name="stop_activity_question">Do you really like to end the activity? This action cannot be undo.</string>
+    <string name="external_storage_not_available">The external storage is not available... The track won\'t be saved.</string>
+    <string name="activity_not_started">The activity has not started.</string>
+    <string name="out_of_service">Out of service. The tracking is stopped.</string>
+    <string name="service_again_available">The service is again available. The tracking continue.</string>
+	<string name="delete_trackfile">Delete Track</string>
+	<string name="delete_trackfile_hint">Do you really like to delete the track? This action cannot be undo.</string>
+	<string name="activity_finished">Activity finished</string>
+	<string name="loading_data">Loading data...</string>
+	<string name="track_date_hint">Date:</string>
+	<string name="track_distance_hint">Distance:</string>
+	<string name="track_max_ele_hint">Max. Elevation:</string>
+	<string name="track_min_ele_hint">Min. Elevation:</string>
+	<string name="track_gain_ele_hint">Gain Elevation:</string>
+	<string name="track_loss_ele_hint">Loss Elevation:</string>
+	<string name="track_max_speed_hint">Max. Speed:</string>
+	<string name="track_avg_speed_hint">Avg. Speed:</string>
+	<string name="button_delete">Delete</string>
+	<string name="gps_accuracy_hint">Accuracy</string>
+	<string name="gps_status_hint">GPS Status</string>
+	<string name="accuracy_unit">m</string>
+</resources>
