@@ -32,10 +32,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
 import es.rgmf.libresportgps.R;
 import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.common.Utilities;
-import es.rgmf.libresportgps.data.TrackFactory;
+import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.file.FileManager;
 
@@ -88,8 +89,7 @@ public class TrackDetailFragment extends Fragment {
 		
 		if(track != null) {
 			EditText etName = (EditText) rootView.findViewById(R.id.track_edit_name);
-			TextView tvName = (TextView) rootView.findViewById(R.id.track_name);
-			TextView tvDesc = (TextView) rootView.findViewById(R.id.track_description);
+			EditText etDesc = (EditText) rootView.findViewById(R.id.track_edit_description);
 			TextView tvDate = (TextView) rootView.findViewById(R.id.track_date);
 			TextView tvDistance = (TextView) rootView.findViewById(R.id.track_distance);
 			TextView tvMaxEle = (TextView) rootView.findViewById(R.id.track_max_ele);
@@ -102,8 +102,7 @@ public class TrackDetailFragment extends Fragment {
 			
 			this.name = track.getTitle();
 			etName.setText(track.getTitle());
-			tvName.setText(track.getTitle());
-			tvDesc.setText(track.getDescription());
+			etDesc.setText(track.getDescription());
 			tvDate.setText(Utilities.timeStampCompleteFormatter(track.getFinishTime()));
 			tvDistance.setText(Utilities.distance(track.getDistance()));
 			tvMaxEle.setText(Utilities.elevation(track.getMaxElevation()));
@@ -113,20 +112,42 @@ public class TrackDetailFragment extends Fragment {
 			tvMaxSpeed.setText(Utilities.speed(track.getMaxSpeed()));
 			tvAvgSpeed.setText(Utilities.speed(0));
 			
+			// This is called when user edits the name field.
 			etName.setOnEditorActionListener(new OnEditorActionListener() {
 			    @Override
 			    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 			        boolean handled = false;
 			        if (actionId == EditorInfo.IME_ACTION_SEND) {
-			        	FileManager.rename(Session.getAppFolder(), name, Session.getAppFolder(), v.getText().toString());
-			        	// Reset the track factory so we obey TrackFactory to read from sd card the tracks.
-			        	TrackFactory.reset();
+			        	// Change the file name.
+			        	FileManager.rename(
+			        			Session.getAppFolder() + "/" + track.getId(), 
+			        			name + ".gpx", 
+			        			Session.getAppFolder() + "/" + track.getId(), 
+			        			v.getText().toString() + ".gpx"
+			        			);
+			        	// Update the database title field.
+			        	DBModel.updateTrackName(getActivity(), track.getId(), v.getText().toString());
 			            handled = true;
 			        }
 			        return handled;
 			    }
 			});
 			
+			// This is called when user edits the description field.
+			etDesc.setOnEditorActionListener(new OnEditorActionListener() {
+			    @Override
+			    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+			        boolean handled = false;
+			        if (actionId == EditorInfo.IME_ACTION_SEND) {
+			        	// Update the database title field.
+			        	DBModel.updateTrackDescription(getActivity(), track.getId(), v.getText().toString());
+			            handled = true;
+			        }
+			        return handled;
+			    }
+			});
+			
+			// This is called when user clicks on delete button.
 			bDelete.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -138,9 +159,16 @@ public class TrackDetailFragment extends Fragment {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							// Delete the file.
-							FileManager.delete(Session.getAppFolder(), name);
-							// We tell to TrackFactory that reset itself to load once again the track files.
-							TrackFactory.reset();
+							FileManager.delete(
+									Session.getAppFolder() + "/" + track.getId(),
+									name + ".gpx"
+									);
+							// Delete the register in the database.
+							if(!DBModel.deleteTrack(getActivity(), track.getId()))
+								Toast.makeText(getActivity(), R.string.track_was_not_deleted,
+										Toast.LENGTH_LONG).show();
+							// Go back to tracks list fragment.
+							getFragmentManager().popBackStack();
 						}
 					}).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
 						@Override

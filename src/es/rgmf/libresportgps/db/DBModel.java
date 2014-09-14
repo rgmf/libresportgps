@@ -104,4 +104,47 @@ public class DBModel {
 		dbAdapter.close();
 		return tracks;
 	}
+
+	/**
+	 * See method description in DBAdapter.
+	 * 
+	 * @param context
+	 * @param id
+	 * @param name
+	 */
+	public static void updateTrackName(Context context, long id, String name) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		dbAdapter.updateTrackName(id, name);
+		dbAdapter.close();
+	}
+
+	/**
+	 * See method description in DBAdapter.
+	 * 
+	 * @param context
+	 * @param id
+	 * @param desc
+	 */
+	public static void updateTrackDescription(Context context, long id, String desc) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		dbAdapter.updateTrackDescription(id, desc);
+		dbAdapter.close();
+	}
+
+	/**
+	 * Delete the track.
+	 * 
+	 * @param context
+	 * @param trackId
+	 * @return true if track was deleted.
+	 */
+	public static boolean deleteTrack(Context context, long trackId) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		boolean res = dbAdapter.deleteTrack(trackId);
+		dbAdapter.close();
+		return res;
+	}
 }

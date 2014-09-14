@@ -22,6 +22,8 @@
     
     <!-- Error messages. -->
     <string name="db_error_to_create_track">The track cannot be created in the database.</string>
+    <string name="track_was_not_deleted">The track was not deleted.</string>
+    
 
     <string name="app_name">LibreSportGPS</string>
     <string name="display_track">Display Track</string>
@@ -71,4 +73,6 @@
 	<string name="gps_accuracy_hint">Accuracy</string>
 	<string name="gps_status_hint">GPS Status</string>
 	<string name="accuracy_unit">m</string>
+	<string name="track_name_hint">Name</string>
+	<string name="track_description_hint">Description</string>
 </resources>

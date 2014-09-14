@@ -135,6 +135,32 @@ public class DBAdapter {
     	db.update(DBHelper.TRACK_TBL_NAME, values, 
 				DBHelper.ID_FIELD_NAME + "=" + trackId, null);
 	}
+	
+	/**
+	 * Update the name of the Track identify by id.
+	 * 
+	 * @param trackId the identifier of the Track to update.
+	 * @param name the new name of the Track.
+	 */
+	public void updateTrackName(long trackId, String name) {
+		ContentValues values = new ContentValues();
+		values.put(DBHelper.TITLE_FIELD_NAME, name);
+    	db.update(DBHelper.TRACK_TBL_NAME, values, 
+				DBHelper.ID_FIELD_NAME + "=" + trackId, null);
+	}
+	
+	/**
+	 * Update the description of the Track identify by id.
+	 * 
+	 * @param trackId the identifier of the Track to update.
+	 * @param desc the new description of the Track.
+	 */
+	public void updateTrackDescription(long trackId, String desc) {
+		ContentValues values = new ContentValues();
+		values.put(DBHelper.DESC_FIELD_NAME, desc);
+    	db.update(DBHelper.TRACK_TBL_NAME, values, 
+				DBHelper.ID_FIELD_NAME + "=" + trackId, null);
+	}
 
 	/**
 	 * Query and return all tracks.
@@ -185,5 +211,17 @@ public class DBAdapter {
     	cursor.close();
     	
     	return tracks;
+	}
+
+	/**
+	 * Delete the track identifier by trackId.
+	 * 
+	 * @param trackId The identifier of the track to delete.
+	 * @return true if track could be deleted.
+	 */
+	public boolean deleteTrack(long trackId) {
+		return db.delete(DBHelper.TRACK_TBL_NAME, 
+				DBHelper.ID_FIELD_NAME + "=" + trackId,
+				null) > 0;
 	}
 }
