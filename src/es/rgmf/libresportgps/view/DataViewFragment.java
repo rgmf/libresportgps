@@ -211,8 +211,7 @@ public class DataViewFragment extends AbstractViewFragment /*implements
 
 		// Current Speed.
 		TextView currentSpeed = (TextView) rootView.findViewById(R.id.current_speed);
-		float speed = loc.getSpeed() * 3.6f; // We need to translate m/s to
-												// km/h.
+		float speed = loc.getSpeed() * 3.6f; // We need to translate m/s to km/h.
 		currentSpeed.setText(String.format("%.0f", speed));
 
 		// Max. Speed.

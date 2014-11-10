@@ -18,6 +18,9 @@
 package es.rgmf.libresportgps.common;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Several utilities that can be used in all the application.
@@ -63,8 +66,15 @@ public class Utilities {
      * @return
      */
     public static String timeStampFormatter(long timeStamp) {
-    	SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss:SS");
-    	return formatter.format(timeStamp);
+    	if(timeStamp > 0) {
+    		long milliseconds = timeStamp % 1000;
+    		long seconds = (timeStamp / 1000) % 60;
+    		long minutes = (timeStamp / 1000 / 60) % 60;
+    		long hours = (timeStamp / 1000 / 60 / 60) % 24;
+    		return String.format("%02d:%02d:%02d.%04d", hours, minutes, seconds, milliseconds);
+    	}
+    	else
+    		return "00:00:00.00";
     }
     
     /**
@@ -74,8 +84,12 @@ public class Utilities {
      * @return
      */
     public static String timeStampCompleteFormatter(long timeStamp) {
-    	SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-    	return formatter.format(timeStamp);
+    	if(timeStamp > 0) {
+	    	SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	    	return formatter.format(timeStamp);
+    	}
+    	else
+    		return "00/00/0000 00:00:00";
     }
     
     /**
@@ -85,8 +99,12 @@ public class Utilities {
      * @return
      */
     public static String timeStampFormatterForFilename(long timeStamp) {
-    	SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd_HHmmss");
-    	return formatter.format(timeStamp);
+    	if(timeStamp > 0) {
+	    	SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd_HHmmss");
+	    	return formatter.format(timeStamp);
+    	}
+    	else
+    		return "00000000_000000";
     }
     
     /**
@@ -130,5 +148,20 @@ public class Utilities {
      */
 	public static String speed(double speed) {
 		return String.format("%.2f km/h", speed);
+	}
+
+	/**
+	 * Return an average speed with activityTime in milliseconds and distance
+	 * in meters.
+	 * 
+	 * @param activityTime The activity time in milliseconds.
+	 * @param distance The distance in meters.
+	 * @return km/h.
+	 */
+	public static String avgSpeed(long activityTime, float distance) {
+		float km = distance / ((float)1000);
+		float hour = ((float)activityTime) / ((float)1000) / ((float)60) / ((float)60);
+		
+		return String.format("%.2f km/h", km/hour);
 	}
 }

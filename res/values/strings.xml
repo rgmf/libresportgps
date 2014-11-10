@@ -63,6 +63,7 @@
 	<string name="loading_data">Loading data...</string>
 	<string name="track_date_hint">Date:</string>
 	<string name="track_distance_hint">Distance:</string>
+	<string name="track_activity_time_hint">Activity Time:</string>
 	<string name="track_max_ele_hint">Max. Elevation:</string>
 	<string name="track_min_ele_hint">Min. Elevation:</string>
 	<string name="track_gain_ele_hint">Gain Elevation:</string>

@@ -17,26 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  -->
- 
-<ScrollView 
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        xmlns:android="http://schemas.android.com/apk/res/android">
-<LinearLayout 
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:background="#EDEDED"
-    android:orientation="vertical"
-    android:paddingBottom="10dp"
-    android:paddingLeft="20dp"
-    android:paddingRight="20dp"
-    android:paddingTop="10dp" >
+ <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ededed" >
     
     <EditText
         android:id="@+id/track_edit_name"
         android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
-	    android:inputType="text"
+	    android:inputType="textCapSentences"
 	    android:imeOptions="actionSend"
 	    android:textColor="#454545"
 	    android:textSize="22sp"
@@ -46,16 +36,21 @@
         android:id="@+id/track_edit_description"
         android:layout_width="fill_parent"  
         android:layout_height="wrap_content"
+        android:layout_below="@id/track_edit_name"
         android:inputType="textCapSentences"
-        android:lines="2"
+        android:lines="4"
+        android:minLines="4"
+        android:scrollbars="horizontal|vertical"
 	    android:imeOptions="actionSend"
         android:textColor="#454545"
         android:textSize="18sp"
         android:hint="@string/track_description_hint" />
     
     <LinearLayout
+        android:id="@+id/track_detail_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/track_edit_description"
 	    android:orientation="horizontal" >
         <TextView
 	        android:id="@+id/track_date_hint"
@@ -74,9 +69,11 @@
 	</LinearLayout>
 	
     <LinearLayout
+        android:id="@+id/track_detail_distance"
 	    android:orientation="horizontal"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@id/track_detail_date" >
         <TextView
 	        android:id="@+id/track_distance_hint"
 	        android:layout_width="wrap_content"  
@@ -94,9 +91,33 @@
 	</LinearLayout>
 	
     <LinearLayout
+        android:id="@+id/track_detail_activity_time"
 	    android:orientation="horizontal"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@id/track_detail_distance" >
+        <TextView
+	        android:id="@+id/track_activity_time_hint"
+	        android:layout_width="wrap_content"  
+	        android:layout_height="wrap_content"
+	        android:text="@string/track_activity_time_hint"
+	        android:textColor="#454545"
+        	android:paddingRight="10dp"
+	        android:textSize="18sp" />
+	    <TextView
+	        android:id="@+id/track_activity_time"
+	        android:layout_width="wrap_content"  
+	        android:layout_height="wrap_content"
+	        android:textColor="#454545"
+	        android:textSize="18sp" />
+	</LinearLayout>
+	
+    <LinearLayout
+        android:id="@+id/track_detail_max_ele"
+	    android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/track_detail_activity_time">
 	    <TextView
 	        android:id="@+id/track_max_ele_hint"
 	        android:layout_width="wrap_content"  
@@ -114,9 +135,11 @@
 	</LinearLayout>
 	
     <LinearLayout
+        android:id="@+id/track_detail_min_ele"
 	    android:orientation="horizontal"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@id/track_detail_max_ele" >
 	    <TextView
 	        android:id="@+id/track_min_ele_hint"
 	        android:layout_width="wrap_content"  
@@ -134,9 +157,11 @@
 	</LinearLayout>
 	
     <LinearLayout
+        android:id="@+id/track_detail_gain_ele"
 	    android:orientation="horizontal"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@id/track_detail_min_ele" >
 	    <TextView
 	        android:id="@+id/track_gain_ele_hint"
 	        android:layout_width="wrap_content"  
@@ -154,9 +179,11 @@
 	</LinearLayout>
 	
     <LinearLayout
+        android:id="@+id/track_detail_loss_ele"
 	    android:orientation="horizontal"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@id/track_detail_gain_ele" >
 	    <TextView
 	        android:id="@+id/track_loss_ele_hint"
 	        android:layout_width="wrap_content"  
@@ -174,9 +201,11 @@
 	</LinearLayout>
 	
     <LinearLayout
+        android:id="@+id/track_detail_max_speed"
 	    android:orientation="horizontal"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@id/track_detail_loss_ele" >
 	    <TextView
 	        android:id="@+id/track_max_speed_hint"
 	        android:layout_width="wrap_content"  
@@ -194,9 +223,11 @@
 	</LinearLayout>
 	
     <LinearLayout
+        android:id="@+id/track_detail_avg_speed"
 	    android:orientation="horizontal"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@id/track_detail_max_speed" >
 	    <TextView
 	        android:id="@+id/track_avg_speed_hint"
 	        android:layout_width="wrap_content"  
@@ -212,24 +243,14 @@
 	        android:textColor="#454545"
 	        android:textSize="18sp" />
 	</LinearLayout>
-	
-    <LinearLayout
-	    android:orientation="horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingTop="10dp" >
-    	<View
-			android:layout_width="fill_parent"
-			android:layout_height="1dp"
-			android:background="@android:color/darker_gray"/>
-	</LinearLayout>
     
     <LinearLayout
-        android:id="@+id/footer"
+        android:id="@+id/track_detail_footer"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        style="@android:style/ButtonBar" >
+        style="@android:style/ButtonBar"
+        android:layout_alignParentBottom="true">
 	    <Button
 	        android:id="@+id/track_del_button"
 	        android:layout_width="wrap_content"
@@ -237,5 +258,4 @@
 	        android:text="@string/button_delete" />
 	</LinearLayout>
 
-</LinearLayout>
-</ScrollView>
+</RelativeLayout>

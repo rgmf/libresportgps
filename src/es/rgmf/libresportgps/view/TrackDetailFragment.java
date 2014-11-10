@@ -92,6 +92,7 @@ public class TrackDetailFragment extends Fragment {
 			EditText etDesc = (EditText) rootView.findViewById(R.id.track_edit_description);
 			TextView tvDate = (TextView) rootView.findViewById(R.id.track_date);
 			TextView tvDistance = (TextView) rootView.findViewById(R.id.track_distance);
+			TextView tvActivityTime = (TextView) rootView.findViewById(R.id.track_activity_time);
 			TextView tvMaxEle = (TextView) rootView.findViewById(R.id.track_max_ele);
 			TextView tvMinEle = (TextView) rootView.findViewById(R.id.track_min_ele);
 			TextView tvGainEle = (TextView) rootView.findViewById(R.id.track_gain_ele);
@@ -105,12 +106,13 @@ public class TrackDetailFragment extends Fragment {
 			etDesc.setText(track.getDescription());
 			tvDate.setText(Utilities.timeStampCompleteFormatter(track.getFinishTime()));
 			tvDistance.setText(Utilities.distance(track.getDistance()));
+			tvActivityTime.setText(Utilities.timeStampFormatter(track.getActivityTime()));
 			tvMaxEle.setText(Utilities.elevation(track.getMaxElevation()));
 			tvMinEle.setText(Utilities.elevation(track.getMinElevation()));
 			tvGainEle.setText(Utilities.elevation(track.getElevationGain()));
 			tvLossEle.setText(Utilities.elevation(track.getElevationLoss()));
 			tvMaxSpeed.setText(Utilities.speed(track.getMaxSpeed()));
-			tvAvgSpeed.setText(Utilities.speed(0));
+			tvAvgSpeed.setText(Utilities.avgSpeed(track.getActivityTime(), track.getDistance()));
 			
 			// This is called when user edits the name field.
 			etName.setOnEditorActionListener(new OnEditorActionListener() {

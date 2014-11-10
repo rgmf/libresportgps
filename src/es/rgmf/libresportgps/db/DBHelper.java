@@ -30,7 +30,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  *
  */
 class DBHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 3;
     private static final String DATABASE_NAME = "libresportgps.db";
     
     /*************************** Table names *********************************/
