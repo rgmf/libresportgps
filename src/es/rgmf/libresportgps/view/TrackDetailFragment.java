@@ -19,26 +19,19 @@ package es.rgmf.libresportgps.view;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import es.rgmf.libresportgps.R;
 import es.rgmf.libresportgps.TrackEditActivity;
@@ -70,6 +63,10 @@ public class TrackDetailFragment extends Fragment {
 	 * The name of the file that contain the track information.
 	 */
 	protected String mName;
+	/**
+	 * Key to know where come back from.
+	 */
+	private static final int TRACK_EDIT_ACTIVITY_BACK = 1;
 	
 	/**
 	 * Create an instance of this class.
@@ -99,43 +96,7 @@ public class TrackDetailFragment extends Fragment {
 			this.mContext = getActivity().getApplicationContext();
 		}
 		
-		if(mTrack != null) {
-			TextView tvName = (TextView) mRootView.findViewById(R.id.track_edit_name);
-			TextView tvDesc = (TextView) mRootView.findViewById(R.id.track_edit_description);
-			TextView tvDate = (TextView) mRootView.findViewById(R.id.track_date);
-			TextView tvDistance = (TextView) mRootView.findViewById(R.id.track_distance);
-			TextView tvActivityTime = (TextView) mRootView.findViewById(R.id.track_activity_time);
-			TextView tvMaxEle = (TextView) mRootView.findViewById(R.id.track_max_ele);
-			TextView tvMinEle = (TextView) mRootView.findViewById(R.id.track_min_ele);
-			TextView tvGainEle = (TextView) mRootView.findViewById(R.id.track_gain_ele);
-			TextView tvLossEle = (TextView) mRootView.findViewById(R.id.track_loss_ele);
-			TextView tvMaxSpeed = (TextView) mRootView.findViewById(R.id.track_max_speed);
-			TextView tvAvgSpeed = (TextView) mRootView.findViewById(R.id.track_avg_speed);
-            ImageView ivLogo = (ImageView) mRootView.findViewById(R.id.track_edit_logo);
-			
-			this.mName = mTrack.getTitle();
-			tvName.setText(mTrack.getTitle());
-			tvDesc.setText(mTrack.getDescription());
-			tvDate.setText(Utilities.timeStampCompleteFormatter(mTrack.getFinishTime()));
-			tvDistance.setText(Utilities.distance(mTrack.getDistance()));
-			tvActivityTime.setText(Utilities.timeStampFormatter(mTrack.getActivityTime()));
-			tvMaxEle.setText(Utilities.elevation(mTrack.getMaxElevation()));
-			tvMinEle.setText(Utilities.elevation(mTrack.getMinElevation()));
-			tvGainEle.setText(Utilities.elevation(mTrack.getElevationGain()));
-			tvLossEle.setText(Utilities.elevation(mTrack.getElevationLoss()));
-			tvMaxSpeed.setText(Utilities.speed(mTrack.getMaxSpeed()));
-			tvAvgSpeed.setText(Utilities.avgSpeed(mTrack.getActivityTime(), mTrack.getDistance()));
-            if(mTrack.getSport() != null) {
-                if(mTrack.getSport().getLogo() != null) {
-                    if(!mTrack.getSport().getLogo().isEmpty()) {
-                        Bitmap logoBitmap = Utilities.loadBitmapEfficiently(mTrack.getSport().getLogo(),
-                                (int) mContext.getResources().getDimension(R.dimen.icon_size_small),
-                                (int) mContext.getResources().getDimension(R.dimen.icon_size_small));
-                        ivLogo.setImageBitmap(logoBitmap);
-                    }
-                }
-            }
-		}
+		setDataView();
 		
 		return mRootView;
 	}
@@ -193,11 +154,68 @@ public class TrackDetailFragment extends Fragment {
 				intent.putExtra("id", mTrack.getId());
                 intent.putExtra("title", mTrack.getTitle());
                 intent.putExtra("description", mTrack.getDescription());
-	        	startActivity(intent);
+	        	startActivityForResult(intent, TRACK_EDIT_ACTIVITY_BACK);
 				return true;
 		}
 		
 		return super.onOptionsItemSelected(item);
+	}
+	
+	/**
+	 * This method is called when activity called (TrackEditActivity) finish and come back here.
+	 */
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	    // See which child activity is calling us back.
+	    switch (requestCode) {
+	        case TRACK_EDIT_ACTIVITY_BACK:
+	        	mTrack = DBModel.getTrack(mContext, mTrack.getId());
+	        	setDataView();
+	        default:
+	            break;
+	    }
+	}
+
+	/**
+	 * Set data from view.
+	 */
+	private void setDataView() {
+		if(mTrack != null) {
+			TextView tvName = (TextView) mRootView.findViewById(R.id.track_edit_name);
+			TextView tvDesc = (TextView) mRootView.findViewById(R.id.track_edit_description);
+			TextView tvDate = (TextView) mRootView.findViewById(R.id.track_date);
+			TextView tvDistance = (TextView) mRootView.findViewById(R.id.track_distance);
+			TextView tvActivityTime = (TextView) mRootView.findViewById(R.id.track_activity_time);
+			TextView tvMaxEle = (TextView) mRootView.findViewById(R.id.track_max_ele);
+			TextView tvMinEle = (TextView) mRootView.findViewById(R.id.track_min_ele);
+			TextView tvGainEle = (TextView) mRootView.findViewById(R.id.track_gain_ele);
+			TextView tvLossEle = (TextView) mRootView.findViewById(R.id.track_loss_ele);
+			TextView tvMaxSpeed = (TextView) mRootView.findViewById(R.id.track_max_speed);
+			TextView tvAvgSpeed = (TextView) mRootView.findViewById(R.id.track_avg_speed);
+	        ImageView ivLogo = (ImageView) mRootView.findViewById(R.id.track_edit_logo);
+			
+			this.mName = mTrack.getTitle();
+			tvName.setText(mTrack.getTitle());
+			tvDesc.setText(mTrack.getDescription());
+			tvDate.setText(Utilities.timeStampCompleteFormatter(mTrack.getFinishTime()));
+			tvDistance.setText(Utilities.distance(mTrack.getDistance()));
+			tvActivityTime.setText(Utilities.timeStampFormatter(mTrack.getActivityTime()));
+			tvMaxEle.setText(Utilities.elevation(mTrack.getMaxElevation()));
+			tvMinEle.setText(Utilities.elevation(mTrack.getMinElevation()));
+			tvGainEle.setText(Utilities.elevation(mTrack.getElevationGain()));
+			tvLossEle.setText(Utilities.elevation(mTrack.getElevationLoss()));
+			tvMaxSpeed.setText(Utilities.speed(mTrack.getMaxSpeed()));
+			tvAvgSpeed.setText(Utilities.avgSpeed(mTrack.getActivityTime(), mTrack.getDistance()));
+	        if(mTrack.getSport() != null) {
+	            if(mTrack.getSport().getLogo() != null) {
+	                if(!mTrack.getSport().getLogo().isEmpty()) {
+	                    Bitmap logoBitmap = Utilities.loadBitmapEfficiently(mTrack.getSport().getLogo(),
+	                            (int) mContext.getResources().getDimension(R.dimen.icon_size_small),
+	                            (int) mContext.getResources().getDimension(R.dimen.icon_size_small));
+	                    ivLogo.setImageBitmap(logoBitmap);
+	                }
+	            }
+	        }
+		}
 	}
 
 	/**

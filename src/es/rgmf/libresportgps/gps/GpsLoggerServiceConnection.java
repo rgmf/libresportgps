@@ -20,7 +20,6 @@ package es.rgmf.libresportgps.gps;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import android.util.Log;
 import es.rgmf.libresportgps.MainActivity;
 
 /**
@@ -36,19 +35,16 @@ public class GpsLoggerServiceConnection implements ServiceConnection {
 	private MainActivity activity;
 	
 	public GpsLoggerServiceConnection(MainActivity mainActivity) {
-		Log.v("GpsLoggerServiceConnection", "GpsLoggerServiceConnection::constructor, primera línea.");
 		activity = mainActivity;
 	}
 	
 	@Override
 	public void onServiceDisconnected(ComponentName name) {
-		Log.v("GpsLoggerServiceConnection", "GpsLoggerServiceConnection.onServiceDisconnected, primera línea.");
 		activity.setGpsService(null);
 	}
 
 	@Override
 	public void onServiceConnected(ComponentName name, IBinder service) {
-		Log.v("GpsLoggerServiceConnection", "GpsLoggerServiceConnection.onServiceConnected, primera línea.");
 		// Set the GPS service.
 		activity.setGpsService(((GpsLoggerService.GpsLoggerBinder) service).getService());
 		

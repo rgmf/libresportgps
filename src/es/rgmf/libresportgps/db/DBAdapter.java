@@ -24,8 +24,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
-
 import es.rgmf.libresportgps.db.orm.Sport;
 import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.db.orm.TrackPoint;
@@ -173,10 +171,6 @@ public class DBAdapter {
         if(newTrack.getSport() != null)
             if(newTrack.getSport().getId() != null)
                 values.put(DBHelper.SPORT_FIELD_NAME, newTrack.getSport().getId());
-
-        Log.v("ID DEL TRACK:", "" + trackId);
-        Log.v("ID DEL SPORT:", "" + newTrack.getSport().getId());
-
         db.update(DBHelper.TRACK_TBL_NAME, values,
                 DBHelper.ID_FIELD_NAME + "=" + trackId, null);
     }
