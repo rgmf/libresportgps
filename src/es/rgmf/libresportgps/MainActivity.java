@@ -32,14 +32,12 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 import es.rgmf.libresportgps.common.Session;
-import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.gps.GpsLoggerService;
 import es.rgmf.libresportgps.gps.GpsLoggerServiceConnection;
@@ -114,8 +112,6 @@ public class MainActivity extends Activity implements
    		
    		// Check GPS status provider to show a message if GPS is disabled.
         this.checkGpsProvider();
-        
-        Log.v("Hora:", Utilities.timeStampFormatter(36000));
 	}
 	
 	/**

@@ -22,7 +22,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -52,6 +55,21 @@ public class DataViewFragment extends AbstractViewFragment /*implements
 	 * The Context.
 	 */
 	private Context context;
+	
+	/**
+	 * Create an instance of this class.
+	 * 
+	 * @return Return the class instance.
+	 */
+	public static final DataViewFragment newInstance() {
+		DataViewFragment fragment = new DataViewFragment();
+		/*
+		Bundle bundle = new Bundle(1);
+		bundle.putInt("a_number", 1);
+		fragment.setArguments(bundle);
+		*/
+		return fragment;
+	}
 
 	/**
 	 * This method is called when View is created.
@@ -184,19 +202,6 @@ public class DataViewFragment extends AbstractViewFragment /*implements
 		});
 
 		return rootView;
-	}
-
-	/**
-	 * Create an instance of this class.
-	 * 
-	 * @return Return the class instance.
-	 */
-	public static final DataViewFragment newInstance() {
-		DataViewFragment fragment = new DataViewFragment();
-		Bundle bundle = new Bundle(1);
-		bundle.putInt("a_number", 1);
-		fragment.setArguments(bundle);
-		return fragment;
 	}
 
 	/**

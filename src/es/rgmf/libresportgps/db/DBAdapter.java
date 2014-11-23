@@ -24,6 +24,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
+import es.rgmf.libresportgps.db.orm.Sport;
 import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.db.orm.TrackPoint;
 
@@ -135,6 +138,48 @@ public class DBAdapter {
     	db.update(DBHelper.TRACK_TBL_NAME, values, 
 				DBHelper.ID_FIELD_NAME + "=" + trackId, null);
 	}
+
+    /**
+     * Update the track identify by trackId with datas inside newTrack object.
+     * @param trackId
+     * @param newTrack
+     */
+    public void updateTrack(Long trackId, Track newTrack) {
+        ContentValues values = new ContentValues();
+        if(newTrack.getTitle() != null)
+            values.put(DBHelper.TITLE_FIELD_NAME, newTrack.getTitle());
+        if(newTrack.getRecording() != null)
+            values.put(DBHelper.RECORDING_FIELD_NAME, newTrack.getRecording());
+        if(newTrack.getDescription() != null)
+            values.put(DBHelper.DESC_FIELD_NAME, newTrack.getDescription());
+        if(newTrack.getDistance() != null)
+            values.put(DBHelper.DISTANCE_FIELD_NAME, newTrack.getDistance());
+        if(newTrack.getStartTime() != null)
+            values.put(DBHelper.START_TIME_FIELD_NAME, newTrack.getStartTime());
+        if(newTrack.getActivityTime() != null)
+            values.put(DBHelper.ACTIVITY_TIME_FIELD_NAME, newTrack.getActivityTime());
+        if(newTrack.getFinishTime() != null)
+            values.put(DBHelper.FINISH_TIME_FIELD_NAME, newTrack.getFinishTime());
+        if(newTrack.getMaxSpeed() != null)
+            values.put(DBHelper.MAX_SPEED_FIELD_NAME, newTrack.getMaxSpeed());
+        if(newTrack.getMaxElevation() != null)
+            values.put(DBHelper.MAX_ELEVATION_FIELD_NAME, newTrack.getMaxElevation());
+        if(newTrack.getMinElevation() != null)
+            values.put(DBHelper.MIN_ELEVATION_FIELD_NAME, newTrack.getMinElevation());
+        if(newTrack.getElevationGain() != null)
+            values.put(DBHelper.ELEVATION_GAIN_FIELD_NAME, newTrack.getElevationGain());
+        if(newTrack.getElevationLoss() != null)
+            values.put(DBHelper.ELEVATION_LOSS_FIELD_NAME, newTrack.getElevationLoss());
+        if(newTrack.getSport() != null)
+            if(newTrack.getSport().getId() != null)
+                values.put(DBHelper.SPORT_FIELD_NAME, newTrack.getSport().getId());
+
+        Log.v("ID DEL TRACK:", "" + trackId);
+        Log.v("ID DEL SPORT:", "" + newTrack.getSport().getId());
+
+        db.update(DBHelper.TRACK_TBL_NAME, values,
+                DBHelper.ID_FIELD_NAME + "=" + trackId, null);
+    }
 	
 	/**
 	 * Update the name of the Track identify by id.
@@ -162,36 +207,116 @@ public class DBAdapter {
 				DBHelper.ID_FIELD_NAME + "=" + trackId, null);
 	}
 
+    /**
+     * Query and return the track identify by id.
+     *
+     * @param id
+     * @return
+     */
+    public Track getTrack(long id) {
+        String query = "SELECT " +
+                DBHelper.TRACK_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " +				    // 0
+                DBHelper.TRACK_TBL_NAME + "." + DBHelper.TITLE_FIELD_NAME + ", " +				// 1
+                DBHelper.TRACK_TBL_NAME + "." + DBHelper.RECORDING_FIELD_NAME + ", " +          // 2
+                DBHelper.TRACK_TBL_NAME + "." + DBHelper.DESC_FIELD_NAME + ", " +               // 3
+                DBHelper.TRACK_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME + ", " +           // 4
+                DBHelper.TRACK_TBL_NAME + "." + DBHelper.START_TIME_FIELD_NAME + ", " +         // 5
+                DBHelper.TRACK_TBL_NAME + "." + DBHelper.ACTIVITY_TIME_FIELD_NAME + ", " +      // 6
+                DBHelper.TRACK_TBL_NAME + "." + DBHelper.FINISH_TIME_FIELD_NAME + ", " +        // 7
+                DBHelper.TRACK_TBL_NAME + "." + DBHelper.MAX_SPEED_FIELD_NAME + ", " +          // 8
+                DBHelper.TRACK_TBL_NAME + "." + DBHelper.MAX_ELEVATION_FIELD_NAME + ", " +      // 9
+                DBHelper.TRACK_TBL_NAME + "." + DBHelper.MIN_ELEVATION_FIELD_NAME + ", " +      // 10
+                DBHelper.TRACK_TBL_NAME + "." + DBHelper.ELEVATION_GAIN_FIELD_NAME + ", " +     // 11
+                DBHelper.TRACK_TBL_NAME + "." + DBHelper.ELEVATION_LOSS_FIELD_NAME + ", " +     // 12
+
+                DBHelper.SPORT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " +                 // 13
+                DBHelper.SPORT_TBL_NAME + "." + DBHelper.NAME_FIELD_NAME + ", " +               // 14
+                DBHelper.SPORT_TBL_NAME + "." + DBHelper.DESC_FIELD_NAME + ", " +               // 15
+                DBHelper.SPORT_TBL_NAME + "." + DBHelper.LOGO_FIELD_NAME +                      // 16
+
+                " FROM " +
+                DBHelper.TRACK_TBL_NAME + " LEFT OUTER JOIN " + DBHelper.SPORT_TBL_NAME + " ON " +
+                DBHelper.TRACK_TBL_NAME + "." + DBHelper.SPORT_FIELD_NAME + "=" +
+                DBHelper.SPORT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME +
+
+                " WHERE " +
+                DBHelper.TRACK_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + "=" + id;
+
+        Cursor cursor = db.rawQuery(query, null);
+        Track track = null;
+
+        if(cursor.moveToFirst()) {
+            Sport sport = new Sport();
+            sport.setId(cursor.getLong(13));
+            sport.setName(cursor.getString(14));
+            sport.setDescription(cursor.getString(15));
+            sport.setLogo(cursor.getString(16));
+
+            track = new Track();
+            track.setId(cursor.getLong(0));
+            track.setTitle(cursor.getString(1));
+            track.setRecording(cursor.getInt(2));
+            track.setDescription(cursor.getString(3));
+            track.setDistance(cursor.getFloat(4));
+            track.setStartTime(cursor.getLong(5));
+            track.setActivityTime(cursor.getLong(6));
+            track.setFinishTime(cursor.getLong(7));
+            track.setMaxSpeed(cursor.getFloat(8));
+            track.setMaxElevation(cursor.getFloat(9));
+            track.setMinElevation(cursor.getFloat(10));
+            track.setElevationGain(cursor.getFloat(11));
+            track.setElevationLoss(cursor.getFloat(12));
+            track.setSport(sport);
+        }
+        cursor.close();
+
+        return track;
+    }
+
 	/**
 	 * Query and return all tracks.
 	 * 
 	 * @return an ArrayList with all tracks in database.
 	 */
-	public ArrayList<Track> getTracks() {
-		String[] columns = {DBHelper.ID_FIELD_NAME,
-				DBHelper.TITLE_FIELD_NAME,
-				DBHelper.RECORDING_FIELD_NAME,
-				DBHelper.DESC_FIELD_NAME,
-				DBHelper.DISTANCE_FIELD_NAME,
-				DBHelper.START_TIME_FIELD_NAME,
-				DBHelper.ACTIVITY_TIME_FIELD_NAME,
-				DBHelper.FINISH_TIME_FIELD_NAME,
-				DBHelper.MAX_SPEED_FIELD_NAME,
-				DBHelper.MAX_ELEVATION_FIELD_NAME,
-				DBHelper.MIN_ELEVATION_FIELD_NAME,
-				DBHelper.ELEVATION_GAIN_FIELD_NAME,
-				DBHelper.ELEVATION_LOSS_FIELD_NAME};
+	public ArrayList<Track> getTracks() {		
+		String query = "SELECT " +
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " +				    // 0
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.TITLE_FIELD_NAME + ", " +				// 1
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.RECORDING_FIELD_NAME + ", " +          // 2
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.DESC_FIELD_NAME + ", " +               // 3
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME + ", " +           // 4
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.START_TIME_FIELD_NAME + ", " +         // 5
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.ACTIVITY_TIME_FIELD_NAME + ", " +      // 6
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.FINISH_TIME_FIELD_NAME + ", " +        // 7
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.MAX_SPEED_FIELD_NAME + ", " +          // 8
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.MAX_ELEVATION_FIELD_NAME + ", " +      // 9
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.MIN_ELEVATION_FIELD_NAME + ", " +      // 10
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.ELEVATION_GAIN_FIELD_NAME + ", " +     // 11
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.ELEVATION_LOSS_FIELD_NAME + ", " +     // 12
+				
+				DBHelper.SPORT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " +                 // 13
+				DBHelper.SPORT_TBL_NAME + "." + DBHelper.NAME_FIELD_NAME + ", " +               // 14
+				DBHelper.SPORT_TBL_NAME + "." + DBHelper.DESC_FIELD_NAME + ", " +               // 15
+				DBHelper.SPORT_TBL_NAME + "." + DBHelper.LOGO_FIELD_NAME +                      // 16
+				
+				" FROM " + 
+				DBHelper.TRACK_TBL_NAME + " LEFT OUTER JOIN " + DBHelper.SPORT_TBL_NAME + " ON " +
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.SPORT_FIELD_NAME + "=" + 
+				DBHelper.SPORT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME;
     	
-    	Cursor cursor = db.query(DBHelper.TRACK_TBL_NAME, columns,
-    			null, null, null, null,
-    			DBHelper.ID_FIELD_NAME + " COLLATE NOCASE ASC");
+		Cursor cursor = db.rawQuery(query, null);
     	
     	ArrayList<Track> tracks = new ArrayList<Track>(cursor.getCount());
     	
     	if(cursor.moveToFirst()) {
             do {
-                Track track;
-				track = new Track();
+            	Sport sport = new Sport();
+            	sport.setId(cursor.getLong(13));
+            	sport.setName(cursor.getString(14));
+            	sport.setDescription(cursor.getString(15));
+            	sport.setLogo(cursor.getString(16));
+            	
+            	Track track = new Track();
 				track.setId(cursor.getLong(0));
 				track.setTitle(cursor.getString(1));
 				track.setRecording(cursor.getInt(2));
@@ -205,6 +330,8 @@ public class DBAdapter {
 				track.setMinElevation(cursor.getFloat(10));
 				track.setElevationGain(cursor.getFloat(11));
 				track.setElevationLoss(cursor.getFloat(12));
+				track.setSport(sport);
+				
                 tracks.add(track);
             } while (cursor.moveToNext());
         }
@@ -212,6 +339,39 @@ public class DBAdapter {
     	
     	return tracks;
 	}
+
+    /**
+     * @return All sports.
+     */
+    public ArrayList<Sport> getSports() {
+        String query = "SELECT " +
+                DBHelper.SPORT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " +                 // 0
+                DBHelper.SPORT_TBL_NAME + "." + DBHelper.NAME_FIELD_NAME + ", " +               // 1
+                DBHelper.SPORT_TBL_NAME + "." + DBHelper.DESC_FIELD_NAME + ", " +               // 2
+                DBHelper.SPORT_TBL_NAME + "." + DBHelper.LOGO_FIELD_NAME +                      // 3
+
+                " FROM " +
+                DBHelper.SPORT_TBL_NAME;
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        ArrayList<Sport> sports = new ArrayList<Sport>(cursor.getCount());
+
+        if(cursor.moveToFirst()) {
+            do {
+                Sport sport = new Sport();
+                sport.setId(cursor.getLong(0));
+                sport.setName(cursor.getString(1));
+                sport.setDescription(cursor.getString(2));
+                sport.setLogo(cursor.getString(3));
+
+                sports.add(sport);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        return sports;
+    }
 
 	/**
 	 * Delete the track identifier by trackId.

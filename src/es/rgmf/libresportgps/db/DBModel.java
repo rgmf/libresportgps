@@ -21,8 +21,11 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.location.Location;
+
+import es.rgmf.libresportgps.TrackEditActivity;
 import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.common.Utilities;
+import es.rgmf.libresportgps.db.orm.Sport;
 import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.db.orm.TrackPoint;
 
@@ -90,6 +93,22 @@ public class DBModel {
 		dbAdapter.close();
 	}
 
+    /**
+     * Return the track identify by id.
+     *
+     * @param context The application context.
+     * @param id The id of the track it want.
+     * @return The track identify by id (if exists) or null (if not exists).
+     */
+    public static Track getTrack(Context context, Long id) {
+        Track track;
+        DBAdapter dbAdapter = new DBAdapter(context);
+        dbAdapter.open();
+        track = dbAdapter.getTrack(id);
+        dbAdapter.close();
+        return track;
+    }
+
 	/**
 	 * Get all tracks.
 	 * 
@@ -104,6 +123,33 @@ public class DBModel {
 		dbAdapter.close();
 		return tracks;
 	}
+
+    /**
+     * Get all sports.
+     *
+     * @param context
+     * @return
+     */
+    public static ArrayList<Sport> getSports(Context context) {
+        ArrayList<Sport> sports;
+        DBAdapter dbAdapter = new DBAdapter(context);
+        dbAdapter.open();
+        sports = dbAdapter.getSports();
+        dbAdapter.close();
+        return sports;
+    }
+
+    /**
+     * Update the track identify by id with data inside track.
+     * @param id
+     * @param track
+     */
+    public static void updateTrack(Context context, Long id, Track track) {
+        DBAdapter dbAdapter = new DBAdapter(context);
+        dbAdapter.open();
+        dbAdapter.updateTrack(id, track);
+        dbAdapter.close();
+    }
 
 	/**
 	 * See method description in DBAdapter.

@@ -20,13 +20,16 @@ package es.rgmf.libresportgps.adapter;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 import es.rgmf.libresportgps.R;
 import es.rgmf.libresportgps.common.Utilities;
+import es.rgmf.libresportgps.db.orm.Sport;
 import es.rgmf.libresportgps.db.orm.Track;
 
 /**
@@ -54,12 +57,24 @@ public class TrackListAdapter extends ArrayAdapter<Track> {
 	        convertView = inflater.inflate(R.layout.fragment_main, parent, false);
 	    }
         // Now we can fill the layout with the right values
+	    ImageView ivLogo = (ImageView) convertView.findViewById(R.id.list_logo);
         TextView tvName = (TextView) convertView.findViewById(R.id.list_name);
         TextView tvDate = (TextView) convertView.findViewById(R.id.list_date);
-        Track s = values.get(position);
         
-        tvName.setText(s.getTitle());
-        tvDate.setText(Utilities.timeStampCompleteFormatter(s.getFinishTime()));
+        Track track = values.get(position);
+        Sport sport = track.getSport();
+        if(sport != null) {
+        	if(sport.getLogo() != null) {
+        		if(!sport.getLogo().isEmpty()) {
+	        		Bitmap logoBitmap = Utilities.loadBitmapEfficiently(sport.getLogo(), 
+	    	    			(int) context.getResources().getDimension(R.dimen.icon_size_small),
+	    	    			(int) context.getResources().getDimension(R.dimen.icon_size_small));
+	    	        ivLogo.setImageBitmap(logoBitmap);
+        		}
+        	}
+        }
+        tvName.setText(track.getTitle());
+        tvDate.setText(Utilities.timeStampCompleteFormatter(track.getFinishTime()));
 	     
 	    return convertView;
 	}

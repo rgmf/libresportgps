@@ -19,21 +19,29 @@ package es.rgmf.libresportgps.view;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import es.rgmf.libresportgps.R;
+import es.rgmf.libresportgps.TrackEditActivity;
 import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.db.DBModel;
@@ -49,19 +57,19 @@ public class TrackDetailFragment extends Fragment {
 	/**
 	 * The View. It can be used to access xml elements of this View.
 	 */
-	private View rootView;
+	private View mRootView;
 	/**
 	 * The context.
 	 */
-	private Context context;
+	private Context mContext;
 	/**
 	 * The Track to show.
 	 */
-	private Track track = null;
+	private Track mTrack = null;
 	/**
 	 * The name of the file that contain the track information.
 	 */
-	protected String name;
+	protected String mName;
 	
 	/**
 	 * Create an instance of this class.
@@ -70,9 +78,11 @@ public class TrackDetailFragment extends Fragment {
 	 */
 	public static final TrackDetailFragment newInstance() {
 		TrackDetailFragment fragment = new TrackDetailFragment();
+		/*
 		Bundle bundle = new Bundle(1);
 		bundle.putInt("a_number", 1);
 		fragment.setArguments(bundle);
+		*/
 		return fragment;
 	}
 	
@@ -81,121 +91,126 @@ public class TrackDetailFragment extends Fragment {
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		rootView = inflater.inflate(R.layout.fragment_track_detail, container, false);
+		mRootView = inflater.inflate(R.layout.fragment_track_detail, container, false);
+		
+		setHasOptionsMenu(true);
 
 		if(getActivity() != null) {
-			this.context = getActivity().getApplicationContext();
+			this.mContext = getActivity().getApplicationContext();
 		}
 		
-		if(track != null) {
-			EditText etName = (EditText) rootView.findViewById(R.id.track_edit_name);
-			EditText etDesc = (EditText) rootView.findViewById(R.id.track_edit_description);
-			TextView tvDate = (TextView) rootView.findViewById(R.id.track_date);
-			TextView tvDistance = (TextView) rootView.findViewById(R.id.track_distance);
-			TextView tvActivityTime = (TextView) rootView.findViewById(R.id.track_activity_time);
-			TextView tvMaxEle = (TextView) rootView.findViewById(R.id.track_max_ele);
-			TextView tvMinEle = (TextView) rootView.findViewById(R.id.track_min_ele);
-			TextView tvGainEle = (TextView) rootView.findViewById(R.id.track_gain_ele);
-			TextView tvLossEle = (TextView) rootView.findViewById(R.id.track_loss_ele);
-			TextView tvMaxSpeed = (TextView) rootView.findViewById(R.id.track_max_speed);
-			TextView tvAvgSpeed = (TextView) rootView.findViewById(R.id.track_avg_speed);
-			Button bDelete = (Button) rootView.findViewById(R.id.track_del_button);
+		if(mTrack != null) {
+			TextView tvName = (TextView) mRootView.findViewById(R.id.track_edit_name);
+			TextView tvDesc = (TextView) mRootView.findViewById(R.id.track_edit_description);
+			TextView tvDate = (TextView) mRootView.findViewById(R.id.track_date);
+			TextView tvDistance = (TextView) mRootView.findViewById(R.id.track_distance);
+			TextView tvActivityTime = (TextView) mRootView.findViewById(R.id.track_activity_time);
+			TextView tvMaxEle = (TextView) mRootView.findViewById(R.id.track_max_ele);
+			TextView tvMinEle = (TextView) mRootView.findViewById(R.id.track_min_ele);
+			TextView tvGainEle = (TextView) mRootView.findViewById(R.id.track_gain_ele);
+			TextView tvLossEle = (TextView) mRootView.findViewById(R.id.track_loss_ele);
+			TextView tvMaxSpeed = (TextView) mRootView.findViewById(R.id.track_max_speed);
+			TextView tvAvgSpeed = (TextView) mRootView.findViewById(R.id.track_avg_speed);
+            ImageView ivLogo = (ImageView) mRootView.findViewById(R.id.track_edit_logo);
 			
-			this.name = track.getTitle();
-			etName.setText(track.getTitle());
-			etDesc.setText(track.getDescription());
-			tvDate.setText(Utilities.timeStampCompleteFormatter(track.getFinishTime()));
-			tvDistance.setText(Utilities.distance(track.getDistance()));
-			tvActivityTime.setText(Utilities.timeStampFormatter(track.getActivityTime()));
-			tvMaxEle.setText(Utilities.elevation(track.getMaxElevation()));
-			tvMinEle.setText(Utilities.elevation(track.getMinElevation()));
-			tvGainEle.setText(Utilities.elevation(track.getElevationGain()));
-			tvLossEle.setText(Utilities.elevation(track.getElevationLoss()));
-			tvMaxSpeed.setText(Utilities.speed(track.getMaxSpeed()));
-			tvAvgSpeed.setText(Utilities.avgSpeed(track.getActivityTime(), track.getDistance()));
-			
-			// This is called when user edits the name field.
-			etName.setOnEditorActionListener(new OnEditorActionListener() {
-			    @Override
-			    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-			        boolean handled = false;
-			        if (actionId == EditorInfo.IME_ACTION_SEND) {
-			        	// Change the file name.
-			        	FileManager.rename(
-			        			Session.getAppFolder() + "/" + track.getId(), 
-			        			name + ".gpx", 
-			        			Session.getAppFolder() + "/" + track.getId(), 
-			        			v.getText().toString() + ".gpx"
-			        			);
-			        	// Update the database title field.
-			        	DBModel.updateTrackName(getActivity(), track.getId(), v.getText().toString());
-			            handled = true;
-			        }
-			        return handled;
-			    }
-			});
-			
-			// This is called when user edits the description field.
-			etDesc.setOnEditorActionListener(new OnEditorActionListener() {
-			    @Override
-			    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-			        boolean handled = false;
-			        if (actionId == EditorInfo.IME_ACTION_SEND) {
-			        	// Update the database title field.
-			        	DBModel.updateTrackDescription(getActivity(), track.getId(), v.getText().toString());
-			            handled = true;
-			        }
-			        return handled;
-			    }
-			});
-			
-			// This is called when user clicks on delete button.
-			bDelete.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					new AlertDialog.Builder(getActivity())
-					.setTitle(R.string.delete_trackfile)
-					.setIcon(android.R.drawable.ic_dialog_alert)
-					.setMessage(getResources().getString(R.string.delete_trackfile_hint))
-					.setCancelable(true).setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							// Delete the file.
-							FileManager.delete(
-									Session.getAppFolder() + "/" + track.getId(),
-									name + ".gpx"
-									);
-							// Delete the register in the database.
-							if(!DBModel.deleteTrack(getActivity(), track.getId()))
-								Toast.makeText(getActivity(), R.string.track_was_not_deleted,
-										Toast.LENGTH_LONG).show();
-							// Go back to tracks list fragment.
-							getFragmentManager().popBackStack();
-						}
-					}).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.cancel();
-						}
-					}).create().show();
-				}
-			});
+			this.mName = mTrack.getTitle();
+			tvName.setText(mTrack.getTitle());
+			tvDesc.setText(mTrack.getDescription());
+			tvDate.setText(Utilities.timeStampCompleteFormatter(mTrack.getFinishTime()));
+			tvDistance.setText(Utilities.distance(mTrack.getDistance()));
+			tvActivityTime.setText(Utilities.timeStampFormatter(mTrack.getActivityTime()));
+			tvMaxEle.setText(Utilities.elevation(mTrack.getMaxElevation()));
+			tvMinEle.setText(Utilities.elevation(mTrack.getMinElevation()));
+			tvGainEle.setText(Utilities.elevation(mTrack.getElevationGain()));
+			tvLossEle.setText(Utilities.elevation(mTrack.getElevationLoss()));
+			tvMaxSpeed.setText(Utilities.speed(mTrack.getMaxSpeed()));
+			tvAvgSpeed.setText(Utilities.avgSpeed(mTrack.getActivityTime(), mTrack.getDistance()));
+            if(mTrack.getSport() != null) {
+                if(mTrack.getSport().getLogo() != null) {
+                    if(!mTrack.getSport().getLogo().isEmpty()) {
+                        Bitmap logoBitmap = Utilities.loadBitmapEfficiently(mTrack.getSport().getLogo(),
+                                (int) mContext.getResources().getDimension(R.dimen.icon_size_small),
+                                (int) mContext.getResources().getDimension(R.dimen.icon_size_small));
+                        ivLogo.setImageBitmap(logoBitmap);
+                    }
+                }
+            }
 		}
 		
-		return rootView;
+		return mRootView;
+	}
+
+    /**
+	 * This method modifies the options in the bar menu adapting it to this
+	 * fragment.
+	 */
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+	    menu.clear();
+	    inflater.inflate(R.menu.track_detail, menu);
+	}
+	
+	/**
+	 * Handle the clicked options in this fragment.
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+			/* THE USER CLICKS ON DELETE BUTTON ON BUTTON BAR */
+			case R.id.track_detail_delete:
+				new AlertDialog.Builder(getActivity())
+				.setTitle(R.string.delete_trackfile)
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setMessage(getResources().getString(R.string.delete_trackfile_hint))
+				.setCancelable(true).setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// Delete the file.
+						FileManager.delete(
+								Session.getAppFolder() + "/" + mTrack.getId(),
+								mName + ".gpx"
+								);
+						// Delete the register in the database.
+						if(!DBModel.deleteTrack(getActivity(), mTrack.getId()))
+							Toast.makeText(getActivity(), R.string.track_was_not_deleted,
+									Toast.LENGTH_LONG).show();
+						// Go back to tracks list fragment.
+						getFragmentManager().popBackStack();
+					}
+				}).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();
+					}
+				}).create().show();
+	            return true;
+	            
+
+			/* THE USER CLICK ON EDIT BUTTON ON BUTTON BAR */
+			case R.id.track_detail_edit:
+				Intent intent = new Intent(getActivity(), TrackEditActivity.class);
+				intent.putExtra("id", mTrack.getId());
+                intent.putExtra("title", mTrack.getTitle());
+                intent.putExtra("description", mTrack.getDescription());
+	        	startActivity(intent);
+				return true;
+		}
+		
+		return super.onOptionsItemSelected(item);
 	}
 
 	/**
 	 * @return the track
 	 */
 	public Track getTrack() {
-		return track;
+		return mTrack;
 	}
 
 	/**
 	 * @param track the track to set
 	 */
 	public void setTrack(Track track) {
-		this.track = track;
+		this.mTrack = track;
 	}
 }

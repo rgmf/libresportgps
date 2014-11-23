@@ -20,6 +20,7 @@ package es.rgmf.libresportgps.db;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
 
 /**
  * Database helper.
@@ -30,10 +31,13 @@ import android.database.sqlite.SQLiteOpenHelper;
  *
  */
 class DBHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 6;
     private static final String DATABASE_NAME = "libresportgps.db";
     
     /*************************** Table names *********************************/
+    public static final String EQUIPMENT_TBL_NAME = "equipment";
+    public static final String SPORT_EQUIPMENT_TBL_NAME = "sport_equipment";
+    public static final String SPORT_TBL_NAME = "sport";
     public static final String TRACK_TBL_NAME = "track";
     public static final String TRACK_POINT_TBL_NAME = "track_point";
     public static final String WAYPOINT_TBL_NAME = "waypoint";
@@ -61,9 +65,32 @@ class DBHelper extends SQLiteOpenHelper {
     public static final String MIN_ELEVATION_FIELD_NAME = "min_elevation";
     public static final String ELEVATION_GAIN_FIELD_NAME = "elevation_gain";
     public static final String ELEVATION_LOSS_FIELD_NAME = "elevation_loss";
+    public static final String NAME_FIELD_NAME = "name";
+    public static final String EQUIPMENT_FIELD_NAME = "equipment";
+    public static final String IMAGE_FIELD_NAME = "image";
+    public static final String SPORT_FIELD_NAME = "sport";
+    public static final String LOGO_FIELD_NAME = "logo";
     /*************************************************************************/
     
     /************************* SQL create table ******************************/
+    private static final String EQUIPMENT_TBL = "create table " + EQUIPMENT_TBL_NAME + " (" +
+    		ID_FIELD_NAME + " integer primary key autoincrement, " +
+    		NAME_FIELD_NAME + " text not null, " +
+    		DESC_FIELD_NAME + " text, " +
+    		IMAGE_FIELD_NAME + " text);";
+    
+    private static final String SPORT_TBL = "create table " + SPORT_TBL_NAME + " (" +
+    		ID_FIELD_NAME + " integer primary key autoincrement, " +
+    		NAME_FIELD_NAME + " text not null, " +
+    		DESC_FIELD_NAME + " text, " +
+    		LOGO_FIELD_NAME + " text not null);";
+    
+    private static final String SPORT_EQUIPMENT_TBL = "create table " + SPORT_EQUIPMENT_TBL_NAME + " (" +
+    		ID_FIELD_NAME + " integer primary key autoincrement, " +
+    		SPORT_FIELD_NAME + " text not null references " + SPORT_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade, " +
+    		EQUIPMENT_FIELD_NAME+ " text not null references " + EQUIPMENT_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade, " +
+    		"unique (" + SPORT_FIELD_NAME + ", " + EQUIPMENT_FIELD_NAME + "));";
+    
     private static final String TRACK_TBL = "create table " + TRACK_TBL_NAME + " (" +
     		ID_FIELD_NAME + " integer primary key autoincrement, " +
     		TITLE_FIELD_NAME + " text not null, " +
@@ -77,7 +104,8 @@ class DBHelper extends SQLiteOpenHelper {
     		MAX_ELEVATION_FIELD_NAME + " real, " +
     		MIN_ELEVATION_FIELD_NAME + " real, " +
     		ELEVATION_GAIN_FIELD_NAME + " real, " +
-    		ELEVATION_LOSS_FIELD_NAME + " real);";
+    		ELEVATION_LOSS_FIELD_NAME + " real, " +
+    		SPORT_FIELD_NAME + " integer references " + SPORT_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade);";
     
     private static final String TRACK_POINT_TBL = "create table " + TRACK_POINT_TBL_NAME + " (" + 
     		ID_FIELD_NAME + " integer primary key autoincrement, " +
@@ -140,5 +168,58 @@ class DBHelper extends SQLiteOpenHelper {
      */
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		switch(newVersion) {
+		/* In this version, sport and sport equipment information is added */
+		case 4:
+			db.execSQL(EQUIPMENT_TBL);
+			db.execSQL(SPORT_TBL);
+			db.execSQL(SPORT_EQUIPMENT_TBL);
+			db.execSQL("ALTER TABLE " + TRACK_TBL_NAME + 
+					   " ADD COLUMN " + SPORT_FIELD_NAME + 
+					   " integer references " + SPORT_TBL_NAME + " (" + ID_FIELD_NAME + 
+					   ") on delete cascade on update cascade;");
+			break;
+		/* In this version, data are loaded and sport fields are added */
+		case 5:
+			db.execSQL("ALTER TABLE " + SPORT_TBL_NAME +
+					   " ADD COLUMN " + DESC_FIELD_NAME + " text");
+			db.execSQL("ALTER TABLE " + SPORT_TBL_NAME +
+					   " ADD COLUMN " + LOGO_FIELD_NAME + " text");
+			
+			db.execSQL("INSERT INTO " + SPORT_TBL_NAME + " (" + NAME_FIELD_NAME + ", " + LOGO_FIELD_NAME + ") " +
+			           "VALUES ('Canicross', '" + Environment.getExternalStorageDirectory() + "/libresportgps/canicross.png')");
+			db.execSQL("INSERT INTO " + SPORT_TBL_NAME + " (" + NAME_FIELD_NAME + ", " + LOGO_FIELD_NAME + ") " +
+			           "VALUES ('Cycling', '" + Environment.getExternalStorageDirectory() + "/libresportgps/cycling.png')");
+			db.execSQL("INSERT INTO " + SPORT_TBL_NAME + " (" + NAME_FIELD_NAME + ", " + LOGO_FIELD_NAME + ") " +
+			           "VALUES ('Mountain Bike', '" + Environment.getExternalStorageDirectory() + "/libresportgps/mountain_bike.png')");
+			db.execSQL("INSERT INTO " + SPORT_TBL_NAME + " (" + NAME_FIELD_NAME + ", " + LOGO_FIELD_NAME + ") " +
+			           "VALUES ('Running', '" + Environment.getExternalStorageDirectory() + "/libresportgps/running.png')");
+			db.execSQL("INSERT INTO " + SPORT_TBL_NAME + " (" + NAME_FIELD_NAME + ", " + LOGO_FIELD_NAME + ") " +
+			           "VALUES ('Trail Running', '" + Environment.getExternalStorageDirectory() + "/libresportgps/trail_running.png')");
+			db.execSQL("INSERT INTO " + SPORT_TBL_NAME + " (" + NAME_FIELD_NAME + ", " + LOGO_FIELD_NAME + ") " +
+			           "VALUES ('Trekking', '" + Environment.getExternalStorageDirectory() + "/libresportgps/trekking.png')");
+			break;
+        /* In this version fixed path to the logo is done */
+        case 6:
+            db.execSQL("UPDATE " + SPORT_TBL_NAME + " SET " + LOGO_FIELD_NAME + "='" +
+                    Environment.getExternalStorageDirectory() + "/libresportgps/canicross.png' " +
+                    "WHERE " + NAME_FIELD_NAME + "='Canicross'");
+            db.execSQL("UPDATE " + SPORT_TBL_NAME + " SET " + LOGO_FIELD_NAME + "='" +
+                    Environment.getExternalStorageDirectory() + "/libresportgps/cycling.png' " +
+                    "WHERE " + NAME_FIELD_NAME + "='Cycling'");
+            db.execSQL("UPDATE " + SPORT_TBL_NAME + " SET " + LOGO_FIELD_NAME + "='" +
+                    Environment.getExternalStorageDirectory() + "/libresportgps/mountain_bike.png' " +
+                    "WHERE " + NAME_FIELD_NAME + "='Mountain Bike'");
+            db.execSQL("UPDATE " + SPORT_TBL_NAME + " SET " + LOGO_FIELD_NAME + "='" +
+                    Environment.getExternalStorageDirectory() + "/libresportgps/running.png' " +
+                    "WHERE " + NAME_FIELD_NAME + "='Running'");
+            db.execSQL("UPDATE " + SPORT_TBL_NAME + " SET " + LOGO_FIELD_NAME + "='" +
+                    Environment.getExternalStorageDirectory() + "/libresportgps/trail_running.png' " +
+                    "WHERE " + NAME_FIELD_NAME + "='Trail Running'");
+            db.execSQL("UPDATE " + SPORT_TBL_NAME + " set " + LOGO_FIELD_NAME + "='" +
+                    Environment.getExternalStorageDirectory() + "/libresportgps/trekking.png' " +
+                    "WHERE " + NAME_FIELD_NAME + "='Trekking'");
+            break;
+		}
 	}
 }

@@ -23,96 +23,152 @@ package es.rgmf.libresportgps.db.orm;
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
 public class Track {
-	private long id;
+	private Long id;
 	private String title;
-	private int recording = 0;
+	private Integer recording = 0;
 	private String description;
-	private float distance = 0;
-	private long startTime = 0;
-	private long activityTime = 0;
-	private long finishTime = 0;
-	private float maxSpeed = 0;
-	private float maxElevation = 0;
-	private float minElevation = 0;
-	private float elevationGain = 0;
-	private float elevationLoss = 0;
-	public long getId() {
-		return id;
-	}
-	public void setId(long id) {
-		this.id = id;
-	}
-	public String getTitle() {
-		return title;
-	}
-	public void setTitle(String title) {
-		this.title = title;
-	}
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	public float getDistance() {
-		return distance;
-	}
-	public void setDistance(float distance) {
-		this.distance = distance;
-	}
-	public long getStartTime() {
-		return startTime;
-	}
-	public void setStartTime(long startTime) {
-		this.startTime = startTime;
-	}
-	public long getActivityTime() {
-		return activityTime;
-	}
-	public void setActivityTime(long activityTime) {
-		this.activityTime = activityTime;
-	}
-	public long getFinishTime() {
-		return finishTime;
-	}
-	public void setFinishTime(long finishTime) {
-		this.finishTime = finishTime;
-	}
-	public float getMaxSpeed() {
-		return maxSpeed;
-	}
-	public void setMaxSpeed(float maxSpeed) {
-		this.maxSpeed = maxSpeed;
-	}
-	public float getMaxElevation() {
-		return maxElevation;
-	}
-	public void setMaxElevation(float maxElevation) {
-		this.maxElevation = maxElevation;
-	}
-	public float getMinElevation() {
-		return minElevation;
-	}
-	public void setMinElevation(float minElevation) {
-		this.minElevation = minElevation;
-	}
-	public float getElevationGain() {
-		return elevationGain;
-	}
-	public void setElevationGain(float elevationGain) {
-		this.elevationGain = elevationGain;
-	}
-	public float getElevationLoss() {
-		return elevationLoss;
-	}
-	public void setElevationLoss(float elevationLoss) {
-		this.elevationLoss = elevationLoss;
-	}
-	public int getRecording() {
-		return recording;
-	}
-	public void setRecording(int recording) {
-		this.recording = recording;
-	}
-	
+	private Float distance = 0f;
+	private Long startTime = 0L;
+	private Long activityTime = 0L;
+	private Long finishTime = 0L;
+	private Float maxSpeed = 0f;
+	private Float maxElevation = 0f;
+	private Float minElevation = 0f;
+	private Float elevationGain = 0f;
+	private Float elevationLoss = 0f;
+	private Sport sport = null;
+
+    public Track() {}
+
+    public Track(Long id, String title, String description, Integer recording, Float distance,
+                 Long startTime, Long activityTime, Long finishTime, Float maxSpeed,
+                 Float maxElevation, Float minElevation, Float elevationGain, Float elevationLoss,
+                 Sport sport) {
+        this.id = id;
+        this.title = title;
+        this.recording = recording;
+        this.description = description;
+        this.distance = distance;
+        this.startTime = startTime;
+        this.activityTime = activityTime;
+        this.finishTime = finishTime;
+        this.maxSpeed = maxSpeed;
+        this.maxElevation = maxElevation;
+        this.minElevation = minElevation;
+        this.elevationGain = elevationGain;
+        this.elevationLoss = elevationLoss;
+        this.sport = sport;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public Integer getRecording() {
+        return recording;
+    }
+
+    public void setRecording(Integer recording) {
+        this.recording = recording;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Float getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Float distance) {
+        this.distance = distance;
+    }
+
+    public Long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Long startTime) {
+        this.startTime = startTime;
+    }
+
+    public Long getActivityTime() {
+        return activityTime;
+    }
+
+    public void setActivityTime(Long activityTime) {
+        this.activityTime = activityTime;
+    }
+
+    public Long getFinishTime() {
+        return finishTime;
+    }
+
+    public void setFinishTime(Long finishTime) {
+        this.finishTime = finishTime;
+    }
+
+    public Float getMaxSpeed() {
+        return maxSpeed;
+    }
+
+    public void setMaxSpeed(Float maxSpeed) {
+        this.maxSpeed = maxSpeed;
+    }
+
+    public Float getMaxElevation() {
+        return maxElevation;
+    }
+
+    public void setMaxElevation(Float maxElevation) {
+        this.maxElevation = maxElevation;
+    }
+
+    public Float getMinElevation() {
+        return minElevation;
+    }
+
+    public void setMinElevation(Float minElevation) {
+        this.minElevation = minElevation;
+    }
+
+    public Float getElevationGain() {
+        return elevationGain;
+    }
+
+    public void setElevationGain(Float elevationGain) {
+        this.elevationGain = elevationGain;
+    }
+
+    public Float getElevationLoss() {
+        return elevationLoss;
+    }
+
+    public void setElevationLoss(Float elevationLoss) {
+        this.elevationLoss = elevationLoss;
+    }
+
+    public Sport getSport() {
+        return sport;
+    }
+
+    public void setSport(Sport sport) {
+        this.sport = sport;
+    }
 }

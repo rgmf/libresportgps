@@ -53,9 +53,11 @@ public class TrackListFragment extends ListFragment {
 	 */
 	public static final TrackListFragment newInstance() {
 		TrackListFragment fragment = new TrackListFragment();
+		/*
 		Bundle bundle = new Bundle(1);
 		bundle.putInt("a_number", 1);
 		fragment.setArguments(bundle);
+		*/
 		return fragment;
 	}
 	

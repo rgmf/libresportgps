@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Copyright (C) 2014 Román Ginés Martínez Ferrández <rgmf@riseup.net>
+ *
+ * This program (LibreSportGPS) is free software: you can 
+ * redistribute it and/or modify it under the terms of the GNU General 
+ * Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+ -->
+ 
+ <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ededed">
+ 
+ <RelativeLayout 
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#ededed"
+     android:padding="20dp">
+
+    <Spinner
+        android:id="@+id/track_edit_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    
+    <EditText
+        android:id="@+id/track_edit_title"
+        android:layout_below="@id/track_edit_spinner"
+        android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:inputType="textCapSentences"
+	    android:imeOptions="actionSend"
+	    android:textColor="#454545"
+	    android:textSize="22sp"
+	    android:hint="@string/track_name_hint"
+        android:paddingTop="10dp"/>
+    
+    <EditText
+        android:id="@+id/track_edit_description"
+        android:layout_width="fill_parent"  
+        android:layout_height="wrap_content"
+        android:layout_below="@id/track_edit_title"
+        android:inputType="textCapSentences"
+        android:lines="4"
+        android:minLines="4"
+        android:scrollbars="horizontal|vertical"
+	    android:imeOptions="actionSend"
+        android:textColor="#454545"
+        android:textSize="18sp"
+        android:hint="@string/track_description_hint"
+        android:paddingTop="10dp" />
+    
+</RelativeLayout>
+
+</ScrollView>
