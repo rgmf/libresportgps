@@ -17,18 +17,28 @@
 
 package es.rgmf.libresportgps.view;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.ListFragment;
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import es.rgmf.libresportgps.R;
 import es.rgmf.libresportgps.adapter.TrackListAdapter;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Track;
+import es.rgmf.libresportgps.file.reader.GpxReader;
+import es.rgmf.libresportgps.view.dialog.FileDialog;
 
 /**
  * This View is created to show the list of tracks the application
@@ -38,13 +48,42 @@ import es.rgmf.libresportgps.db.orm.Track;
  */
 public class TrackListFragment extends ListFragment {
 	/**
+	 * This interface must be implemented by the activity that contain
+	 * this fragment.
+	 * 
+	 * It is used to communication between this fragment and its activity
+	 * container when user click on list element.
+	 * 
+	 * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
+	 */
+    public interface OnTrackSelectedListener {
+        public void onTrackSelected(Track track);
+    }
+    
+    /**
 	 * This fragment can deliver messages to the activity by calling
 	 * onTrackSelected (see interface definition) using mCallback instance
 	 * of OnTrackSelectedListener interface (see interface definition).
 	 */
-	OnTrackSelectedListener mCallback;
+	OnTrackSelectedListener mSelectedCallback;
 	
-	private ArrayList<Track> tracks;
+	/**
+	 * Callback interface through which the fragment will report the
+	 * task's progress and results back to the Activity.
+	 */
+	public static interface ProgressCallbacks {
+		void onPreExecute();
+	    void onProgressUpdate(int percent);
+	    void onCancelled();
+	    void onPostExecute();
+	}
+
+	private ProgressCallbacks mProgressCallback;
+	private ProgressBarTask mProgressBarTask;
+	
+	private ArrayList<Track> mTracks;
+	
+	private ProgressDialog mProgressDialog;
 	
 	/**
 	 * Create an instance of this class.
@@ -53,11 +92,6 @@ public class TrackListFragment extends ListFragment {
 	 */
 	public static final TrackListFragment newInstance() {
 		TrackListFragment fragment = new TrackListFragment();
-		/*
-		Bundle bundle = new Bundle(1);
-		bundle.putInt("a_number", 1);
-		fragment.setArguments(bundle);
-		*/
 		return fragment;
 	}
 	
@@ -72,7 +106,8 @@ public class TrackListFragment extends ListFragment {
 		// This makes sure that the container activity has implemented
         // the callback interface. If not, it throws an exception
         try {
-            mCallback = (OnTrackSelectedListener) activity;
+            mSelectedCallback = (OnTrackSelectedListener) activity;
+            mProgressCallback = (ProgressCallbacks) activity;
         } catch(ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnTrackSelectedListener");
@@ -86,6 +121,9 @@ public class TrackListFragment extends ListFragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		
+		// Retain this fragment across configuration changes.
+	    setRetainInstance(true);
 	}
 	
 	/**
@@ -93,14 +131,21 @@ public class TrackListFragment extends ListFragment {
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		// Get all tracks information.
-		tracks = DBModel.getTracks(getActivity());
+		setHasOptionsMenu(true);
 		
-		TrackListAdapter adapter = new TrackListAdapter(inflater.getContext(), tracks);
+		// Get all tracks information.
+		mTracks = DBModel.getTracks(getActivity());
+		
+		TrackListAdapter adapter = new TrackListAdapter(inflater.getContext(), mTracks);
 		setListAdapter(adapter);
+		
+		if(mProgressDialog != null) {
+			mProgressDialog.show();
+		}
 		
 		return super.onCreateView(inflater, container, savedInstanceState);
 	}
+
 	
 	/**
 	 * From Android Develop Documentation:
@@ -121,20 +166,118 @@ public class TrackListFragment extends ListFragment {
 		super.onListItemClick(l, v, position, id);
 		
 		Track track = (Track) (getListView().getItemAtPosition(position));
-		mCallback.onTrackSelected(track);
+		mSelectedCallback.onTrackSelected(track);
+	}
+	
+
+    /**
+	 * This method modifies the options in the bar menu adapting it to this
+	 * fragment.
+	 */
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+	    menu.clear();
+	    inflater.inflate(R.menu.add, menu);
 	}
 	
 	/**
-	 * This interface must be implemented by the activity that contain
-	 * this fragment.
-	 * 
-	 * It is used to communication between this fragment and its activity
-	 * container when user click on list element.
-	 * 
-	 * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
+	 * Handle the clicked options in this fragment.
 	 */
-    public interface OnTrackSelectedListener {
-        public void onTrackSelected(Track track);
-    }
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+		case R.id.menu_add:
+			File mPath = new File(Environment.getExternalStorageDirectory() + "//DIR//");
+	        FileDialog fileDialog = new FileDialog(getActivity(), mPath);
+	        fileDialog.setFileEndsWith(".gpx");
+	        fileDialog.addFileListener(new FileDialog.FileSelectedListener() {
+	            public void fileSelected(final File file) {
+	            	mProgressBarTask = new ProgressBarTask(file);
+	            	mProgressBarTask.execute();
+	            }
+	        });
+	        //fileDialog.addDirectoryListener(new FileDialog.DirectorySelectedListener() {
+	        //  public void directorySelected(File directory) {
+	        //      Log.d(getClass().getName(), "selected dir " + directory.toString());
+	        //  }
+	        //});
+	        //fileDialog.setSelectDirectoryOption(false);
+	        fileDialog.showDialog();
+			break;
+		}
+		
+		return super.onOptionsItemSelected(item);
+	}
+	
+	/**
+	 * A progress bar task to perform the loading of gpx files in
+	 * background work and proxies progress updates and results back 
+	 * to the Activity.
+	 *
+	 * Note that we need to check if the callbacks are null in each
+	 * method in case they are invoked after the Activity's and
+	 * Fragment's onDestroy() method have been called.
+	 */
+	private class ProgressBarTask extends AsyncTask<Void, Integer, Void> {
+		private File mFile;
+		
+		public ProgressBarTask(File file) {
+			mFile = file;
+		}
+		
+		@Override
+		protected void onPreExecute() {
+			if (mProgressCallback != null) {
+				mProgressCallback.onPreExecute();
+			}
+		}
 
+	    /**
+	     * Note that we do NOT call the callback object's methods
+	     * directly from the background thread, as this could result 
+	     * in a race condition.
+	     */
+  		@Override
+  		protected Void doInBackground(Void... ignore) {
+  			GpxReader gpxReader = new GpxReader();
+  			Track track = new Track();
+  			
+  			gpxReader.loadFile(mFile.toString());
+  			
+            track.setTitle(mFile.getName());
+			track.setDistance(new Float(gpxReader.getDistance()));
+			track.setMaxSpeed(new Float(gpxReader.getSpeed().getMax()));
+			track.setMaxElevation(new Float(gpxReader.getElevation().getMax()));
+			track.setMinElevation(new Float(gpxReader.getElevation().getMin()));
+			track.setActivityTime(gpxReader.getActivityTime());
+			track.setStartTime(mFile.lastModified() - gpxReader.getActivityTime());
+			track.setFinishTime(mFile.lastModified());
+			
+			DBModel.createTrack(getActivity(), track);
+			
+            return null;
+    	}
+
+  		@Override
+  		protected void onProgressUpdate(Integer... percent) {
+      		if (mProgressCallback != null) {
+      			mProgressCallback.onProgressUpdate(percent[0]);
+      		}
+  		}
+
+  		@Override
+  		protected void onCancelled() {
+      		if (mProgressCallback != null) {
+      			mProgressCallback.onCancelled();
+      		}
+  		}
+
+  		@Override
+  		protected void onPostExecute(Void ignore) {
+  			if (mProgressCallback != null) {
+  				mProgressCallback.onPostExecute();
+  			}
+  		}
+	}
 }

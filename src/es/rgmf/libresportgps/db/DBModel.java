@@ -50,6 +50,22 @@ public class DBModel {
 		dbAdapter.close();
 		return id;
 	}
+	
+	/**
+	 * See the method in DBAdapter to more information.
+	 * 
+	 * @param context
+	 * @param track
+	 * @return
+	 */
+	public static long createTrack(Context context, Track track) {
+		long id = -1;
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		id = dbAdapter.addTrack(track);
+		dbAdapter.close();
+		return id;
+	}
 
 	/**
 	 * See the method in DBAdapter to more information.

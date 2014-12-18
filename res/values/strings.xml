@@ -47,7 +47,6 @@
     <string name="title_section3">Section 3</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="action_example">Example action</string>
     <string name="menu_display_track">Ver Track</string>
     <string name="menu_settings">Settings</string>
     <string name="menu_exit">Exit</string>
@@ -61,6 +60,7 @@
 	<string name="delete_trackfile_hint">Do you really like to delete the track? This action cannot be undo.</string>
 	<string name="activity_finished">Activity finished</string>
 	<string name="loading_data">Loading data...</string>
+	<string name="loading_file">Loading file...</string>
 	<string name="track_date_hint">Date</string>
 	<string name="track_distance_hint">Distance</string>
 	<string name="track_activity_time_hint">Activity Time</string>
@@ -82,4 +82,5 @@
 	<string name="delete">Delete</string>
 	<string name="edit">Edit</string>
     <string name="unknown_sport">Unknown Sport</string>
+    <string name="import_file">Import</string>
 </resources>

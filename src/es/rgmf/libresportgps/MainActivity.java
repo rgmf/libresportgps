@@ -17,12 +17,16 @@
 
 package es.rgmf.libresportgps;
 
+import java.io.File;
+import java.util.ArrayList;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -32,13 +36,17 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 import es.rgmf.libresportgps.common.Session;
+import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.db.orm.Track;
+import es.rgmf.libresportgps.file.FileManager;
+import es.rgmf.libresportgps.file.reader.GpxReader;
 import es.rgmf.libresportgps.gps.GpsLoggerService;
 import es.rgmf.libresportgps.gps.GpsLoggerServiceConnection;
 import es.rgmf.libresportgps.gps.IGpsLoggerServiceClient;
@@ -55,7 +63,13 @@ import es.rgmf.libresportgps.view.TrackListFragment;
 public class MainActivity extends Activity implements
 		NavigationDrawerFragment.NavigationDrawerCallbacks,
 		IGpsLoggerServiceClient,
-		TrackListFragment.OnTrackSelectedListener {
+		TrackListFragment.OnTrackSelectedListener,
+		TrackListFragment.ProgressCallbacks {
+	
+	private static final String LOADING_TRACK_BACKGROUND = "loading_track_background";
+	private boolean mLoadingTrackBackground = false;
+	private ProgressDialog mProgressDialog = null;
+	
 	/**
 	 * Needed attributes to creates and manages service. 
 	 */
@@ -103,6 +117,14 @@ public class MainActivity extends Activity implements
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
 				(DrawerLayout) findViewById(R.id.drawer_layout));
 		
+		if(savedInstanceState != null) {
+			// Check if we need to show loading dialog.
+			mLoadingTrackBackground = savedInstanceState.getBoolean(LOADING_TRACK_BACKGROUND);
+			if(mLoadingTrackBackground) {
+				onPreExecute();
+			}
+		}
+		
 		// Check if external storage is available.
 		checkExternalStorage();
 		
@@ -112,6 +134,75 @@ public class MainActivity extends Activity implements
    		
    		// Check GPS status provider to show a message if GPS is disabled.
         this.checkGpsProvider();
+	}
+
+	/* This method can be delete */
+	private void addAllGpxFilesFromFolder() {
+		String folder = Environment.getExternalStorageDirectory() + "/libresportgps";
+		ArrayList<String> fileList = FileManager.getListOfFiles(folder);
+		String extension;
+		String fileName;
+		int indexOfDot;
+		File gpxFile;
+		GpxReader gpxReader;
+		Track track;
+		
+		for(int i = 0; i < fileList.size(); i++) {
+			indexOfDot = fileList.get(i).lastIndexOf('.');
+			if(indexOfDot > 0) {
+				extension = fileList.get(i).substring(indexOfDot + 1);
+				if(extension.equalsIgnoreCase("gpx")) {
+					Log.v("File Name:", fileList.get(i));
+					fileName = fileList.get(i).substring(0, indexOfDot);
+					gpxFile = new File(folder + "/" + fileList.get(i));
+					/*gpxReader = new GpxReader(gpxFile);
+					
+					track = new Track();
+					track.setTitle(fileName);
+					track.setDistance(new Float(gpxReader.getDistance()));
+					track.setMaxSpeed(new Float(gpxReader.getSpeed().getMax()));
+					track.setElevationGain(new Float(gpxReader.getElevation().getGain()));
+					track.setElevationLoss(new Float(gpxReader.getElevation().getLoss()));
+					track.setMaxElevation(new Float(gpxReader.getElevation().getMax()));
+					track.setMinElevation(new Float(gpxReader.getElevation().getMin()));
+					track.setActivityTime(gpxReader.getActivityTime());
+					track.setStartTime(gpxReader.getStartTime());
+					track.setFinishTime(gpxReader.getFinishTime());
+					
+					Log.v("     ", "" + track.getTitle());
+					Log.v("     ", "" + track.getDistance());
+					Log.v("     ", "" + track.getMaxSpeed());
+					Log.v("     ", "" + track.getElevationGain());
+					Log.v("     ", "" + track.getElevationLoss());
+					Log.v("     ", "" + track.getMaxElevation());
+					Log.v("     ", "" + track.getMinElevation());
+					Log.v("     ", "" + Utilities.timeStampFormatter(track.getActivityTime()));
+					Log.v("     ", "" + Utilities.timeStampFormatter(track.getStartTime()));
+					Log.v("     ", "" + Utilities.timeStampFormatter(track.getFinishTime()));
+					*/
+					gpxReader = new GpxReader();
+					gpxReader.loadFile(folder + "/" + fileList.get(i));
+					
+					Log.v("     ", "" + Utilities.timeStampFormatter(gpxReader.getStartTime()));
+					Log.v("     ", "" + Utilities.timeStampFormatter(gpxReader.getFinishTime()));
+					Log.v("     ", "" + Utilities.timeStampFormatter(gpxReader.getActivityTime()));
+					Log.v("     ", "" + gpxReader.getElevation().getMax());
+					Log.v("     ", "" + gpxReader.getElevation().getMin());
+					Log.v("     ", "" + gpxReader.getDistance());
+				}
+			}
+		}
+	}
+	
+	/**
+	 *This method is needed to management the screen rotate. We need to save the course
+	 * identify and selected item on list view.
+	 */
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		Log.v("MainActivity::onSavedInstanceState", "Boolean: " + mLoadingTrackBackground);
+		outState.putBoolean(LOADING_TRACK_BACKGROUND, mLoadingTrackBackground);
 	}
 	
 	/**
@@ -172,6 +263,9 @@ public class MainActivity extends Activity implements
 	@Override
 	public void onDestroy() {
 		stopAndUnbindToService();
+		if(mProgressDialog != null) {
+			mProgressDialog.dismiss();
+		}
 		super.onDestroy();
 	}
 	
@@ -211,8 +305,10 @@ public class MainActivity extends Activity implements
 			// Only show items in the action bar relevant to this screen
 			// if the drawer is not showing. Otherwise, let the drawer
 			// decide what to show in the action bar.
+			/*
 			getMenuInflater().inflate(R.menu.main, menu);
 			restoreActionBar();
+			*/
 			return true;
 		}
 		return super.onCreateOptionsMenu(menu);
@@ -419,4 +515,47 @@ public class MainActivity extends Activity implements
 		// TODO Auto-generated method stub
 		
 	}
+
+	/***** Implement the interface TrackListFragment.ProgressCallbacks *****/
+	/**
+	 * These methods are called from fragments through callback in these 
+	 * fragments to show and dismiss loading dialog.
+	 */
+	@Override
+	public void onPreExecute() {
+		mProgressDialog = new ProgressDialog(this);
+		mProgressDialog.setCancelable(false);
+		mProgressDialog.setMessage(getString(R.string.loading_file));
+		mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+    	mLoadingTrackBackground = true;
+    	mProgressDialog.show();
+	}
+
+	@Override
+	public void onProgressUpdate(int percent) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onCancelled() {
+		mLoadingTrackBackground = false;
+		if(mProgressDialog != null) {
+			mProgressDialog.dismiss();
+		}
+	}
+
+	@Override
+	public void onPostExecute() {
+		mLoadingTrackBackground = false;
+		if(mProgressDialog != null) {
+			mProgressDialog.dismiss();
+			// update the main content by replacing fragments
+			FragmentTransaction transaction = mFragmentManager.beginTransaction();
+			transaction.replace(R.id.container, TrackListFragment.newInstance());
+			mFragmentManager.popBackStack();
+			transaction.commitAllowingStateLoss();
+		}
+	}
+	/*** End implement the interface TrackListFragment.ProgressCallbacks ***/
 }

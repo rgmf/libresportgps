@@ -18,7 +18,9 @@
 package es.rgmf.libresportgps.file.reader;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -30,6 +32,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import es.rgmf.libresportgps.common.Utilities;
 
@@ -37,8 +42,95 @@ public class GpxReader extends DefaultHandler implements IReader {
 	private double distance;
 	private Speed speed = new Speed();
 	private Elevation elevation = new Elevation();
+	private Long activityTime = 0L;
+	private Long startTime = null;
+	private Long finishTime = null;
 	
-	public GpxReader(File gpxFile) {
+	public GpxReader() {}
+	
+	public void loadFile(String gpxFile) {
+		XmlPullParserFactory factory;
+		Double prevLat = null, prevLon = null, currentLat = null, currentLon = null;
+		boolean setDistance = true, min = false;
+		
+		try {
+			factory = XmlPullParserFactory.newInstance();
+			factory.setNamespaceAware(true);
+	        XmlPullParser parser = factory.newPullParser();
+
+	        parser.setInput(new InputStreamReader(new FileInputStream(gpxFile)));
+	        int eventType = parser.getEventType();
+	        while (eventType != XmlPullParser.END_DOCUMENT) {
+				 if(eventType == XmlPullParser.START_DOCUMENT) {
+				     //System.out.println("Start document");
+				 }
+				 else if(eventType == XmlPullParser.START_TAG) {
+					 if(parser.getName().equals("trkseg")) {
+						 if(prevLat != null && prevLon != null) {
+							 setDistance = false;
+							 //System.out.println("trkseg");
+						 }
+					 }
+					 else if(parser.getName().equals("trkpt")) {
+						 if(parser.getAttributeCount() > 0) {
+							 if(prevLat == null && prevLon == null) {
+								 prevLat = currentLat = Double.valueOf(parser.getAttributeValue("", "lat"));
+								 prevLon = currentLon = Double.valueOf(parser.getAttributeValue("", "lon"));
+							 }
+							 else {
+								 currentLat = Double.valueOf(parser.getAttributeValue("", "lat"));
+								 currentLon = Double.valueOf(parser.getAttributeValue("", "lon"));
+								 if(setDistance)
+									 distance += Utilities.CalculateDistance(prevLat, prevLon, currentLat, currentLon);
+								 prevLat = currentLat;
+								 prevLon = currentLon;
+							 }
+						 }
+						 setDistance = true;
+					 }
+					 else if(parser.getName().equals("time")) {
+						 parser.next();
+						 if(startTime == null) {
+							 startTime = Utilities.getMillisecondsTimeFromStringTime(parser.getText());
+							 finishTime = startTime;
+						 }
+						 else {
+							 activityTime += (Utilities.getMillisecondsTimeFromStringTime(parser.getText()) - finishTime);
+							 finishTime = Utilities.getMillisecondsTimeFromStringTime(parser.getText());
+						 }
+					 }
+					 else if(parser.getName().equals("speed")) {
+						 parser.next();
+						 if(speed.max < (Double.valueOf(parser.getText()) * 3.7));
+						 	speed.max = Double.valueOf(parser.getText()) * 3.7; // km/h
+					 }
+					 else if(parser.getName().equals("ele")) {
+						 parser.next();
+						 if(elevation.max < Double.valueOf(parser.getText()))
+						 	 elevation.max = Double.valueOf(parser.getText());
+						 if(min) {
+							 if(elevation.min > Double.valueOf(parser.getText())) {
+								 elevation.min = Double.valueOf(parser.getText());
+							 }
+						 }
+						 else {
+							 elevation.min = Double.valueOf(parser.getText());
+						 }
+					 }
+				 }
+				 eventType = parser.next();
+	        }
+	        //System.out.println("End document");
+		} catch (XmlPullParserException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void loadFile(File gpxFile) {
 		distance = 0d;
 		
 		try {
@@ -64,9 +156,12 @@ public class GpxReader extends DefaultHandler implements IReader {
 						prevLat = Double.parseDouble(element.getAttribute("lat"));
 					if(element.getAttribute("lon") != null)
 						prevLon = Double.parseDouble(element.getAttribute("lon"));
+					if(element.getElementsByTagName("time").item(0) != null)
+						startTime = Utilities.getMillisecondsTimeFromStringTime(element.getElementsByTagName("time").item(0).getTextContent());
 					
 					elevation.max = prevEle;
-					elevation.min = prevEle; 
+					elevation.min = prevEle;
+					finishTime = startTime;
 					
 					break;
 				}
@@ -89,6 +184,14 @@ public class GpxReader extends DefaultHandler implements IReader {
 						currentLat = Double.parseDouble(element.getAttribute("lat"));
 					if(element.getAttribute("lon") != null)
 						currentLon = Double.parseDouble(element.getAttribute("lon"));
+					if(element.getElementsByTagName("time").item(0) != null) {
+						finishTime = Utilities.getMillisecondsTimeFromStringTime(element.getElementsByTagName("time").item(0).getTextContent());
+						if(finishTime != null) {
+							activityTime += finishTime;
+							if(startTime == null)
+								startTime = finishTime;
+						}
+					}
 					
 					// SET DISTANCE.
 					distance += Utilities.CalculateDistance(prevLat, prevLon, currentLat, currentLon);
@@ -122,7 +225,6 @@ public class GpxReader extends DefaultHandler implements IReader {
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
 	@Override
@@ -141,5 +243,17 @@ public class GpxReader extends DefaultHandler implements IReader {
 	public Elevation getElevation() {
 		// TODO Auto-generated method stub
 		return elevation;
+	}
+
+	public Long getActivityTime() {
+		return activityTime == null ? 0 : activityTime;
+	}
+
+	public Long getStartTime() {
+		return startTime == null ? 0 : startTime;
+	}
+
+	public Long getFinishTime() {
+		return finishTime == null ? 0 : finishTime;
 	}
 }

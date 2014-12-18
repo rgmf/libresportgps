@@ -95,6 +95,54 @@ public class DBAdapter {
 	}
 	
 	/**
+     * Create a new track and return the id generated.
+     * 
+     * @param track the track object.
+     * @return the id of the track inserted.
+     */
+	public long addTrack(Track track) {
+		ContentValues values = new ContentValues();
+		Long sportId = null;
+		
+		if(track.getSport() != null) {
+			sportId = addSport(track.getSport());
+		}
+		
+    	values.put(DBHelper.TITLE_FIELD_NAME, track.getTitle());
+    	values.put(DBHelper.RECORDING_FIELD_NAME, track.getRecording());
+    	values.put(DBHelper.DESC_FIELD_NAME, track.getDescription());
+    	values.put(DBHelper.DISTANCE_FIELD_NAME, track.getDistance());
+    	values.put(DBHelper.START_TIME_FIELD_NAME, track.getStartTime());
+    	values.put(DBHelper.ACTIVITY_TIME_FIELD_NAME, track.getActivityTime());
+    	values.put(DBHelper.FINISH_TIME_FIELD_NAME, track.getFinishTime());
+    	values.put(DBHelper.MAX_SPEED_FIELD_NAME, track.getMaxSpeed());
+    	values.put(DBHelper.MAX_ELEVATION_FIELD_NAME, track.getMaxElevation());
+    	values.put(DBHelper.MIN_ELEVATION_FIELD_NAME, track.getMinElevation());
+    	values.put(DBHelper.ELEVATION_GAIN_FIELD_NAME, track.getElevationGain());
+    	values.put(DBHelper.ELEVATION_LOSS_FIELD_NAME, track.getElevationLoss());
+    	if(sportId != null)
+    		values.put(DBHelper.SPORT_FIELD_NAME, sportId);
+    	
+    	return db.insert(DBHelper.TRACK_TBL_NAME, null, values);
+	}
+	
+	/**
+     * Create a new sport and return the id generated.
+     * 
+     * @param sport the sport object.
+     * @return the id of the sport inserted.
+     */
+	public long addSport(Sport sport) {
+		ContentValues values = new ContentValues();
+		
+    	values.put(DBHelper.NAME_FIELD_NAME, sport.getName());
+    	values.put(DBHelper.DESC_FIELD_NAME, sport.getDescription());
+    	values.put(DBHelper.LOGO_FIELD_NAME, sport.getLogo());
+    	
+    	return db.insert(DBHelper.SPORT_TBL_NAME, null, values);
+	}
+	
+	/**
 	 * Add a track point associated to a track.
 	 * 
 	 * @param trackPoint The TrackPoint Object Relational Mapping.
