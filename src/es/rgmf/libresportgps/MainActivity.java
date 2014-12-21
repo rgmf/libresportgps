@@ -169,15 +169,6 @@ public class MainActivity extends Activity implements
         startService(serviceIntent);
         bindService(serviceIntent, gpsServiceConnection, Context.BIND_AUTO_CREATE);
     }
-	
-	@Override
-	protected void onPostResume() {
-		super.onPostResume();
-		// update the main content by replacing fragments.
-		FragmentTransaction transaction = mFragmentManager.beginTransaction();
-		transaction.replace(R.id.container, TrackListFragment.newInstance());
-		transaction.commit();
-	}
 
 	/**
 	 * This method is called when you chose an option in Navigation Drawer.
