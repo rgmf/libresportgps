@@ -17,9 +17,6 @@
 
 package es.rgmf.libresportgps;
 
-import java.io.File;
-import java.util.ArrayList;
-
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -30,23 +27,21 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 import es.rgmf.libresportgps.common.Session;
-import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.db.orm.Track;
-import es.rgmf.libresportgps.file.FileManager;
-import es.rgmf.libresportgps.file.reader.GpxReader;
 import es.rgmf.libresportgps.gps.GpsLoggerService;
 import es.rgmf.libresportgps.gps.GpsLoggerServiceConnection;
 import es.rgmf.libresportgps.gps.IGpsLoggerServiceClient;
@@ -66,8 +61,6 @@ public class MainActivity extends Activity implements
 		TrackListFragment.OnTrackSelectedListener,
 		TrackListFragment.ProgressCallbacks {
 	
-	private static final String LOADING_TRACK_BACKGROUND = "loading_track_background";
-	private boolean mLoadingTrackBackground = false;
 	private ProgressDialog mProgressDialog = null;
 	
 	/**
@@ -117,14 +110,6 @@ public class MainActivity extends Activity implements
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
 				(DrawerLayout) findViewById(R.id.drawer_layout));
 		
-		if(savedInstanceState != null) {
-			// Check if we need to show loading dialog.
-			mLoadingTrackBackground = savedInstanceState.getBoolean(LOADING_TRACK_BACKGROUND);
-			if(mLoadingTrackBackground) {
-				onPreExecute();
-			}
-		}
-		
 		// Check if external storage is available.
 		checkExternalStorage();
 		
@@ -137,6 +122,7 @@ public class MainActivity extends Activity implements
 	}
 
 	/* This method can be delete */
+	/*
 	private void addAllGpxFilesFromFolder() {
 		String folder = Environment.getExternalStorageDirectory() + "/libresportgps";
 		ArrayList<String> fileList = FileManager.getListOfFiles(folder);
@@ -155,31 +141,6 @@ public class MainActivity extends Activity implements
 					Log.v("File Name:", fileList.get(i));
 					fileName = fileList.get(i).substring(0, indexOfDot);
 					gpxFile = new File(folder + "/" + fileList.get(i));
-					/*gpxReader = new GpxReader(gpxFile);
-					
-					track = new Track();
-					track.setTitle(fileName);
-					track.setDistance(new Float(gpxReader.getDistance()));
-					track.setMaxSpeed(new Float(gpxReader.getSpeed().getMax()));
-					track.setElevationGain(new Float(gpxReader.getElevation().getGain()));
-					track.setElevationLoss(new Float(gpxReader.getElevation().getLoss()));
-					track.setMaxElevation(new Float(gpxReader.getElevation().getMax()));
-					track.setMinElevation(new Float(gpxReader.getElevation().getMin()));
-					track.setActivityTime(gpxReader.getActivityTime());
-					track.setStartTime(gpxReader.getStartTime());
-					track.setFinishTime(gpxReader.getFinishTime());
-					
-					Log.v("     ", "" + track.getTitle());
-					Log.v("     ", "" + track.getDistance());
-					Log.v("     ", "" + track.getMaxSpeed());
-					Log.v("     ", "" + track.getElevationGain());
-					Log.v("     ", "" + track.getElevationLoss());
-					Log.v("     ", "" + track.getMaxElevation());
-					Log.v("     ", "" + track.getMinElevation());
-					Log.v("     ", "" + Utilities.timeStampFormatter(track.getActivityTime()));
-					Log.v("     ", "" + Utilities.timeStampFormatter(track.getStartTime()));
-					Log.v("     ", "" + Utilities.timeStampFormatter(track.getFinishTime()));
-					*/
 					gpxReader = new GpxReader();
 					gpxReader.loadFile(folder + "/" + fileList.get(i));
 					
@@ -193,17 +154,7 @@ public class MainActivity extends Activity implements
 			}
 		}
 	}
-	
-	/**
-	 *This method is needed to management the screen rotate. We need to save the course
-	 * identify and selected item on list view.
-	 */
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		Log.v("MainActivity::onSavedInstanceState", "Boolean: " + mLoadingTrackBackground);
-		outState.putBoolean(LOADING_TRACK_BACKGROUND, mLoadingTrackBackground);
-	}
+	*/
 	
 	/**
 	 * This method is called each time the activity is executed. For example when you change from 
@@ -218,6 +169,15 @@ public class MainActivity extends Activity implements
         startService(serviceIntent);
         bindService(serviceIntent, gpsServiceConnection, Context.BIND_AUTO_CREATE);
     }
+	
+	@Override
+	protected void onPostResume() {
+		super.onPostResume();
+		// update the main content by replacing fragments.
+		FragmentTransaction transaction = mFragmentManager.beginTransaction();
+		transaction.replace(R.id.container, TrackListFragment.newInstance());
+		transaction.commit();
+	}
 
 	/**
 	 * This method is called when you chose an option in Navigation Drawer.
@@ -262,11 +222,14 @@ public class MainActivity extends Activity implements
 	 */
 	@Override
 	public void onDestroy() {
+		super.onDestroy();
 		stopAndUnbindToService();
+		/*
 		if(mProgressDialog != null) {
+			Log.v("MainActivity::onDestroy", "mProgressDialog.dismiss");
 			mProgressDialog.dismiss();
 		}
-		super.onDestroy();
+		*/
 	}
 	
 	/**
@@ -523,11 +486,22 @@ public class MainActivity extends Activity implements
 	 */
 	@Override
 	public void onPreExecute() {
+		// Create the progress dialog.
 		mProgressDialog = new ProgressDialog(this);
 		mProgressDialog.setCancelable(false);
 		mProgressDialog.setMessage(getString(R.string.loading_file));
 		mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-    	mLoadingTrackBackground = true;
+    	
+		// Stop rotation screen.
+    	int current_orientation = getResources().getConfiguration().orientation;
+    	if (current_orientation == Configuration.ORIENTATION_LANDSCAPE) {
+    	    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    	}
+    	else {
+    	    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    	}
+    	
+    	// Show the progress dialog.
     	mProgressDialog.show();
 	}
 
@@ -539,7 +513,6 @@ public class MainActivity extends Activity implements
 
 	@Override
 	public void onCancelled() {
-		mLoadingTrackBackground = false;
 		if(mProgressDialog != null) {
 			mProgressDialog.dismiss();
 		}
@@ -547,15 +520,20 @@ public class MainActivity extends Activity implements
 
 	@Override
 	public void onPostExecute() {
-		mLoadingTrackBackground = false;
+		// Dismiss the dialog progress.
 		if(mProgressDialog != null) {
 			mProgressDialog.dismiss();
-			// update the main content by replacing fragments
-			FragmentTransaction transaction = mFragmentManager.beginTransaction();
-			transaction.replace(R.id.container, TrackListFragment.newInstance());
-			mFragmentManager.popBackStack();
-			transaction.commitAllowingStateLoss();
 		}
+		
+		// Load the track list fragment to refresh and load the new track.
+		FragmentTransaction transaction = mFragmentManager.beginTransaction();
+		transaction.replace(R.id.container, TrackListFragment.newInstance());
+		mFragmentManager.popBackStack();
+		transaction.commitAllowingStateLoss();
+		
+		// Activate the rotation screen.
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+		
 	}
 	/*** End implement the interface TrackListFragment.ProgressCallbacks ***/
 }

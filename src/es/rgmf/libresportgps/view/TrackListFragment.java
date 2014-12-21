@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.ListFragment;
-import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -83,7 +83,7 @@ public class TrackListFragment extends ListFragment {
 	
 	private ArrayList<Track> mTracks;
 	
-	private ProgressDialog mProgressDialog;
+	private Context mContext;
 	
 	/**
 	 * Create an instance of this class.
@@ -136,12 +136,9 @@ public class TrackListFragment extends ListFragment {
 		// Get all tracks information.
 		mTracks = DBModel.getTracks(getActivity());
 		
-		TrackListAdapter adapter = new TrackListAdapter(inflater.getContext(), mTracks);
+		mContext = inflater.getContext();
+		TrackListAdapter adapter = new TrackListAdapter(mContext, mTracks);
 		setListAdapter(adapter);
-		
-		if(mProgressDialog != null) {
-			mProgressDialog.show();
-		}
 		
 		return super.onCreateView(inflater, container, savedInstanceState);
 	}
