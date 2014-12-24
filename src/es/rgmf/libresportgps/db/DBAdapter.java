@@ -18,6 +18,7 @@
 package es.rgmf.libresportgps.db;
 
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -414,6 +415,40 @@ public class DBAdapter {
 
         return sports;
     }
+    
+    /**
+     * Get all distance / elevation from track points of the track id.
+     * 
+     * @param trackId The track identify.
+     * @return The TreeMap with all distance / elevation points.
+     */
+    public TreeMap<Integer, Float> getDistEleMap(Long trackId) {
+    	TreeMap<Integer, Float> treeMap = new TreeMap<Integer, Float>();
+    	String query = "SELECT " +
+    	
+                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME + ", " +  // 0
+                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.ELEVATION_FIELD_NAME +        // 1
+
+                " FROM " +
+                DBHelper.TRACK_POINT_TBL_NAME +
+                
+                " WHERE " +
+                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.TRACK_ID_FIELD_NAME + "=" + trackId +
+                
+                " ORDER BY " +
+                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME;
+
+        Cursor cursor = db.rawQuery(query, null);
+        
+        if(cursor.moveToFirst()) {
+            do {
+            	treeMap.put(cursor.getInt(0), cursor.getFloat(1));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+    	
+		return treeMap;
+	}
 
 	/**
 	 * Delete the track identifier by trackId.

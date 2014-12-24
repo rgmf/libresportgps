@@ -65,6 +65,14 @@
                    android:value="splitActionBarWhenNarrow" />
         </activity>
         
+        <activity
+            android:name="es.rgmf.libresportgps.AltimetryActivity"
+            android:label="@string/app_name"
+            android:uiOptions="splitActionBarWhenNarrow" >
+            <meta-data android:name="android.support.UI_OPTIONS"
+                   android:value="splitActionBarWhenNarrow" />
+        </activity>
+        
     </application>
 
 </manifest>

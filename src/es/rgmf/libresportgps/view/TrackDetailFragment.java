@@ -17,6 +17,8 @@
 
 package es.rgmf.libresportgps.view;
 
+import java.util.TreeMap;
+
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
@@ -24,15 +26,18 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import es.rgmf.libresportgps.AltimetryActivity;
 import es.rgmf.libresportgps.R;
 import es.rgmf.libresportgps.TrackEditActivity;
 import es.rgmf.libresportgps.common.Session;
@@ -95,6 +100,23 @@ public class TrackDetailFragment extends Fragment {
 		if(getActivity() != null) {
 			this.mContext = getActivity().getApplicationContext();
 		}
+		
+	    Button button = (Button) mRootView.findViewById(R.id.track_detail_button);
+	    button.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// Get all track points of this point and create a map with 
+				// distance and elevation information.
+				TreeMap<Integer, Float> treeMap = DBModel.getDistEleMap(mContext, mTrack.getId());
+				
+				// Call the activity.
+				Intent intent = new Intent(getActivity(), AltimetryActivity.class);
+				intent.putExtra("map", treeMap);
+				intent.putExtra("maxX", (float) treeMap.lastKey());
+				intent.putExtra("maxY", mTrack.getMaxElevation());
+	        	startActivity(intent);
+			}
+		});
 		
 		setDataView();
 		

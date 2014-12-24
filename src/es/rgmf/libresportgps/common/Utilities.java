@@ -98,7 +98,7 @@ public class Utilities {
 			return time.getTime();
 		} catch (ParseException e) {
 			e.printStackTrace();
-			return null;
+			return 0L;
 		}
 	}
     

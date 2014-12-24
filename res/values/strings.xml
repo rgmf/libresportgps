@@ -83,4 +83,6 @@
 	<string name="edit">Edit</string>
     <string name="unknown_sport">Unknown Sport</string>
     <string name="import_file">Import</string>
+    <string name="elevation">Elevation</string>
+    <string name="distance">Distance</string>
 </resources>

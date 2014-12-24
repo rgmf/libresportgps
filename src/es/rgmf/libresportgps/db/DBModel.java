@@ -18,11 +18,12 @@
 package es.rgmf.libresportgps.db;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeMap;
 
+import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
-
-import es.rgmf.libresportgps.TrackEditActivity;
 import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.db.orm.Sport;
@@ -106,6 +107,27 @@ public class DBModel {
 		trackPoint.setElevation(loc.getAltitude());
 		trackPoint.setSpeed(loc.getSpeed());
 		dbAdapter.addTrackPoint(trackPoint);
+		dbAdapter.close();
+	}
+	
+	/**
+	 * Save all track points.
+	 * 
+	 * @param context The context.
+	 * @param trackId The track identify.
+	 * @param trackPoints All track points.
+	 */
+	public static void addTrackPoints(Context context, Long trackId,
+			List<TrackPoint> trackPoints) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		TrackPoint trkPoint;
+		for(int i = 0; i < trackPoints.size(); i++) {
+			trkPoint = trackPoints.get(i);
+			trkPoint.setTrack(new Track());
+			trkPoint.getTrack().setId(trackId);
+			dbAdapter.addTrackPoint(trkPoint);
+		}
 		dbAdapter.close();
 	}
 
@@ -208,5 +230,21 @@ public class DBModel {
 		boolean res = dbAdapter.deleteTrack(trackId);
 		dbAdapter.close();
 		return res;
+	}
+
+	/**
+	 * Get all distance / elevation from track points of the track id.
+	 * 
+	 * @param context The context.
+	 * @param id The track identify.
+	 * @return a TreeMap
+	 */
+	public static TreeMap<Integer, Float> getDistEleMap(Context context,
+			Long trackId) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		TreeMap<Integer, Float> map = dbAdapter.getDistEleMap(trackId);
+		dbAdapter.close();
+		return map;
 	}
 }
