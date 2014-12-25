@@ -293,7 +293,7 @@
         
         <Button
             android:id="@+id/track_detail_button"
-            android:text="HOla"
+            android:text="@string/route_profile"
             android:layout_width="wrap_content"
             android:layout_height="50dip"
             android:layout_below="@id/track_detail_max_speed"

@@ -250,9 +250,13 @@ public class TrackListFragment extends ListFragment {
 			track.setMinElevation(new Float(gpxReader.getElevation().getMin()));
 			track.setElevationGain(new Float(gpxReader.getElevation().getGain()));
 			track.setActivityTime(gpxReader.getActivityTime());
+			track.setStartTime(gpxReader.getStartTime());
+			track.setFinishTime(gpxReader.getFinishTime());
+			/*
 			track.setStartTime(mFile.lastModified()
 					- gpxReader.getActivityTime());
-			track.setFinishTime(mFile.lastModified());
+			track.setFinishTime(mFile.lastModified);
+			*/
 
 			long trackId = DBModel.createTrack(getActivity(), track);
 			DBModel.addTrackPoints(getActivity(), trackId,

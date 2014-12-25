@@ -28,6 +28,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.db.orm.TrackPoint;
 
@@ -46,8 +47,8 @@ public class GpxReader extends DefaultHandler implements IReader {
 	private List<TrackPoint> mTrackPoint = new ArrayList<TrackPoint>();
 
 	private class ElevationGain {
-		private static final double MIN_ELEVATION = 0.99d; // in meters.
-		private static final double DISTANCE = 100d; // in meters.
+		private Double MIN_ELEVATION = Session.getMinElevationGain(); // in meters.
+		private Double DISTANCE = Session.getDistanceGain(); // in meters.
 		private Double start = null;
 		private Double finish = null;
 		private Double distance = 0d;
@@ -77,7 +78,7 @@ public class GpxReader extends DefaultHandler implements IReader {
 							setDistance = false;
 						}
 					} else if (parser.getName().equals("trkpt")) {
-						// Add already track point information and create 
+						// Add already track point information and create
 						// another one if track point started.
 						if (trkPointStarted == false) {
 							trkPointStarted = true;
@@ -93,8 +94,8 @@ public class GpxReader extends DefaultHandler implements IReader {
 										.getAttributeValue("", "lat"));
 								prevLon = currentLon = Double.valueOf(parser
 										.getAttributeValue("", "lon"));
-								// Save latitude and longitude information inside
-								// track point.
+								// Save latitude and longitude information
+								// inside track point.
 								trkPoint.setLat(prevLat);
 								trkPoint.setLng(prevLon);
 							} else {
@@ -102,8 +103,8 @@ public class GpxReader extends DefaultHandler implements IReader {
 										.getAttributeValue("", "lat"));
 								currentLon = Double.valueOf(parser
 										.getAttributeValue("", "lon"));
-								// Save latitude, longitude and distance information
-								// inside track point.
+								// Save latitude, longitude and distance
+								// information inside track point.
 								trkPoint.setLat(currentLat);
 								trkPoint.setLng(currentLon);
 								trkPoint.setDistance((float) distance);
@@ -127,22 +128,17 @@ public class GpxReader extends DefaultHandler implements IReader {
 						setDistance = true;
 					} else if (parser.getName().equals("time")) {
 						parser.next();
+						long timeAux = Utilities
+								.getMillisecondsFromStringGPXDate(parser
+										.getText());
 						// Save time information inside track point.
-						trkPoint.setTime(Utilities
-								.getMillisecondsTimeFromStringTime(parser
-										.getText()));
+						trkPoint.setTime(timeAux);
 						if (startTime == null) {
-							startTime = Utilities
-									.getMillisecondsTimeFromStringTime(parser
-											.getText());
+							startTime = timeAux;
 							finishTime = startTime;
 						} else {
-							activityTime += (Utilities
-									.getMillisecondsTimeFromStringTime(parser
-											.getText()) - finishTime);
-							finishTime = Utilities
-									.getMillisecondsTimeFromStringTime(parser
-											.getText());
+							activityTime += (timeAux - finishTime);
+							finishTime = timeAux;
 						}
 					} else if (parser.getName().equals("speed")) {
 						parser.next();

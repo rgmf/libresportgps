@@ -55,6 +55,13 @@ public class Session extends Application {
 	private static boolean openTrkseg = false; // If it attribute is true then it will open a new trkseg tag in GPX file.
 	private static String appFolder = Environment.getExternalStorageDirectory() + "/libresportgps";
 	
+	// Session data to calculate elevation gain.
+	private static Double minElevationGain = 0.99d;
+	private static Double distanceGain = 100d;
+	private static Double startElevationGain = 0d;
+	private static Double finishElevationGain = 0d;
+	private static Double distanceAccGain = 0d;
+	
 	public static void reset() {
 		trackId = -1;
 		lastLocation = null;
@@ -257,6 +264,7 @@ public class Session extends Application {
 
 	public static void setStartAltitude(double startAltitude) {
 		Session.startAltitude = startAltitude;
+		Session.startElevationGain = startAltitude;
 	}
 
 	public static double getAltitudeGain() {
@@ -266,6 +274,18 @@ public class Session extends Application {
 	public static void setAltitudeGain(double altitudeGain) {
 		Session.altitudeGain += altitudeGain;
 	}
+	
+	public static void setAltitudeGain(double distance, double altitude) {
+		distanceAccGain += distance;
+		finishElevationGain = altitude;
+		if (distanceAccGain >= distanceGain) {
+			if ((finishElevationGain - startElevationGain) >= minElevationGain) {
+				altitudeGain += (finishElevationGain - startElevationGain);
+			}
+			startElevationGain = finishElevationGain;
+			distanceAccGain = 0d;
+		}
+	}
 
 	public static double getAltitudeLoss() {
 		return altitudeLoss;
@@ -273,5 +293,21 @@ public class Session extends Application {
 
 	public static void setAltitudeLoss(double altitudeLoss) {
 		Session.altitudeLoss += altitudeLoss;
+	}
+
+	public static Double getMinElevationGain() {
+		return minElevationGain;
+	}
+
+	public static void setMinElevationGain(Double minElevationGain) {
+		Session.minElevationGain = minElevationGain;
+	}
+
+	public static Double getDistanceGain() {
+		return distanceGain;
+	}
+
+	public static void setDistanceGain(Double distanceGain) {
+		Session.distanceGain = distanceGain;
 	}
 }

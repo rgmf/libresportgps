@@ -245,11 +245,14 @@ public class DataViewFragment extends AbstractViewFragment /*implements
 														// translate m to
 														// km.
 			
-			// Altitude: gain, loss and minimum.
+			// Altitude: gain and minimum.
+			Session.setAltitudeGain(d, loc.getAltitude());
+			/*
 			if(Session.getLastLocation().getAltitude() < loc.getAltitude())
 				Session.setAltitudeGain(loc.getAltitude() - Session.getLastLocation().getAltitude());
 			else if(Session.getLastLocation().getAltitude() > loc.getAltitude())
 				Session.setAltitudeLoss(Session.getLastLocation().getAltitude() - loc.getAltitude());
+			*/
 			
 			if(loc.getAltitude() < Session.getMinAltitude())
 				Session.setMinAltitude(loc.getAltitude());

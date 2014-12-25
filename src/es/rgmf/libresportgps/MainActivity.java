@@ -17,6 +17,14 @@
 
 package es.rgmf.libresportgps;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -35,6 +43,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -92,6 +101,30 @@ public class MainActivity extends Activity implements
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		/*************** To create a copy of the database *****************
+		try {
+			File dbInFile = getDatabasePath("libresportgps.db");
+			File dbOutFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/copy_libresportgps.db");
+			InputStream in = new FileInputStream(dbInFile);
+		    OutputStream out = new FileOutputStream(dbOutFile);
+		    
+		    // Transfer bytes from in to out
+		    byte[] buf = new byte[1024];
+		    int len;
+		    while ((len = in.read(buf)) > 0) {
+		        out.write(buf, 0, len);
+		    }
+		    in.close();
+		    out.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		************** End to create a copy of the database **************/
+		
 		super.onCreate(savedInstanceState);
 		
 		if (mFragmentManager == null) {

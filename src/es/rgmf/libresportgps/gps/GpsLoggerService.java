@@ -78,11 +78,15 @@ public class GpsLoggerService extends Service implements LocationListener {
 		if (Session.isTracking()) {
 			// Update the view to show location information to user.
 			serviceClient.onLocationUpdate(loc);
-			Session.setLastLocation(loc);
 			
 			// Save information in database.
 			if(Session.getTrackId() != -1)
 				DBModel.saveLocation(this, Session.getTrackId(), loc);
+			
+			// Update last location in Session.
+			// BE CAREFUL!!! This Session update must be after save location
+			//               database.
+			Session.setLastLocation(loc);
 	
 			// Save information in files.
 			for(IWriter file: FileFactory.getFiles()) {

@@ -17,13 +17,11 @@
 
 package es.rgmf.libresportgps.common;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -66,6 +64,53 @@ public class Utilities {
     }
     
     /**
+     * ISO 8601 format.
+     * 
+     * Convert milliseconds to date in the String yyyy-MM-dd'T'hh:mm:ss.SSS'Z' format.
+     * 
+     * @param milliseconds
+     * @return The string representation time or "0000-00-00'T'00:00:00.000'Z'" if error.
+     */
+    public static String millisecondsToDateForGPX(long milliseconds) {
+    	DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS'Z'");
+    	Calendar calendar = Calendar.getInstance();
+    	calendar.setTimeInMillis(milliseconds);
+    	
+    	return formatter.format(calendar.getTime());
+    }
+    
+    /**
+     * ISO 8601 format.
+     * 
+	 * Return a time in ISO8601 format in milliseconds.
+	 * 
+	 * Accept ISO8601 format with and without milliseconds:
+	 * - yyyy-MM-dd'T'hh:mm:ss'Z'
+	 * - yyyy-MM-dd'T'hh:mm:ss.SSS'Z'
+	 * 
+	 * @param strDate The string representing a time.
+	 * @return The milliseconds or 0 if raise and exception or strDate is not ok.
+	 */
+	public static Long getMillisecondsFromStringGPXDate(String strDate) {
+		DateFormat shortFormatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
+		DateFormat longFormatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS'Z'");
+		try {
+			if(strDate.length() == 20) {
+				return shortFormatter.parse(strDate).getTime();
+			}
+			else if(strDate.length() == 24) {
+				return longFormatter.parse(strDate).getTime();
+			}
+			else {
+				return 0L;
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return 0L;
+		}
+	}
+    
+    /**
      * Convert the timeStamp in the String HH:mm:ss:SS
      * 
      * @param timeStamp
@@ -82,25 +127,6 @@ public class Utilities {
     	else
     		return "00:00:00.00";
     }
-    
-    /**
-	 * Return a time in milliseconds.
-	 * 
-	 * @param strDate The string representing a time.
-	 * @return The milliseconds or null if raise and exception or strDate is empty.
-	 */
-	public static Long getMillisecondsTimeFromStringTime(String strDate) {
-		DateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS");
-		try {
-			if(strDate.isEmpty())
-				return null;
-			Time time = new Time(formatter.parse(strDate).getTime());
-			return time.getTime();
-		} catch (ParseException e) {
-			e.printStackTrace();
-			return 0L;
-		}
-	}
     
     /**
      * Convert the timeStamp in the String dd/MM/yyyy HH:mm:ss:SS

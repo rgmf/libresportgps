@@ -83,7 +83,7 @@ public class GpxWriter implements IWriter {
 	public GpxWriter(File file) {
 		try {
 			this.gpxFile = file;
-			String currentHour = Utilities.timeStampFormatter(System.currentTimeMillis());
+			String currentHour = Utilities.millisecondsToDateForGPX(System.currentTimeMillis());
 			FileOutputStream fos = new FileOutputStream(gpxFile);
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
 			StringBuilder sb = new StringBuilder();
@@ -122,7 +122,7 @@ public class GpxWriter implements IWriter {
 	@Override
 	public void writeTrack(Location loc) {
 		try {
-			String currentHour = Utilities.timeStampFormatter(System.currentTimeMillis());
+			String currentHour = Utilities.millisecondsToDateForGPX(System.currentTimeMillis());
 			RandomAccessFile raf = new RandomAccessFile(this.gpxFile, "rw");
 			StringBuilder sb = new StringBuilder();
 			
