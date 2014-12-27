@@ -27,6 +27,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -54,8 +55,10 @@ public class AltimetryActivity extends Activity {
         
         // Wee need to re-order the map because after de-serialize the map can be 
         // unordered.
+        Log.v("items map:", "" + map.size());
         TreeMap<Integer, Float> treeMap = new TreeMap<Integer, Float>();
         treeMap.putAll(map);
+        Log.v("items treemap:", "" + treeMap.size());
 
         // Draw with ordered map.
 	    drawView = new DrawView(this, treeMap, 
@@ -124,12 +127,17 @@ public class AltimetryActivity extends Activity {
             		width - PADDING_RIGHT, height - PADDING_BOTTOM,
             		axesPaint);
             
+            // Draw references altitudes.
+            canvas.drawText("0", PADDING_LEFT / 2, height - PADDING_BOTTOM, axesPaint);
+            canvas.drawText(Float.toString(mMaxY), PADDING_LEFT / (Float.toString(mMaxY).length()), PADDING_TOP, axesPaint);
+            
             // Draw lines from tree map.
             it = mMap.keySet().iterator();
             while(it.hasNext()) {
             	key = (Integer) it.next();
             	x = (int) ((key * (width - PADDING_LEFT - PADDING_RIGHT)) / mMaxX);
             	y = (float) ((mMap.get(key) * ((float) height)) / mMaxY);
+            	Log.v("x, y", "" + x + ", " + y);
             	if(prevX != null && prevY != null) {
             		canvas.drawLine(
             				(float) (prevX + PADDING_LEFT),

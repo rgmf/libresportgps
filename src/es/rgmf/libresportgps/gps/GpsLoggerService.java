@@ -29,6 +29,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import es.rgmf.libresportgps.common.Session;
+import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.file.FileFactory;
 import es.rgmf.libresportgps.file.writer.IWriter;
@@ -41,58 +42,106 @@ import es.rgmf.libresportgps.file.writer.IWriter;
  */
 public class GpsLoggerService extends Service implements LocationListener {
 	private LocationManager gpsLocationManager;
-    private final IBinder binder = new GpsLoggerBinder();
-    private static IGpsLoggerServiceClient serviceClient;
-    
-    @Override
+	private final IBinder binder = new GpsLoggerBinder();
+	private static IGpsLoggerServiceClient serviceClient;
+
+	@Override
 	public void onCreate() {
 		super.onCreate();
 		gpsLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		gpsLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0.0f, this);
+		gpsLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+				1000, 1.0f, this);
 	}
-    
-    @Override
+
+	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Session.setGpsEnabled(gpsLocationManager.isProviderEnabled("gps"));
 		return Service.START_STICKY;
 	}
-    
-    @Override
+
+	@Override
 	public IBinder onBind(Intent intent) {
 		return binder;
 	}
-	
+
 	@Override
 	public boolean onUnbind(Intent intent) {
 		stopSelf();
-		
+
 		// We don't want onRebind() to be called, so return false.
 		return false;
 	}
 
+	/**
+	 * This method do these tasks: - Show data in the view. - Save the
+	 * information in the database. - Update Session needed data. - Write
+	 * the file/s.
+	 */
 	@Override
 	public void onLocationChanged(Location loc) {
 		if (!Session.isGpsReady())
 			Session.setGpsReady(true);
 
 		if (Session.isTracking()) {
+			// Update Session data from Location.
+			updateSessionDataFromLocation(loc);
+
 			// Update the view to show location information to user.
 			serviceClient.onLocationUpdate(loc);
-			
+
 			// Save information in database.
-			if(Session.getTrackId() != -1)
+			if (Session.getTrackId() != -1)
 				DBModel.saveLocation(this, Session.getTrackId(), loc);
-			
-			// Update last location in Session.
-			// BE CAREFUL!!! This Session update must be after save location
-			//               database.
-			Session.setLastLocation(loc);
-	
+
 			// Save information in files.
-			for(IWriter file: FileFactory.getFiles()) {
+			for (IWriter file : FileFactory.getFiles()) {
 				file.writeTrack(loc);
 			}
 		}
+	}
+
+	/**
+	 * Update needed Session data from loc (Location).
+	 * 
+	 * @param loc
+	 *            The Location object.
+	 */
+	private void updateSessionDataFromLocation(Location loc) {
+		// Activity time.
+		Session.updateActivityTimeStamp();
+
+		// Max speed.
+		float speed = loc.getSpeed() * 3.6f; // m/s to km/h
+		if (speed > Session.getMaxSpeed()) {
+			Session.setMaxSpeed(speed);
+		}
+
+		// If there is last location.
+		if (Session.getLastLocation() != null) {
+			// Distance.
+			double d = Utilities.CalculateDistance(Session.getLastLocation()
+					.getLatitude(), Session.getLastLocation().getLongitude(),
+					loc.getLatitude(), loc.getLongitude());
+			Session.setDistance(Session.getDistance() + d);
+			// Altitude gain.
+			Session.setAltitudeGain(d, loc.getAltitude());
+			// Max. altitude.
+			if (loc.getAltitude() > Session.getMaxAltitude()) {
+				Session.setMaxAltitude(loc.getAltitude());
+			}
+			// Min. altitude.
+			if (loc.getAltitude() < Session.getMinAltitude())
+				Session.setMinAltitude(loc.getAltitude());
+		}
+		// It is the first location so is the minimum altitude and the start
+		// altitude.
+		else {
+			Session.setMinAltitude(loc.getAltitude());
+			Session.setStartAltitude(loc.getAltitude());
+		}
+		
+		// Set last location with current location to the next location update.
+		Session.setLastLocation(loc);
 	}
 
 	@Override
@@ -103,58 +152,55 @@ public class GpsLoggerService extends Service implements LocationListener {
 	@Override
 	public void onProviderEnabled(String arg0) {
 		Session.setGpsEnabled(true);
-		
+
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		GpsStatus gpsStatus = gpsLocationManager.getGpsStatus(null);
-		if(gpsStatus != null) {
-	    	Iterable<GpsSatellite> sats = gpsStatus.getSatellites();
+		if (gpsStatus != null) {
+			Iterable<GpsSatellite> sats = gpsStatus.getSatellites();
 			int satsInView = 0;
 			int satsUsed = 0;
 			for (GpsSatellite sat : sats) {
 				satsInView++;
 				if (sat.usedInFix()) {
-				satsUsed++;
+					satsUsed++;
 				}
 			}
 			Session.setSatellitesInView(satsInView);
 			Session.setSatellitesInUsed(satsUsed);
 		}
 		/*
-		if(status == LocationProvider.OUT_OF_SERVICE || 
-		   status == LocationProvider.TEMPORARILY_UNAVAILABLE) {
-			Session.setTracking(false);
-			Session.setOpenTrkseg(true);
-		}
-		else {
-			Session.setTracking(true);
-		}
-		serviceClient.onStatusChanged(provider, status, extras);
-		*/
+		 * if(status == LocationProvider.OUT_OF_SERVICE || status ==
+		 * LocationProvider.TEMPORARILY_UNAVAILABLE) {
+		 * Session.setTracking(false); Session.setOpenTrkseg(true); } else {
+		 * Session.setTracking(true); } serviceClient.onStatusChanged(provider,
+		 * status, extras);
+		 */
 	}
-    
-    /**
-     * Sets the activity form for this service. The activity form needs to
-     * implement IGpsLoggerServiceClient.
-     *
-     * @param mainForm The calling client
-     */
-    public static void setServiceClient(IGpsLoggerServiceClient mainForm) {
-        serviceClient = mainForm;
-    }
-    
-    /**
+
+	/**
+	 * Sets the activity form for this service. The activity form needs to
+	 * implement IGpsLoggerServiceClient.
+	 * 
+	 * @param mainForm
+	 *            The calling client
+	 */
+	public static void setServiceClient(IGpsLoggerServiceClient mainForm) {
+		serviceClient = mainForm;
+	}
+
+	/**
 	 * Bind interface for service interaction
 	 */
-	public class GpsLoggerBinder extends Binder {		
+	public class GpsLoggerBinder extends Binder {
 		/**
-		 * Called by the activity when binding.
-		 * Returns itself.
+		 * Called by the activity when binding. Returns itself.
+		 * 
 		 * @return the GPS Logger service
 		 */
-		public GpsLoggerService getService() {			
+		public GpsLoggerService getService() {
 			return GpsLoggerService.this;
 		}
 	}

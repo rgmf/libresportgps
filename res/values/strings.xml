@@ -43,8 +43,6 @@
     <string name="title_activity_display_track">DisplayTrack</string>
     <string name="title_start_section">Tracks</string>
     <string name="title_data_section">Data View</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section3">Section 3</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="menu_display_track">Ver Track</string>

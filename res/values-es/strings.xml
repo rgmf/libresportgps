@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Copyright (C) 2014 Román Ginés Martínez Ferrández <rgmf@riseup.net>
+ *
+ * This program (LibreSportGPS) is free software: you can 
+ * redistribute it and/or modify it under the terms of the GNU General 
+ * Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+ -->
+ 
+<resources>
+    
+    <!-- Error messages. -->
+    <string name="db_error_to_create_track">El track no puede ser creado en la base de datos.</string>
+    <string name="track_was_not_deleted">El track no fue eliminado.</string>
+    
+
+    <string name="app_name">LibreSportGPS</string>
+    <string name="display_track">Mostrar track</string>
+    <string name="gps_disabled">GPS desactivado.</string>
+    <string name="gps_disabled_hint">El GPS está desactivado, ¿quieres activarlo?</string>
+    <string name="waiting_gps">Esperando a una mejor señal del GPS... Por favor espera.</string>
+    <string name="action_settings">Configuración</string>
+    <string name="action_search">Buscar</string>
+    <string name="current_speed_hint">Velocidad</string>
+    <string name="average_speed_hint">Velocidad media</string>
+    <string name="max_speed_hint">Velocidad Max.</string>
+    <string name="distance_hint">Distancia</string>
+    <string name="distance_unit">km</string>
+    <string name="speed_unit">km/h</string>
+    <string name="start_time_hint">Comienzo</string>
+    <string name="activity_time_hint">Tiempo actividad</string>
+    <string name="title_activity_display_track">Mostrar Track</string>
+    <string name="title_start_section">Tracks</string>
+    <string name="title_data_section">Vista actividad</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="menu_display_track">Ver Track</string>
+    <string name="menu_settings">Propiedades</string>
+    <string name="menu_exit">Salir</string>
+    <string name="stop_activity">Parar Actividad</string>
+    <string name="stop_activity_question">¿Quieres acabar la actividad? Esta acción no se puede deshacer.</string>
+    <string name="external_storage_not_available">El almacenamiento externo no está disponible... El track no será guardado.</string>
+    <string name="activity_not_started">La actividad no ha comenzado.</string>
+    <string name="out_of_service">Fuera de servicio. El tracking está parada.</string>
+    <string name="service_again_available">El servicio está de nuevo disponible. El tracking continua.</string>
+	<string name="delete_trackfile">Borrar Track</string>
+	<string name="delete_trackfile_hint">¿Quieres eliminar el track? Esta acción no se puede deshacer.</string>
+	<string name="activity_finished">Actividad finalizada</string>
+	<string name="loading_data">Cargando datos...</string>
+	<string name="loading_file">Cargando fichero...</string>
+	<string name="track_date_hint">Fecha</string>
+	<string name="track_distance_hint">Distancia</string>
+	<string name="track_activity_time_hint">Tiempo Actividad</string>
+	<string name="track_elevation_hint">Altitud</string>
+	<string name="track_max_ele_hint">Máx.</string>
+	<string name="track_min_ele_hint">Mín.</string>
+	<string name="track_gain_ele_hint">Ganancia</string>
+	<string name="track_loss_ele_hint">Pérdida</string>
+	<string name="track_speed_hint">Velocidad</string>
+	<string name="track_max_speed_hint">Máx.</string>
+	<string name="track_avg_speed_hint">Media</string>
+	<string name="button_delete">Borrar</string>
+	<string name="gps_accuracy_hint">Precisión</string>
+	<string name="gps_status_hint">Estado del GPS</string>
+	<string name="accuracy_unit">m</string>
+	<string name="track_name_hint">Nombre</string>
+	<string name="track_description_hint">Descripción</string>
+	<string name="logo_content_description">Logo del deporte</string>
+	<string name="delete">Borrar</string>
+	<string name="edit">Editar</string>
+    <string name="unknown_sport">Desporte desconocido</string>
+    <string name="import_file">Importar</string>
+    <string name="elevation">Altitud</string>
+    <string name="distance">Distancia</string>
+    <string name="route_profile">Perfil</string>
+</resources>

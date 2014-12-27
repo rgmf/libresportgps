@@ -98,12 +98,15 @@ public class DBModel {
 		trackPoint.setLat(loc.getLatitude());
 		trackPoint.setLng(loc.getLatitude());
 		trackPoint.setTime(loc.getTime());
+		trackPoint.setDistance((float) Session.getDistance());
+		/*
 		if(Session.getLastLocation() != null)
 			trackPoint.setDistance((float) Utilities.CalculateDistance(
 					Session.getLastLocation().getLatitude(), 
 					Session.getLastLocation().getLongitude(),
 					loc.getLatitude(),
 					loc.getLongitude()));
+		 */
 		trackPoint.setAccuracy(loc.getAccuracy());
 		trackPoint.setElevation(loc.getAltitude());
 		trackPoint.setSpeed(loc.getSpeed());
