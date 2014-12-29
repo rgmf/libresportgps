@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package es.rgmf.libresportgps.view;
+package es.rgmf.libresportgps.fragment;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ import es.rgmf.libresportgps.adapter.TrackListAdapter;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.file.reader.GpxReader;
-import es.rgmf.libresportgps.view.dialog.FileDialog;
+import es.rgmf.libresportgps.fragment.dialog.FileDialog;
 
 /**
  * This View is created to show the list of tracks the application have in his

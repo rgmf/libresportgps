@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package es.rgmf.libresportgps.view;
+package es.rgmf.libresportgps.fragment;
 
 import java.util.TreeMap;
 

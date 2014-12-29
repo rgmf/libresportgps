@@ -1,5 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
 /**
  * Copyright (C) 2014 Román Ginés Martínez Ferrández <rgmf@riseup.net>
  *
@@ -16,14 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- -->
- 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    
-	<item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="@string/action_settings"/>
 
-</menu>
+package es.rgmf.libresportgps.fragment;
+
+import android.app.Fragment;
+import android.location.Location;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+/**
+ * All View that need GPS data must extends from it.
+ * 
+ * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
+ */
+public abstract class AbstractViewFragment extends Fragment {
+	public abstract View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState);
+	public abstract void onLocationUpdate(Location loc);
+}

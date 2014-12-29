@@ -30,7 +30,7 @@ import es.rgmf.libresportgps.adapter.SportListAdapter;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Sport;
 import es.rgmf.libresportgps.db.orm.Track;
-import es.rgmf.libresportgps.view.TrackListFragment;
+import es.rgmf.libresportgps.fragment.TrackListFragment;
 
 /**
  * This class represent the main activity of the application.

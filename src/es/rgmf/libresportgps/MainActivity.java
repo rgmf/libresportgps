@@ -17,14 +17,6 @@
 
 package es.rgmf.libresportgps;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -43,7 +35,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -51,13 +42,14 @@ import android.view.View;
 import android.widget.Toast;
 import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.db.orm.Track;
+import es.rgmf.libresportgps.fragment.AbstractViewFragment;
+import es.rgmf.libresportgps.fragment.DataViewFragment;
+import es.rgmf.libresportgps.fragment.SettingsFragment;
+import es.rgmf.libresportgps.fragment.TrackDetailFragment;
+import es.rgmf.libresportgps.fragment.TrackListFragment;
 import es.rgmf.libresportgps.gps.GpsLoggerService;
 import es.rgmf.libresportgps.gps.GpsLoggerServiceConnection;
 import es.rgmf.libresportgps.gps.IGpsLoggerServiceClient;
-import es.rgmf.libresportgps.view.AbstractViewFragment;
-import es.rgmf.libresportgps.view.DataViewFragment;
-import es.rgmf.libresportgps.view.TrackDetailFragment;
-import es.rgmf.libresportgps.view.TrackListFragment;
 
 /**
  * This class represent the main activity of the application.
@@ -153,41 +145,6 @@ public class MainActivity extends Activity implements
    		// Check GPS status provider to show a message if GPS is disabled.
         this.checkGpsProvider();
 	}
-
-	/* This method can be delete */
-	/*
-	private void addAllGpxFilesFromFolder() {
-		String folder = Environment.getExternalStorageDirectory() + "/libresportgps";
-		ArrayList<String> fileList = FileManager.getListOfFiles(folder);
-		String extension;
-		String fileName;
-		int indexOfDot;
-		File gpxFile;
-		GpxReader gpxReader;
-		Track track;
-		
-		for(int i = 0; i < fileList.size(); i++) {
-			indexOfDot = fileList.get(i).lastIndexOf('.');
-			if(indexOfDot > 0) {
-				extension = fileList.get(i).substring(indexOfDot + 1);
-				if(extension.equalsIgnoreCase("gpx")) {
-					Log.v("File Name:", fileList.get(i));
-					fileName = fileList.get(i).substring(0, indexOfDot);
-					gpxFile = new File(folder + "/" + fileList.get(i));
-					gpxReader = new GpxReader();
-					gpxReader.loadFile(folder + "/" + fileList.get(i));
-					
-					Log.v("     ", "" + Utilities.timeStampFormatter(gpxReader.getStartTime()));
-					Log.v("     ", "" + Utilities.timeStampFormatter(gpxReader.getFinishTime()));
-					Log.v("     ", "" + Utilities.timeStampFormatter(gpxReader.getActivityTime()));
-					Log.v("     ", "" + gpxReader.getElevation().getMax());
-					Log.v("     ", "" + gpxReader.getElevation().getMin());
-					Log.v("     ", "" + gpxReader.getDistance());
-				}
-			}
-		}
-	}
-	*/
 	
 	/**
 	 * This method is called each time the activity is executed. For example when you change from 
@@ -217,6 +174,8 @@ public class MainActivity extends Activity implements
 		case 1:
 			transaction.replace(R.id.container, DataViewFragment.newInstance());
 			break;
+		case 2:
+			transaction.replace(R.id.container, SettingsFragment.newInstance());
 		default:
 			break;
 		}
@@ -238,6 +197,8 @@ public class MainActivity extends Activity implements
 		case 2:
 			mTitle = getString(R.string.title_data_section);
 			break;
+		case 3:
+			mTitle = getString(R.string.action_settings);
 		}
 	}
 	
@@ -292,10 +253,6 @@ public class MainActivity extends Activity implements
 			// Only show items in the action bar relevant to this screen
 			// if the drawer is not showing. Otherwise, let the drawer
 			// decide what to show in the action bar.
-			/*
-			getMenuInflater().inflate(R.menu.main, menu);
-			restoreActionBar();
-			*/
 			return true;
 		}
 		return super.onCreateOptionsMenu(menu);
@@ -306,10 +263,12 @@ public class MainActivity extends Activity implements
 		// Handle action bar item clicks here. The action bar will
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
+		/*
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
 			return true;
 		}
+		*/
 		return super.onOptionsItemSelected(item);
 	}
 	

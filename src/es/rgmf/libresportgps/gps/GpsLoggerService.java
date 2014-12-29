@@ -20,6 +20,7 @@ package es.rgmf.libresportgps.gps;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -28,11 +29,13 @@ import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.file.FileFactory;
 import es.rgmf.libresportgps.file.writer.IWriter;
+import es.rgmf.libresportgps.fragment.SettingsFragment;
 
 /**
  * This class is the service of the GPS. Provide GPS service to the application
@@ -48,9 +51,17 @@ public class GpsLoggerService extends Service implements LocationListener {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		
+		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		int timeBeforeLogging = Integer.valueOf(sharedPrefs.getString(SettingsFragment.KEY_PREF_TIME_BEFORE_LOGGING, "0"));
+		int distanceBeforeLogging = Integer.valueOf(sharedPrefs.getString(SettingsFragment.KEY_PREF_DISTANCE_BEFORE_LOGGING, "0"));
+		
 		gpsLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		gpsLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-				1000, 1.0f, this);
+		gpsLocationManager.requestLocationUpdates(
+				LocationManager.GPS_PROVIDER,
+				timeBeforeLogging * 1000,
+				distanceBeforeLogging,
+				this);
 	}
 
 	@Override
