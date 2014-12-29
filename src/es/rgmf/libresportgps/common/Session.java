@@ -20,6 +20,7 @@ package es.rgmf.libresportgps.common;
 import android.app.Application;
 import android.location.Location;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 
 /**
  * This class represent the current session. It has all information needed
@@ -33,6 +34,9 @@ public class Session extends Application {
 	private static Location lastLocation = null;
 	private static double distance = 0f; // In meters.
 	private static float maxSpeed = 0f; // In km/h.
+	
+	private static long lastLoggingTime = 0L;
+	private static int timeBeforeLogging = 0;
 	
 	private static int satellitesInView = 0;
 	private static int satellitesInUsed = 0;
@@ -309,5 +313,21 @@ public class Session extends Application {
 
 	public static void setDistanceGain(Double distanceGain) {
 		Session.distanceGain = distanceGain;
+	}
+
+	public static int getTimeBeforeLogging() {
+		return timeBeforeLogging;
+	}
+
+	public static void setTimeBeforeLogging(int timeBeforeLogging) {
+		Session.timeBeforeLogging = timeBeforeLogging;
+	}
+
+	public static long getLastLoggingTime() {
+		return lastLoggingTime;
+	}
+
+	public static void setLastLoggingTime(long lastLogginigTime) {
+		Session.lastLoggingTime = lastLogginigTime;
 	}
 }

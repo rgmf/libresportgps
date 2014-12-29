@@ -27,12 +27,14 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.widget.DrawerLayout;
 import android.view.KeyEvent;
@@ -58,19 +60,19 @@ import es.rgmf.libresportgps.gps.IGpsLoggerServiceClient;
  */
 public class MainActivity extends Activity implements
 		NavigationDrawerFragment.NavigationDrawerCallbacks,
-		IGpsLoggerServiceClient,
-		TrackListFragment.OnTrackSelectedListener,
+		IGpsLoggerServiceClient, TrackListFragment.OnTrackSelectedListener,
 		TrackListFragment.ProgressCallbacks {
-	
+
 	private ProgressDialog mProgressDialog = null;
-	
+
 	/**
-	 * Needed attributes to creates and manages service. 
+	 * Needed attributes to creates and manages service.
 	 */
 	private static Intent serviceIntent;
 	private GpsLoggerService gpsService;
-	private GpsLoggerServiceConnection gpsServiceConnection = new GpsLoggerServiceConnection(this);
-	
+	private GpsLoggerServiceConnection gpsServiceConnection = new GpsLoggerServiceConnection(
+			this);
+
 	/**
 	 * Fragment manager.
 	 */
@@ -93,39 +95,31 @@ public class MainActivity extends Activity implements
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		/*************** To create a copy of the database *****************
-		try {
-			File dbInFile = getDatabasePath("libresportgps.db");
-			File dbOutFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/copy_libresportgps.db");
-			InputStream in = new FileInputStream(dbInFile);
-		    OutputStream out = new FileOutputStream(dbOutFile);
-		    
-		    // Transfer bytes from in to out
-		    byte[] buf = new byte[1024];
-		    int len;
-		    while ((len = in.read(buf)) > 0) {
-		        out.write(buf, 0, len);
-		    }
-		    in.close();
-		    out.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		************** End to create a copy of the database **************/
-		
+		/***************
+		 * To create a copy of the database ***************** try { File
+		 * dbInFile = getDatabasePath("libresportgps.db"); File dbOutFile = new
+		 * File(Environment.getExternalStorageDirectory().getAbsolutePath() +
+		 * "/copy_libresportgps.db"); InputStream in = new
+		 * FileInputStream(dbInFile); OutputStream out = new
+		 * FileOutputStream(dbOutFile);
+		 * 
+		 * // Transfer bytes from in to out byte[] buf = new byte[1024]; int
+		 * len; while ((len = in.read(buf)) > 0) { out.write(buf, 0, len); }
+		 * in.close(); out.close(); } catch (FileNotFoundException e) { // TODO
+		 * Auto-generated catch block e.printStackTrace(); } catch (IOException
+		 * e) { // TODO Auto-generated catch block e.printStackTrace(); } End to
+		 * create a copy of the database
+		 **************/
+
 		super.onCreate(savedInstanceState);
-		
+
 		if (mFragmentManager == null) {
-            mFragmentManager = getFragmentManager();
-        }
-		
+			mFragmentManager = getFragmentManager();
+		}
+
 		setContentView(R.layout.activity_main);
-        
-        serviceIntent = new Intent(this, GpsLoggerService.class);
+
+		serviceIntent = new Intent(this, GpsLoggerService.class);
 
 		mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager()
 				.findFragmentById(R.id.navigation_drawer);
@@ -134,31 +128,47 @@ public class MainActivity extends Activity implements
 		// Set up the drawer.
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
 				(DrawerLayout) findViewById(R.id.drawer_layout));
-		
+
 		// Check if external storage is available.
 		checkExternalStorage();
-		
+
 		// Set LibreSportGPS to keepScreenOn.
-   		View libresportgpsView = findViewById(R.id.drawer_layout);
-   		libresportgpsView.setKeepScreenOn(true);
-   		
-   		// Check GPS status provider to show a message if GPS is disabled.
-        this.checkGpsProvider();
+		View libresportgpsView = findViewById(R.id.drawer_layout);
+		libresportgpsView.setKeepScreenOn(true);
+
+		// Check GPS status provider to show a message if GPS is disabled.
+		this.checkGpsProvider();
 	}
-	
+
 	/**
-	 * This method is called each time the activity is executed. For example when you change from 
-	 * other application to it.
+	 * This method is called each time the activity is executed. For example
+	 * when you change from other application to it.
 	 */
 	@Override
 	protected void onResume() {
-    	super.onResume();
-    	
-    	// Starts GPS Service and bind it to this Activity.
-    	Session.setBoundToService(true);
-        startService(serviceIntent);
-        bindService(serviceIntent, gpsServiceConnection, Context.BIND_AUTO_CREATE);
-    }
+		super.onResume();
+
+		// Get preferences and populate data in Session.
+		populateSessionWithPrefs();
+
+		// Starts GPS Service and bind it to this Activity.
+		Session.setBoundToService(true);
+		startService(serviceIntent);
+		bindService(serviceIntent, gpsServiceConnection,
+				Context.BIND_AUTO_CREATE);
+	}
+
+	/**
+	 * Get user preferences and populates them to Session.
+	 */
+	private void populateSessionWithPrefs() {
+		SharedPreferences sharedPrefs = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
+		int timeBeforeLogging = Integer.valueOf(sharedPrefs.getString(
+				SettingsFragment.KEY_PREF_TIME_BEFORE_LOGGING, "0"));
+
+		Session.setTimeBeforeLogging(timeBeforeLogging);
+	}
 
 	/**
 	 * This method is called when you chose an option in Navigation Drawer.
@@ -167,9 +177,10 @@ public class MainActivity extends Activity implements
 	public void onNavigationDrawerItemSelected(int position) {
 		// update the main content by replacing fragments
 		FragmentTransaction transaction = mFragmentManager.beginTransaction();
-		switch(position) {
+		switch (position) {
 		case 0:
-			transaction.replace(R.id.container, TrackListFragment.newInstance());
+			transaction
+					.replace(R.id.container, TrackListFragment.newInstance());
 			break;
 		case 1:
 			transaction.replace(R.id.container, DataViewFragment.newInstance());
@@ -179,7 +190,8 @@ public class MainActivity extends Activity implements
 		default:
 			break;
 		}
-		// If it selects an item from menu we need to pop the stack of fragments to
+		// If it selects an item from menu we need to pop the stack of fragments
+		// to
 		// remove the possible stacked fragment.
 		mFragmentManager.popBackStack();
 		transaction.commitAllowingStateLoss();
@@ -201,7 +213,7 @@ public class MainActivity extends Activity implements
 			mTitle = getString(R.string.action_settings);
 		}
 	}
-	
+
 	/**
 	 * This method is called when the activity will be destroyed.
 	 */
@@ -210,13 +222,11 @@ public class MainActivity extends Activity implements
 		super.onDestroy();
 		stopAndUnbindToService();
 		/*
-		if(mProgressDialog != null) {
-			Log.v("MainActivity::onDestroy", "mProgressDialog.dismiss");
-			mProgressDialog.dismiss();
-		}
-		*/
+		 * if(mProgressDialog != null) { Log.v("MainActivity::onDestroy",
+		 * "mProgressDialog.dismiss"); mProgressDialog.dismiss(); }
+		 */
 	}
-	
+
 	/**
 	 * This method is called when the activity is paused.
 	 */
@@ -225,19 +235,19 @@ public class MainActivity extends Activity implements
 		stopAndUnbindToService();
 		super.onPause();
 	}
-	
+
 	/**
 	 * This method stop and unbind to service if required.
 	 */
 	private void stopAndUnbindToService() {
 		if (Session.isBoundToService()) {
-            unbindService(gpsServiceConnection);
-            Session.setBoundToService(false);
-        }
+			unbindService(gpsServiceConnection);
+			Session.setBoundToService(false);
+		}
 
-        if (!Session.isTrackingStarted()){
-            stopService(serviceIntent);
-        }
+		if (!Session.isTrackingStarted()) {
+			stopService(serviceIntent);
+		}
 	}
 
 	public void restoreActionBar() {
@@ -264,207 +274,219 @@ public class MainActivity extends Activity implements
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		/*
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		*/
+		 * int id = item.getItemId(); if (id == R.id.action_settings) { return
+		 * true; }
+		 */
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 	/**
-	 * Check if GPS is enabled. If GPS is not enabled then It shows an Dialog through the user
-	 * can enabled it.
+	 * Check if GPS is enabled. If GPS is not enabled then It shows an Dialog
+	 * through the user can enabled it.
 	 */
 	private void checkGpsProvider() {
 		LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
-		if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER) && !Session.isAlertDialogGPSShowed()) {
+		if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+				&& !Session.isAlertDialogGPSShowed()) {
 			Session.setAlertDialogGPSShowed(true);
 			new AlertDialog.Builder(this)
-			.setTitle(R.string.gps_disabled)
-			.setIcon(android.R.drawable.ic_dialog_alert)
-			.setMessage(getResources().getString(R.string.gps_disabled_hint))
-			.setCancelable(true).setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-				}
-			}).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.cancel();
-				}
-			}).create().show();
+					.setTitle(R.string.gps_disabled)
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setMessage(
+							getResources()
+									.getString(R.string.gps_disabled_hint))
+					.setCancelable(true)
+					.setPositiveButton(android.R.string.yes,
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									startActivity(new Intent(
+											Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+								}
+							})
+					.setNegativeButton(android.R.string.no,
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									dialog.cancel();
+								}
+							}).create().show();
 		}
 	}
-	
+
 	/**
-	 * Check if external storage is available. If SD is not available then it shows 
-	 * a message.
+	 * Check if external storage is available. If SD is not available then it
+	 * shows a message.
 	 */
 	private void checkExternalStorage() {
 		String state = Environment.getExternalStorageState();
-	    if(!Environment.MEDIA_MOUNTED.equals(state) ||
-	    	Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-	    	Toast.makeText(this, R.string.external_storage_not_available,
+		if (!Environment.MEDIA_MOUNTED.equals(state)
+				|| Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+			Toast.makeText(this, R.string.external_storage_not_available,
 					Toast.LENGTH_SHORT).show();
-	    }
+		}
 	}
-	
+
 	/**
-     * Set gpsService.
-     * 
-     * This method is called from GpsLoggerServiceConnection.
-     * 
-     * @param gpsService the GpsLoggerService.
-     */
-    public void setGpsService(GpsLoggerService gpsService) {
-    	this.gpsService = gpsService;
-    }
-    
-    /**
-     * Return the gpsService.
-     * @return the GpsLoggerService.
-     */
-    public GpsLoggerService getGpsService() {
-    	return this.gpsService;
-    }
+	 * Set gpsService.
+	 * 
+	 * This method is called from GpsLoggerServiceConnection.
+	 * 
+	 * @param gpsService
+	 *            the GpsLoggerService.
+	 */
+	public void setGpsService(GpsLoggerService gpsService) {
+		this.gpsService = gpsService;
+	}
+
+	/**
+	 * Return the gpsService.
+	 * 
+	 * @return the GpsLoggerService.
+	 */
+	public GpsLoggerService getGpsService() {
+		return this.gpsService;
+	}
 
 	@Override
 	public void onStatusMessage(String message) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onFatalMessage(String message) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	/**
 	 * This method is called when location is updated.
 	 * 
-	 * All this method do is call the current fragment to update data you see in that fragment.
+	 * All this method do is call the current fragment to update data you see in
+	 * that fragment.
 	 */
 	@Override
 	public void onLocationUpdate(Location loc) {
-		Fragment currentFragment = mFragmentManager.findFragmentById(R.id.container);
-        if (currentFragment instanceof AbstractViewFragment) {
-            ((AbstractViewFragment) currentFragment).onLocationUpdate(loc);
-        }
+		Fragment currentFragment = mFragmentManager
+				.findFragmentById(R.id.container);
+		if (currentFragment instanceof AbstractViewFragment) {
+			((AbstractViewFragment) currentFragment).onLocationUpdate(loc);
+		}
 	}
 
 	/**
 	 * This method is called when user click on track list item in the
 	 * TrackListFragment fragment.
 	 * 
-	 * @param track The track selected.
+	 * @param track
+	 *            The track selected.
 	 */
 	@Override
 	public void onTrackSelected(Track track) {
 		TrackDetailFragment tdf = TrackDetailFragment.newInstance();
 		tdf.setTrack(track);
-		
+
 		FragmentTransaction transaction = mFragmentManager.beginTransaction();
 		transaction.replace(R.id.container, tdf);
-		transaction.addToBackStack(null); // Add this fragment to stack because the user can
-		                                  // back to the latter fragment.
+		transaction.addToBackStack(null); // Add this fragment to stack because
+											// the user can
+											// back to the latter fragment.
 		transaction.commitAllowingStateLoss();
 	}
-	
+
 	/**
-	 * We need to control back button (or up button) to back to some fragments to
-	 * another depend on fragments configurations.
+	 * We need to control back button (or up button) to back to some fragments
+	 * to another depend on fragments configurations.
 	 */
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-	    if (keyCode == KeyEvent.KEYCODE_BACK) {
-	    	if (mFragmentManager.getBackStackEntryCount() == 0) {
-	            this.finish();
-	            return false;
-	        }
-	    	else {
-	    		mFragmentManager.popBackStack();
-	    	}
-	    }
-	    
-	    return true;
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			if (mFragmentManager.getBackStackEntryCount() == 0) {
+				this.finish();
+				return false;
+			} else {
+				mFragmentManager.popBackStack();
+			}
+		}
+
+		return true;
 	}
-	
+
 	/**
-     * Indicates that status of the provider has changed. See documentation of this method in
-     * GpsLoggerService.
-     * 
-     * @param provider the provider.
-     * @param status the new status.
-     * @param extras the extras.
-     */
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-    	/*
-    	if(status == LocationProvider.OUT_OF_SERVICE || 
-    	   status == LocationProvider.TEMPORARILY_UNAVAILABLE) {
-        	Toast.makeText(this, R.string.out_of_service,
-    				Toast.LENGTH_SHORT).show();
-    	}
-    	else {
-    		Toast.makeText(this, R.string.service_again_available,
-    				Toast.LENGTH_SHORT).show();
-    	}
-    	*/
-    }
+	 * Indicates that status of the provider has changed. See documentation of
+	 * this method in GpsLoggerService.
+	 * 
+	 * @param provider
+	 *            the provider.
+	 * @param status
+	 *            the new status.
+	 * @param extras
+	 *            the extras.
+	 */
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		/*
+		 * if(status == LocationProvider.OUT_OF_SERVICE || status ==
+		 * LocationProvider.TEMPORARILY_UNAVAILABLE) { Toast.makeText(this,
+		 * R.string.out_of_service, Toast.LENGTH_SHORT).show(); } else {
+		 * Toast.makeText(this, R.string.service_again_available,
+		 * Toast.LENGTH_SHORT).show(); }
+		 */
+	}
 
 	@Override
 	public void onNmeaSentence(long timestamp, String nmeaSentence) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onSatelliteCount(int count) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onStartLogging() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onStopLogging() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onSetAnnotation() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onClearAnnotation() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onFileName(String newFileName) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onWaitingForLocation(boolean inProgress) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	/***** Implement the interface TrackListFragment.ProgressCallbacks *****/
 	/**
-	 * These methods are called from fragments through callback in these 
+	 * These methods are called from fragments through callback in these
 	 * fragments to show and dismiss loading dialog.
 	 */
 	@Override
@@ -474,29 +496,28 @@ public class MainActivity extends Activity implements
 		mProgressDialog.setCancelable(false);
 		mProgressDialog.setMessage(getString(R.string.loading_file));
 		mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-    	
+
 		// Stop rotation screen.
-    	int current_orientation = getResources().getConfiguration().orientation;
-    	if (current_orientation == Configuration.ORIENTATION_LANDSCAPE) {
-    	    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-    	}
-    	else {
-    	    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-    	}
-    	
-    	// Show the progress dialog.
-    	mProgressDialog.show();
+		int current_orientation = getResources().getConfiguration().orientation;
+		if (current_orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		} else {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		}
+
+		// Show the progress dialog.
+		mProgressDialog.show();
 	}
 
 	@Override
 	public void onProgressUpdate(int percent) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onCancelled() {
-		if(mProgressDialog != null) {
+		if (mProgressDialog != null) {
 			mProgressDialog.dismiss();
 		}
 	}
@@ -504,19 +525,19 @@ public class MainActivity extends Activity implements
 	@Override
 	public void onPostExecute() {
 		// Dismiss the dialog progress.
-		if(mProgressDialog != null) {
+		if (mProgressDialog != null) {
 			mProgressDialog.dismiss();
 		}
-		
+
 		// Load the track list fragment to refresh and load the new track.
 		FragmentTransaction transaction = mFragmentManager.beginTransaction();
 		transaction.replace(R.id.container, TrackListFragment.newInstance());
 		mFragmentManager.popBackStack();
 		transaction.commitAllowingStateLoss();
-		
+
 		// Activate the rotation screen.
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-		
+
 	}
 	/*** End implement the interface TrackListFragment.ProgressCallbacks ***/
 }

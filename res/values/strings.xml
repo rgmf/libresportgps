@@ -29,10 +29,6 @@
     <string name="time_before_logging_summary">Use 0 to maximum frequency. The best option is reduce the time between each register to save battery.</string>
     <string name="time_before_logging_dialog_title">Seconds time</string>
     <string name="time_before_logging_hint">Seconds</string>
-    <string name="distance_before_logging_title">Distance between registers</string>
-    <string name="distance_before_logging_summary">The minimum distance required between current and previous for a point to be saved, otherwise the point will be discarded.</string>
-    <string name="distance_before_logging_dialog_title">Meters distance</string>
-    <string name="distance_before_logging_hint">Meters</string>
     
 
     <string name="app_name">LibreSportGPS</string>

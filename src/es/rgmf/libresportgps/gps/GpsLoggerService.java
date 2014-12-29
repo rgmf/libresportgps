@@ -51,17 +51,10 @@ public class GpsLoggerService extends Service implements LocationListener {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		
-		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-		int timeBeforeLogging = Integer.valueOf(sharedPrefs.getString(SettingsFragment.KEY_PREF_TIME_BEFORE_LOGGING, "0"));
-		int distanceBeforeLogging = Integer.valueOf(sharedPrefs.getString(SettingsFragment.KEY_PREF_DISTANCE_BEFORE_LOGGING, "0"));
-		
+
 		gpsLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		gpsLocationManager.requestLocationUpdates(
-				LocationManager.GPS_PROVIDER,
-				timeBeforeLogging * 1000,
-				distanceBeforeLogging,
-				this);
+		gpsLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+				0, 0, this);
 	}
 
 	@Override
@@ -85,15 +78,19 @@ public class GpsLoggerService extends Service implements LocationListener {
 
 	/**
 	 * This method do these tasks: - Show data in the view. - Save the
-	 * information in the database. - Update Session needed data. - Write
-	 * the file/s.
+	 * information in the database. - Update Session needed data. - Write the
+	 * file/s.
 	 */
 	@Override
 	public void onLocationChanged(Location loc) {
-		if (!Session.isGpsReady())
-			Session.setGpsReady(true);
+		// We receive location so gps is ready.
+		Session.setGpsReady(true);
 
-		if (Session.isTracking()) {
+		// First of all we check if time and distance before logging
+		// is completed.
+		if ((Session.getLastLoggingTime() + Session.getTimeBeforeLogging()) < System
+				.currentTimeMillis() && Session.isTracking()) {
+			
 			// Update Session data from Location.
 			updateSessionDataFromLocation(loc);
 
@@ -150,9 +147,12 @@ public class GpsLoggerService extends Service implements LocationListener {
 			Session.setMinAltitude(loc.getAltitude());
 			Session.setStartAltitude(loc.getAltitude());
 		}
-		
+
 		// Set last location with current location to the next location update.
 		Session.setLastLocation(loc);
+
+		// Set last time logging.
+		Session.setLastLoggingTime(loc.getTime());
 	}
 
 	@Override
