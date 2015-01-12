@@ -19,15 +19,17 @@
  -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:layout_width="fill_parent"
-android:layout_height="fill_parent"
-android:orientation="vertical" >
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical" >
 
 	<TextView
 	    android:id="@+id/android:empty"
-	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent"
-	    android:text="No items to display." />
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:layout_gravity="center_horizontal|center_vertical"
+	    android:gravity="center_vertical|center_horizontal"
+	    android:text="@string/no_tracks_to_display" />
 	
 	<ListView
 	    android:id="@+id/android:list"

@@ -90,4 +90,5 @@
     <string name="distance">Distancia</string>
     <string name="route_profile">Perfil</string>
     <string name="gps_update">Rendimiento GPS</string>
+    <string name="no_tracks_to_display">No hay tracks que mostrar</string>
 </resources>
