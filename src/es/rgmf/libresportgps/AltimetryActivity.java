@@ -27,7 +27,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
 /**
@@ -55,10 +54,8 @@ public class AltimetryActivity extends Activity {
         
         // Wee need to re-order the map because after de-serialize the map can be 
         // unordered.
-        Log.v("items map:", "" + map.size());
         TreeMap<Integer, Float> treeMap = new TreeMap<Integer, Float>();
         treeMap.putAll(map);
-        Log.v("items treemap:", "" + treeMap.size());
 
         // Draw with ordered map.
 	    drawView = new DrawView(this, treeMap, 
@@ -103,6 +100,7 @@ public class AltimetryActivity extends Activity {
             this.mXCoordinateText = xCoordinateText;
             this.mYCoordinateText = yCoordinateText;
         }
+        
         @Override
         public void onDraw(Canvas canvas) {
         	super.onDraw(canvas);
@@ -136,14 +134,15 @@ public class AltimetryActivity extends Activity {
             while(it.hasNext()) {
             	key = (Integer) it.next();
             	x = (int) ((key * (width - PADDING_LEFT - PADDING_RIGHT)) / mMaxX);
-            	y = (float) ((mMap.get(key) * ((float) height)) / mMaxY);
-            	Log.v("x, y", "" + x + ", " + y);
+            	y = (float) ((mMap.get(key) * ((float) (height - PADDING_TOP - PADDING_BOTTOM))) / mMaxY);
             	if(prevX != null && prevY != null) {
             		canvas.drawLine(
             				(float) (prevX + PADDING_LEFT),
-            				(float) (height - prevY + PADDING_BOTTOM), 
+            				(float) (height - PADDING_TOP - prevY), // (height - PADDING_TOP - PADDING_BOTTOM) - prevY + PADDING_BOTTOM ==
+            				                                        // height - PADDING_TOP - prevY
             				(float) (x + PADDING_LEFT),
-            				(float) (height - y + PADDING_BOTTOM), 
+            				(float) (height - PADDING_TOP - y),     // (height - PADDING_TOP - PADDING_BOTTOM) - y + PADDING_BOTTOM ==
+            														// height - PADDING_TOP - y
             				linePaint);
             	}
             	prevX = x;

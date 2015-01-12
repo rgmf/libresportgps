@@ -21,11 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
-import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 import es.rgmf.libresportgps.common.Session;
-import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.db.orm.Sport;
 import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.db.orm.TrackPoint;

@@ -25,7 +25,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 import es.rgmf.libresportgps.db.orm.Sport;
 import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.db.orm.TrackPoint;
@@ -441,17 +440,12 @@ public class DBAdapter {
 
         Cursor cursor = db.rawQuery(query, null);
         
-        Log.v("Num cursor:", "" + cursor.getCount());
-        
         if(cursor.moveToFirst()) {
             do {
-            	Log.v("Distance: ", "" + cursor.getFloat(0));
             	treeMap.put((int) cursor.getFloat(0), cursor.getFloat(1));
             } while (cursor.moveToNext());
         }
         cursor.close();
-        
-        Log.v("treeMap in cursor items:", "" + treeMap.size());
     	
 		return treeMap;
 	}
