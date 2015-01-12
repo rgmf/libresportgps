@@ -20,7 +20,6 @@ package es.rgmf.libresportgps.common;
 import android.app.Application;
 import android.location.Location;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 
 /**
  * This class represent the current session. It has all information needed

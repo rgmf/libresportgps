@@ -143,7 +143,8 @@ public class TrackListFragment extends ListFragment {
 		TrackListAdapter adapter = new TrackListAdapter(mContext, mTracks);
 		setListAdapter(adapter);
 
-		return super.onCreateView(inflater, container, savedInstanceState);
+		//return super.onCreateView(inflater, container, savedInstanceState);
+		return inflater.inflate(R.layout.fragment_track_list, container, false);
 	}
 
 	/**

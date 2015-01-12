@@ -17,7 +17,6 @@
 
 package es.rgmf.libresportgps.fragment;
 
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.view.Menu;

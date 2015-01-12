@@ -43,7 +43,7 @@ public class TrackListAdapter extends ArrayAdapter<Track> {
 	private Context context;
 	
 	public TrackListAdapter(Context context, ArrayList<Track> items) {
-		super(context, R.layout.fragment_main, items);
+		super(context, R.layout.fragment_row_track_list, items);
 		this.context = context;
 		this.values = items;
 	}
@@ -54,7 +54,7 @@ public class TrackListAdapter extends ArrayAdapter<Track> {
 	    if (convertView == null) {
 	        // This a new view we inflate the new layout
 	        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	        convertView = inflater.inflate(R.layout.fragment_main, parent, false);
+	        convertView = inflater.inflate(R.layout.fragment_row_track_list, parent, false);
 	    }
         // Now we can fill the layout with the right values
 	    ImageView ivLogo = (ImageView) convertView.findViewById(R.id.list_logo);
@@ -63,16 +63,14 @@ public class TrackListAdapter extends ArrayAdapter<Track> {
         
         Track track = values.get(position);
         Sport sport = track.getSport();
-        if(sport != null) {
-        	if(sport.getLogo() != null) {
-        		if(!sport.getLogo().isEmpty()) {
-	        		Bitmap logoBitmap = Utilities.loadBitmapEfficiently(sport.getLogo(), 
-	    	    			(int) context.getResources().getDimension(R.dimen.icon_size_small),
-	    	    			(int) context.getResources().getDimension(R.dimen.icon_size_small));
-	    	        ivLogo.setImageBitmap(logoBitmap);
-        		}
-        	}
+        if(sport != null && sport.getLogo() != null && !sport.getLogo().isEmpty()) {
+			Bitmap logoBitmap = Utilities.loadBitmapEfficiently(sport.getLogo(), 
+	    			(int) context.getResources().getDimension(R.dimen.icon_size_small),
+	    			(int) context.getResources().getDimension(R.dimen.icon_size_small));
+	        ivLogo.setImageBitmap(logoBitmap);
         }
+        else
+        	ivLogo.setImageResource(R.drawable.unknown);
         tvName.setText(track.getTitle());
         tvDate.setText(Utilities.timeStampCompleteFormatter(track.getFinishTime()));
 	     
