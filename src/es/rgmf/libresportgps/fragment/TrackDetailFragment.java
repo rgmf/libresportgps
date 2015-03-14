@@ -24,7 +24,6 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -226,15 +225,8 @@ public class TrackDetailFragment extends Fragment {
 			tvLossEle.setText(Utilities.elevation(mTrack.getElevationLoss()));
 			tvMaxSpeed.setText(Utilities.speed(mTrack.getMaxSpeed()));
 			tvAvgSpeed.setText(Utilities.avgSpeed(mTrack.getActivityTime(), mTrack.getDistance()));
-	        if(mTrack.getSport() != null) {
-	            if(mTrack.getSport().getLogo() != null) {
-	                if(!mTrack.getSport().getLogo().isEmpty()) {
-	                    Bitmap logoBitmap = Utilities.loadBitmapEfficiently(mTrack.getSport().getLogo(),
-	                            (int) mContext.getResources().getDimension(R.dimen.icon_size_small),
-	                            (int) mContext.getResources().getDimension(R.dimen.icon_size_small));
-	                    ivLogo.setImageBitmap(logoBitmap);
-	                }
-	            }
+	        if(mTrack.getSport() != null && mTrack.getSport().getLogo() != null && !mTrack.getSport().getLogo().isEmpty()) {
+            	ivLogo.setImageResource(mContext.getResources().getIdentifier(mTrack.getSport().getLogo(), "drawable", mContext.getPackageName()));
 	        }
 		}
 	}

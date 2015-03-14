@@ -95,21 +95,26 @@ public class MainActivity extends Activity implements
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		/***************
-		 * To create a copy of the database ***************** try { File
-		 * dbInFile = getDatabasePath("libresportgps.db"); File dbOutFile = new
-		 * File(Environment.getExternalStorageDirectory().getAbsolutePath() +
-		 * "/copy_libresportgps.db"); InputStream in = new
-		 * FileInputStream(dbInFile); OutputStream out = new
-		 * FileOutputStream(dbOutFile);
-		 * 
-		 * // Transfer bytes from in to out byte[] buf = new byte[1024]; int
-		 * len; while ((len = in.read(buf)) > 0) { out.write(buf, 0, len); }
-		 * in.close(); out.close(); } catch (FileNotFoundException e) { // TODO
-		 * Auto-generated catch block e.printStackTrace(); } catch (IOException
-		 * e) { // TODO Auto-generated catch block e.printStackTrace(); } End to
-		 * create a copy of the database
-		 **************/
+		/**************** To create a copy of the database ***************
+		try {
+			File
+			dbInFile = getDatabasePath("libresportgps.db");
+			File dbOutFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/copy_libresportgps.db");
+			InputStream in = new FileInputStream(dbInFile);
+			OutputStream out = new FileOutputStream(dbOutFile);
+			 
+			// Transfer bytes from in to out
+			byte[] buf = new byte[1024];
+			int len;
+			while ((len = in.read(buf)) > 0) { out.write(buf, 0, len); }
+			in.close();
+			out.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		***************** End to create a copy of the database **************/
 
 		super.onCreate(savedInstanceState);
 

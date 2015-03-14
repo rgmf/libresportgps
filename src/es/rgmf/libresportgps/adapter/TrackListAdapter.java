@@ -20,7 +20,6 @@ package es.rgmf.libresportgps.adapter;
 import java.util.ArrayList;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,11 +39,11 @@ import es.rgmf.libresportgps.db.orm.Track;
  */
 public class TrackListAdapter extends ArrayAdapter<Track> {
 	private ArrayList<Track> values;
-	private Context context;
+	private Context mContext;
 	
 	public TrackListAdapter(Context context, ArrayList<Track> items) {
 		super(context, R.layout.fragment_row_track_list, items);
-		this.context = context;
+		this.mContext = context;
 		this.values = items;
 	}
 	
@@ -53,7 +52,7 @@ public class TrackListAdapter extends ArrayAdapter<Track> {
 		// First let's verify the convertView is not null
 	    if (convertView == null) {
 	        // This a new view we inflate the new layout
-	        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	        convertView = inflater.inflate(R.layout.fragment_row_track_list, parent, false);
 	    }
         // Now we can fill the layout with the right values
@@ -64,13 +63,11 @@ public class TrackListAdapter extends ArrayAdapter<Track> {
         Track track = values.get(position);
         Sport sport = track.getSport();
         if(sport != null && sport.getLogo() != null && !sport.getLogo().isEmpty()) {
-			Bitmap logoBitmap = Utilities.loadBitmapEfficiently(sport.getLogo(), 
-	    			(int) context.getResources().getDimension(R.dimen.icon_size_small),
-	    			(int) context.getResources().getDimension(R.dimen.icon_size_small));
-	        ivLogo.setImageBitmap(logoBitmap);
+        	ivLogo.setImageResource(mContext.getResources().getIdentifier(sport.getLogo(), "drawable", mContext.getPackageName()));
         }
         else
         	ivLogo.setImageResource(R.drawable.unknown);
+        
         tvName.setText(track.getTitle());
         tvDate.setText(Utilities.timeStampCompleteFormatter(track.getFinishTime()));
 	     

@@ -20,7 +20,6 @@ package es.rgmf.libresportgps.adapter;
 import java.util.ArrayList;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +27,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import es.rgmf.libresportgps.R;
-import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.db.orm.Sport;
 
 /**
@@ -79,16 +77,12 @@ public class SportListAdapter extends BaseAdapter {
         // Now we can fill the layout with the right values
         Sport sport = mValues.get(position);
         holder.tvId.setText(String.valueOf(sport.getId()));
-        if(sport != null) {
-        	if(sport.getLogo() != null) {
-        		if(!sport.getLogo().isEmpty()) {
-	        		Bitmap logoBitmap = Utilities.loadBitmapEfficiently(sport.getLogo(), 
-	    	    			(int) mContext.getResources().getDimension(R.dimen.icon_size_small),
-	    	    			(int) mContext.getResources().getDimension(R.dimen.icon_size_small));
-	    	        holder.ivLogo.setImageBitmap(logoBitmap);
-        		}
-        	}
+        if(sport != null && sport.getLogo() != null && !sport.getLogo().isEmpty()) {
+        	holder.ivLogo.setImageResource(mContext.getResources().getIdentifier(sport.getLogo(), "drawable", mContext.getPackageName()));
         }
+        else
+        	holder.ivLogo.setImageResource(R.drawable.unknown);
+        
         holder.tvName.setText(sport.getName());
 	     
 	    return convertView;

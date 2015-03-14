@@ -31,7 +31,7 @@ import android.os.Environment;
  *
  */
 class DBHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 9;
     private static final String DATABASE_NAME = "libresportgps.db";
     
     /*************************** Table names *********************************/
@@ -207,6 +207,25 @@ class DBHelper extends SQLiteOpenHelper {
 			db.execSQL("INSERT INTO " + SPORT_TBL_NAME + " (" + NAME_FIELD_NAME + ", " + LOGO_FIELD_NAME + ") " +
 			           "VALUES ('Trekking', '" + Environment.getExternalStorageDirectory() + "/libresportgps/trekking.png')");
         	break;
+        case 9:
+        	db.execSQL("UPDATE " + SPORT_TBL_NAME + " SET " +
+                       LOGO_FIELD_NAME + "=" + "'canicross' " +
+        			   "WHERE " + NAME_FIELD_NAME + "='Canicross'");
+        	db.execSQL("UPDATE " + SPORT_TBL_NAME + " SET " +
+                       LOGO_FIELD_NAME + "=" + "'cycling' " +
+     			       "WHERE " + NAME_FIELD_NAME + "='Cycling'");
+        	db.execSQL("UPDATE " + SPORT_TBL_NAME + " SET " +
+                       LOGO_FIELD_NAME + "=" + "'mountain_bike' " +
+  			           "WHERE " + NAME_FIELD_NAME + "='Mountain Bike'");
+        	db.execSQL("UPDATE " + SPORT_TBL_NAME + " SET " +
+                       LOGO_FIELD_NAME + "=" + "'running' " +
+  			           "WHERE " + NAME_FIELD_NAME + "='Running'");
+        	db.execSQL("UPDATE " + SPORT_TBL_NAME + " SET " +
+                       LOGO_FIELD_NAME + "=" + "'trail_running' " +
+  			           "WHERE " + NAME_FIELD_NAME + "='Trail Running'");
+        	db.execSQL("UPDATE " + SPORT_TBL_NAME + " SET " +
+                       LOGO_FIELD_NAME + "=" + "'trekking' " +
+  			           "WHERE " + NAME_FIELD_NAME + "='Trekking'");
 		}
 	}
 }

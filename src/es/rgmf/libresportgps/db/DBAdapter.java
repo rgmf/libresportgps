@@ -317,7 +317,7 @@ public class DBAdapter {
     }
 
 	/**
-	 * Query and return all tracks.
+	 * Query and return all tracks order by finish date time (desc).
 	 * 
 	 * @return an ArrayList with all tracks in database.
 	 */
@@ -345,7 +345,10 @@ public class DBAdapter {
 				" FROM " + 
 				DBHelper.TRACK_TBL_NAME + " LEFT OUTER JOIN " + DBHelper.SPORT_TBL_NAME + " ON " +
 				DBHelper.TRACK_TBL_NAME + "." + DBHelper.SPORT_FIELD_NAME + "=" + 
-				DBHelper.SPORT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME;
+				DBHelper.SPORT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + 
+				
+				" ORDER BY " +
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.FINISH_TIME_FIELD_NAME + " DESC";
     	
 		Cursor cursor = db.rawQuery(query, null);
     	

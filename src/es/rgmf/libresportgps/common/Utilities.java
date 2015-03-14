@@ -22,7 +22,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 /**
@@ -246,13 +245,14 @@ public class Utilities {
 	}
 	
 	/**
-	 * It loads an image and return the bitmap effciently (see {@link https://developer.android.com/training/displaying-bitmaps/load-bitmap.html}.
+	 * It loads an image and return the bitmap efficiently (see {@link https://developer.android.com/training/displaying-bitmaps/load-bitmap.html}.
 	 * 
 	 * @param selectedImagePath
 	 * @param i
 	 * @param j
 	 * @return
 	 */
+	/*
 	public static Bitmap loadBitmapEfficiently(String imagePath, int reqWidth, int reqHeight) {
 		BitmapFactory.Options options = new BitmapFactory.Options();
     	options.inJustDecodeBounds = true;
@@ -268,4 +268,5 @@ public class Utilities {
         
         return photoBitmap;
 	}
+	*/
 }
