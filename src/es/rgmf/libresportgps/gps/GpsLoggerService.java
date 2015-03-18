@@ -82,6 +82,12 @@ public class GpsLoggerService extends Service implements LocationListener {
 	public void onLocationChanged(Location loc) {
 		// We receive location so gps is ready.
 		Session.setGpsReady(true);
+		
+		// Update Session data from Location.
+		updateSessionDataFromLocation(loc);
+		
+		// Update the view to show location information to user.
+		serviceClient.onLocationUpdate(loc);
 
 		// First of all we check if time and distance before logging
 		// is completed.
@@ -89,10 +95,10 @@ public class GpsLoggerService extends Service implements LocationListener {
 				.currentTimeMillis() && Session.isTracking()) {
 			
 			// Update Session data from Location.
-			updateSessionDataFromLocation(loc);
+			//updateSessionDataFromLocation(loc);
 
 			// Update the view to show location information to user.
-			serviceClient.onLocationUpdate(loc);
+			//serviceClient.onLocationUpdate(loc);
 
 			// Save information in database.
 			if (Session.getTrackId() != -1)

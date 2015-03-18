@@ -35,7 +35,7 @@ public class Session extends Application {
 	private static float maxSpeed = 0f; // In km/h.
 	
 	private static long lastLoggingTime = 0L;
-	private static int timeBeforeLogging = 0;
+	private static long timeBeforeLogging = 0;
 	
 	private static int satellitesInView = 0;
 	private static int satellitesInUsed = 0;
@@ -314,11 +314,11 @@ public class Session extends Application {
 		Session.distanceGain = distanceGain;
 	}
 
-	public static int getTimeBeforeLogging() {
+	public static long getTimeBeforeLogging() {
 		return timeBeforeLogging;
 	}
 
-	public static void setTimeBeforeLogging(int timeBeforeLogging) {
+	public static void setTimeBeforeLogging(long timeBeforeLogging) {
 		Session.timeBeforeLogging = timeBeforeLogging;
 	}
 

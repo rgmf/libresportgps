@@ -169,8 +169,8 @@ public class MainActivity extends Activity implements
 	private void populateSessionWithPrefs() {
 		SharedPreferences sharedPrefs = PreferenceManager
 				.getDefaultSharedPreferences(getApplicationContext());
-		int timeBeforeLogging = Integer.valueOf(sharedPrefs.getString(
-				SettingsFragment.KEY_PREF_TIME_BEFORE_LOGGING, "0"));
+		long timeBeforeLogging = Integer.valueOf(sharedPrefs.getString(
+				SettingsFragment.KEY_PREF_TIME_BEFORE_LOGGING, "0")) * 1000; // To Milliseconds.
 
 		Session.setTimeBeforeLogging(timeBeforeLogging);
 	}
