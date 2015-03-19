@@ -147,11 +147,8 @@ public class TrackDetailFragment extends Fragment {
 				.setCancelable(true).setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						// Delete the file.
-						FileManager.delete(
-								Session.getAppFolder() + "/" + mTrack.getId(),
-								mName + ".gpx"
-								);
+						// Delete all files in the folder and folder included.
+						FileManager.delete(Session.getAppFolder() + "/" + mTrack.getId());
 						// Delete the register in the database.
 						if(!DBModel.deleteTrack(getActivity(), mTrack.getId()))
 							Toast.makeText(getActivity(), R.string.track_was_not_deleted,

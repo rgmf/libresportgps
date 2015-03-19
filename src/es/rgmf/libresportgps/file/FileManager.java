@@ -61,6 +61,26 @@ public class FileManager {
 	}
 	
 	/**
+	 * This method delete folder.
+	 * 
+	 * @param folder name of the folder.
+	 */
+	public static void delete(String folder) {
+		File f = new File(folder);
+		
+		if (f.isDirectory()) {
+			// Delete all files of the folder.
+			for (String s: f.list()) {
+				File currentFile = new File(f.getPath(), s);
+				currentFile.delete();
+			}
+			
+			// Now already we can delete the folder.
+			f.delete();
+		}
+	}
+	
+	/**
 	 * Return a list of file names into folder.
 	 * 
 	 * @param folderPath The path of the folder.

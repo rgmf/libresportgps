@@ -20,7 +20,6 @@ package es.rgmf.libresportgps.file;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.file.writer.GpxWriter;
 import es.rgmf.libresportgps.file.writer.IWriter;
@@ -34,16 +33,18 @@ import es.rgmf.libresportgps.file.writer.IWriter;
 public class FileFactory {
 	private static List<IWriter> files = null;
 	
-	public static List<IWriter> getFiles() {
+	public static List<IWriter> getFiles(String trackId) {
 		if(files == null) {
+			String folderName = Session.getAppFolder() + "/" + trackId;
+			
 			// If folder does not exist then creates it.
-			File folder = new File(Session.getAppFolder());
+			File folder = new File(folderName);
 			if(!folder.exists())
 				folder.mkdirs();
 			
 			// Creates the file.
 			files = new ArrayList<IWriter>();
-			File file = new File(Session.getAppFolder(), Session.getFileName() + ".gpx");
+			File file = new File(folderName, Session.getFileName() + ".gpx");
 			GpxWriter gpxFile = new GpxWriter(file);
 		
 			// Adds the file inside the list of files.

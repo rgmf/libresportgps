@@ -83,30 +83,30 @@ public class GpsLoggerService extends Service implements LocationListener {
 		// We receive location so gps is ready.
 		Session.setGpsReady(true);
 		
-		// Update Session data from Location.
-		updateSessionDataFromLocation(loc);
-		
 		// Update the view to show location information to user.
 		serviceClient.onLocationUpdate(loc);
+		
+		// If we are tracking we save the location needed inside session.
+		if (Session.isTracking()) {
+			updateSessionDataFromLocation(loc);
 
-		// First of all we check if time and distance before logging
-		// is completed.
-		if ((Session.getLastLoggingTime() + Session.getTimeBeforeLogging()) < System
-				.currentTimeMillis() && Session.isTracking()) {
-			
-			// Update Session data from Location.
-			//updateSessionDataFromLocation(loc);
-
-			// Update the view to show location information to user.
-			//serviceClient.onLocationUpdate(loc);
-
-			// Save information in database.
-			if (Session.getTrackId() != -1)
-				DBModel.saveLocation(this, Session.getTrackId(), loc);
-
-			// Save information in files.
-			for (IWriter file : FileFactory.getFiles()) {
-				file.writeTrack(loc);
+			// We check if time and distance before logging is completed and then
+			// we update last time logging and we save information inside database
+			// and we save information inside files.
+			if ((Session.getLastLoggingTime() + Session.getTimeBeforeLogging()) < System
+					.currentTimeMillis()) {
+				
+				// Set last time logging.
+				Session.setLastLoggingTime(loc.getTime());
+	
+				// Save information in database.
+				if (Session.getTrackId() != -1)
+					DBModel.saveLocation(this, Session.getTrackId(), loc);
+	
+				// Save information in files.
+				for (IWriter file : FileFactory.getFiles(String.valueOf(Session.getTrackId()))) {
+					file.writeTrack(loc);
+				}
 			}
 		}
 	}
@@ -155,7 +155,7 @@ public class GpsLoggerService extends Service implements LocationListener {
 		Session.setLastLocation(loc);
 
 		// Set last time logging.
-		Session.setLastLoggingTime(loc.getTime());
+		//Session.setLastLoggingTime(loc.getTime());
 	}
 
 	@Override
