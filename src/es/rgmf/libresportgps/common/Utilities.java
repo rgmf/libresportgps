@@ -70,7 +70,7 @@ public class Utilities {
      * @return The string representation time or "0000-00-00'T'00:00:00.000'Z'" if error.
      */
     public static String millisecondsToDateForGPX(long milliseconds) {
-    	DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS'Z'");
+    	DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     	Calendar calendar = Calendar.getInstance();
     	calendar.setTimeInMillis(milliseconds);
     	

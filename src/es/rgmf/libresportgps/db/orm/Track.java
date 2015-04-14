@@ -23,6 +23,9 @@ package es.rgmf.libresportgps.db.orm;
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
 public class Track {
+	public static int ENDED_TRACK = 0;
+	public static int OPEN_TRACK = 1;
+	
 	private Long id;
 	private String title;
 	private Integer recording = 0;

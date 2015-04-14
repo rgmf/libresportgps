@@ -166,7 +166,6 @@ public class GpsLoggerService extends Service implements LocationListener {
 	@Override
 	public void onProviderEnabled(String arg0) {
 		Session.setGpsEnabled(true);
-
 	}
 
 	@Override

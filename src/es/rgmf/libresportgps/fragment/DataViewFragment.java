@@ -204,7 +204,7 @@ public class DataViewFragment extends AbstractViewFragment /*
 													.getAltitudeLoss());
 
 											DBModel.endRecordingTrack(context,
-													Session.getTrackId(), track);
+													Session.getTrackId(), Track.ENDED_TRACK, track);
 
 											// If the tracking is stopped then
 											// we need to reset the Session, the

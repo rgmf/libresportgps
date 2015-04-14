@@ -82,7 +82,7 @@ public class DBAdapter {
     }
 
     /**
-     * Create a new track and return the id generated.
+     * Create a new track with minimum information and return the id generated.
      * 
      * @param title The title of the track.
      * @param recording Set if the track is already recording.

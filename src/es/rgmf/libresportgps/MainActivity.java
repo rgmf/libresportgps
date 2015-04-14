@@ -43,6 +43,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 import es.rgmf.libresportgps.common.Session;
+import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.fragment.AbstractViewFragment;
 import es.rgmf.libresportgps.fragment.DataViewFragment;
@@ -224,6 +225,35 @@ public class MainActivity extends Activity implements
 	 */
 	@Override
 	public void onDestroy() {
+		if (Session.isTrackingStarted()) {
+			Track track = new Track();
+			track.setId(Session.getTrackId());
+			track.setTitle(Session
+					.getFileName());
+			track.setDescription("");
+			track.setDistance((float) Session
+					.getDistance());
+			track.setStartTime(Session
+					.getStartTimeStamp());
+			track.setActivityTime(Session
+					.getActivityTimeStamp());
+			track.setFinishTime(System
+					.currentTimeMillis());
+			track.setMaxSpeed(Session
+					.getMaxSpeed());
+			track.setMaxElevation((float) Session
+					.getMaxAltitude());
+			track.setMinElevation((float) Session
+					.getMinAltitude());
+			track.setElevationGain((float) Session
+					.getAltitudeGain());
+			track.setElevationLoss((float) Session
+					.getAltitudeLoss());
+
+			DBModel.endRecordingTrack(this,
+					Session.getTrackId(), Track.OPEN_TRACK, track);
+		}
+		
 		super.onDestroy();
 		stopAndUnbindToService();
 		/*

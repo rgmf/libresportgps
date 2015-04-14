@@ -69,14 +69,15 @@ public class DBModel {
 	/**
 	 * See the method in DBAdapter to more information.
 	 * 
-	 * @param context
-	 * @param trackId
-	 * @param track
+	 * @param context The Context.
+	 * @param trackId The identify of the track.
+	 * @param status The status of the track (finished or open track).
+	 * @param track The track data.
 	 */
-	public static void endRecordingTrack(Context context, long trackId, Track track) {
+	public static void endRecordingTrack(Context context, long trackId, int status, Track track) {
 		DBAdapter dbAdapter = new DBAdapter(context);
 		dbAdapter.open();
-		dbAdapter.updateRecordingTrack(trackId, 0, track);
+		dbAdapter.updateRecordingTrack(trackId, status, track);
 		dbAdapter.close();
 	}
 
