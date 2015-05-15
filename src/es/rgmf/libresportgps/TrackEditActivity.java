@@ -59,6 +59,7 @@ public class TrackEditActivity extends Activity {
         mId = getIntent().getLongExtra("id", 0L);
         String title = getIntent().getStringExtra("title");
         String description = getIntent().getStringExtra("description");
+        String logo = getIntent().getStringExtra("logo");
 
         // Get all sports to the spinner.
         ArrayList<Sport> sportList = DBModel.getSports(this);
@@ -66,7 +67,7 @@ public class TrackEditActivity extends Activity {
                 -1L,
                 getString(R.string.unknown_sport),
                 getString(R.string.unknown_sport),
-                Environment.getExternalStorageDirectory() + "/libresportgps/unknown_sport.png"
+                "unknown" //Environment.getExternalStorageDirectory() + "/libresportgps/unknown_sport.png"
         ));
         mSportListAdapter = new SportListAdapter(this, sportList);
 
@@ -74,6 +75,16 @@ public class TrackEditActivity extends Activity {
         Spinner spinner = (Spinner) findViewById(R.id.track_edit_spinner);
         spinner.setAdapter(mSportListAdapter);
         spinner.setSelection(mSportListAdapter.getCount() - 1);
+        if (logo != null) {
+        	int idx = 0;
+        	for (Sport sport : sportList) {
+            	if (sport.getLogo().equals(logo)) {
+            		spinner.setSelection(idx);
+            		break;
+            	}
+            	idx++;
+        	}
+        }
         TextView tvTitle = (TextView) findViewById(R.id.track_edit_title);
         tvTitle.setText(title);
         TextView tvDesc = (TextView) findViewById(R.id.track_edit_description);

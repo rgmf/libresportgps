@@ -171,6 +171,10 @@ public class TrackDetailFragment extends Fragment {
 				intent.putExtra("id", mTrack.getId());
                 intent.putExtra("title", mTrack.getTitle());
                 intent.putExtra("description", mTrack.getDescription());
+                if (mTrack.getSport() != null && mTrack.getSport().getLogo() != null && 
+                		!mTrack.getSport().getLogo().isEmpty()) {
+                	intent.putExtra("logo", mTrack.getSport().getLogo());
+                }
 	        	startActivityForResult(intent, TRACK_EDIT_ACTIVITY_BACK);
 				return true;
 		}
