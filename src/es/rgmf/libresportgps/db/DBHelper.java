@@ -17,10 +17,13 @@
 
 package es.rgmf.libresportgps.db;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
+import android.util.Log;
 
 /**
  * Database helper.
@@ -31,7 +34,7 @@ import android.os.Environment;
  *
  */
 class DBHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
     private static final String DATABASE_NAME = "libresportgps.db";
     
     /*************************** Table names *********************************/
@@ -70,6 +73,7 @@ class DBHelper extends SQLiteOpenHelper {
     public static final String IMAGE_FIELD_NAME = "image";
     public static final String SPORT_FIELD_NAME = "sport";
     public static final String LOGO_FIELD_NAME = "logo";
+    public static final String POINT_ORDER_FIELD_NAME = "point_order";
     /*************************************************************************/
     
     /************************* SQL create table if not exists ******************************/
@@ -142,7 +146,7 @@ class DBHelper extends SQLiteOpenHelper {
     		ELEVATION_LOSS_FIELD_NAME + " real, " +
     		TRACK_ID_FIELD_NAME + " integer not null references " + TRACK_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade);";
     /*************************************************************************/
-    		
+    
     /**
      * Constructor.
      * 
@@ -226,6 +230,34 @@ class DBHelper extends SQLiteOpenHelper {
         	db.execSQL("UPDATE " + SPORT_TBL_NAME + " SET " +
                        LOGO_FIELD_NAME + "=" + "'trekking' " +
   			           "WHERE " + NAME_FIELD_NAME + "='Trekking'");
+        case 10:
+        	// In this database update we need to add a track point order field and update all registers.
+        	db.execSQL("ALTER TABLE " + TRACK_POINT_TBL_NAME +
+        			   " ADD " + POINT_ORDER_FIELD_NAME + " integer not null default 0");
+        	
+        	String[] trackCols = {ID_FIELD_NAME};
+        	Cursor trackCursor = db.query(true, TRACK_TBL_NAME, trackCols, null, null, null, null, null, null);
+        	if (trackCursor != null && trackCursor.moveToFirst()) {
+        		String[] trackPointCols = {ID_FIELD_NAME};
+        		Cursor trackPointCursor;
+        		ContentValues values;
+        		int order;
+        		// To all tracks we have to update their track points.
+        		do {
+        			Log.v("Track: ", "" + trackCursor.getInt(0));
+        			order = 1;
+        			trackPointCursor = db.query(true, TRACK_POINT_TBL_NAME, trackPointCols, TRACK_ID_FIELD_NAME + "=" + trackCursor.getInt(0), null, null, null, null, null);
+        			if (trackPointCursor != null && trackPointCursor.moveToFirst()) {
+        				// Update all track points of this track.
+        				do {
+        					values = new ContentValues();
+        					values.put(DBHelper.POINT_ORDER_FIELD_NAME, order);
+        					db.update(DBHelper.TRACK_POINT_TBL_NAME, values, ID_FIELD_NAME + "=" + trackPointCursor.getInt(0), null);
+        					order++;
+        				} while (trackPointCursor.moveToNext());
+        			}
+        		} while (trackCursor.moveToNext());
+        	}
 		}
 	}
 }

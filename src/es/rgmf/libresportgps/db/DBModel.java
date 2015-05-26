@@ -95,7 +95,7 @@ public class DBModel {
 		trackPoint.setTrack(new Track());
 		trackPoint.getTrack().setId(trackId);
 		trackPoint.setLat(loc.getLatitude());
-		trackPoint.setLng(loc.getLatitude());
+		trackPoint.setLng(loc.getLongitude());
 		trackPoint.setTime(loc.getTime());
 		trackPoint.setDistance((float) Session.getDistance());
 		/*
