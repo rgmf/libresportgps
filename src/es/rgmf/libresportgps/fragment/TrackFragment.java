@@ -42,6 +42,7 @@ import es.rgmf.libresportgps.TrackEditActivity;
 import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Track;
+import es.rgmf.libresportgps.db.orm.TrackPoint;
 import es.rgmf.libresportgps.file.FileManager;
 
 /**
@@ -99,6 +100,9 @@ public class TrackFragment extends Fragment {
         	mTrack = DBModel.getTrack(getActivity(), trackId);
         }
         
+        // Get list of track points needed to the profile and the map.
+        List<TrackPoint> listTrackPoints = DBModel.getTrackPoints(getActivity(), mTrack.getId());
+        
         // Create list of fragments and add them to the list.
         List<Fragment> fragments = new Vector<Fragment>();
         
@@ -106,11 +110,15 @@ public class TrackFragment extends Fragment {
         fragments.add(TrackDetailFragment.newInstance(mTrack));
         
         // 1.- AltimetryFragment.
-		TreeMap<Integer, Float> treeMap = DBModel.getDistEleMap(getActivity(), mTrack.getId());
-        fragments.add(AltimetryFragment.newInstance(treeMap, (float) treeMap.lastKey(), mTrack.getMaxElevation()));
+        if (listTrackPoints.size() > 0)
+        	fragments.add(AltimetryFragment.newInstance(listTrackPoints,
+        			listTrackPoints.get(listTrackPoints.size() - 1).getDistance(),
+        			mTrack.getMaxElevation()));
+        else
+        	fragments.add(AltimetryFragment.newInstance(listTrackPoints, 0f, 0f));
         
         // 2.- MapFragment.
-        fragments.add(MapFragment.newInstance(mTrack));
+        fragments.add(MapFragment.newInstance(listTrackPoints));
         
         TrackPagerAdapter pagerAdapter = new TrackPagerAdapter(getFragmentManager(), getResources(), fragments);
         mPager.setAdapter(pagerAdapter);

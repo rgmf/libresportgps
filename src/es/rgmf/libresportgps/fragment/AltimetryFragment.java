@@ -17,9 +17,8 @@
 
 package es.rgmf.libresportgps.fragment;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -32,6 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import es.rgmf.libresportgps.R;
+import es.rgmf.libresportgps.db.orm.TrackPoint;
 
 /**
  * This Activity is created to show the altimetry of a track.
@@ -46,7 +46,7 @@ public class AltimetryFragment extends Fragment {
 	/**
 	 * Map of distance associated with the altitude.
 	 */
-	private Map<Integer, Float> mMap = new TreeMap<Integer, Float>();
+	private List<TrackPoint> mList = new ArrayList<TrackPoint>();
 	/**
 	 * Maximum's distance.
 	 */
@@ -64,9 +64,9 @@ public class AltimetryFragment extends Fragment {
 	 * @param maxY
 	 * @return
 	 */
-	public static AltimetryFragment newInstance(Map<Integer, Float> map, Float maxX, Float maxY) {
+	public static AltimetryFragment newInstance(List<TrackPoint> list, Float maxX, Float maxY) {
 		AltimetryFragment f = new AltimetryFragment();
-		f.mMap = map;
+		f.mList = list;
 		f.mMaxX = maxX;
 		f.mMaxY = maxY;
 		return f;
@@ -76,14 +76,9 @@ public class AltimetryFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_altimetry, container, false);
-		
-		// Wee need to re-order the map because after de-serialize the map can be 
-        // unordered.
-        TreeMap<Integer, Float> treeMap = new TreeMap<Integer, Float>();
-        treeMap.putAll(mMap);
 
         // Draw with ordered map.
-	    mDrawView = new DrawView(getActivity(), treeMap, 
+	    mDrawView = new DrawView(getActivity(), mList,
 	    		mMaxX, mMaxY,
 	    		getString(R.string.elevation), 
 	    		getString(R.string.distance));
@@ -106,7 +101,7 @@ public class AltimetryFragment extends Fragment {
 		private static final int PADDING_TOP = 50;
 		private static final int PADDING_BOTTOM = 50;
 		
-		private Map<Integer, Float> mMap;
+		private List<TrackPoint> mList;
 		
 		private Float mMaxX;
 		private Float mMaxY;
@@ -117,13 +112,13 @@ public class AltimetryFragment extends Fragment {
         private Paint axesPaint = new Paint();
         private Paint linePaint = new Paint();
 
-        public DrawView(Context context, Map<Integer, Float> map,
+        public DrawView(Context context, List<TrackPoint> list,
         		Float maxX, Float maxY,
         		String xCoordinateText, String yCoordinateText) {
             super(context);
             axesPaint.setColor(Color.BLUE);
             linePaint.setColor(Color.GREEN);
-            this.mMap = map;
+            this.mList = list;
             this.mMaxX = maxX;
             this.mMaxY = maxY;
             this.mXCoordinateText = xCoordinateText;
@@ -137,9 +132,7 @@ public class AltimetryFragment extends Fragment {
         	int height = canvas.getHeight();
         	int width = canvas.getWidth();
         	
-        	Iterator it;
-        	
-        	Integer prevX = null, x, key;
+        	Integer prevX = null, x, distance;
         	Float prevY = null, y;
         	
         	// Draw texts coordinates.
@@ -159,11 +152,10 @@ public class AltimetryFragment extends Fragment {
             canvas.drawText(Float.toString(mMaxY), PADDING_LEFT / (Float.toString(mMaxY).length()), PADDING_TOP, axesPaint);
             
             // Draw lines from tree map.
-            it = mMap.keySet().iterator();
-            while(it.hasNext()) {
-            	key = (Integer) it.next();
-            	x = (int) ((key * (width - PADDING_LEFT - PADDING_RIGHT)) / mMaxX);
-            	y = (float) ((mMap.get(key) * ((float) (height - PADDING_TOP - PADDING_BOTTOM))) / mMaxY);
+            for (TrackPoint tp : mList) {
+            	distance = (int) tp.getDistance();
+            	x = (int) ((distance * (width - PADDING_LEFT - PADDING_RIGHT)) / mMaxX);
+            	y = (float) ((tp.getElevation() * ((float) (height - PADDING_TOP - PADDING_BOTTOM))) / mMaxY);
             	if(prevX != null && prevY != null) {
             		canvas.drawLine(
             				(float) (prevX + PADDING_LEFT),

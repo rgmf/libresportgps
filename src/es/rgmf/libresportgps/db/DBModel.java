@@ -250,4 +250,19 @@ public class DBModel {
 		dbAdapter.close();
 		return map;
 	}
+
+	/**
+	 * Get all track points of the track identified by trackId.
+	 * 
+	 * @param context The context.
+	 * @param trackId The track identify.
+	 * @return a list of TrackPoint.
+	 */
+	public static List<TrackPoint> getTrackPoints(Context context, Long trackId) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		List<TrackPoint> list = dbAdapter.getTrackPoints(trackId);
+		dbAdapter.close();
+		return list;
+	}
 }

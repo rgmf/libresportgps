@@ -7,9 +7,15 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.maposm.MainActivity$PlaceholderFragment" >
-
+<!-- 
     <org.osmdroid.views.MapView
         android:id="@+id/openmapview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+-->
+
+	<es.rgmf.libresportgps.view.RouteMapView
+	    android:id="@+id/openmapview"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
 
