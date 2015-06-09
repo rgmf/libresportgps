@@ -17,32 +17,17 @@
 
 package es.rgmf.libresportgps.fragment;
 
-import java.util.TreeMap;
-
-import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-import es.rgmf.libresportgps.AltimetryActivity;
 import es.rgmf.libresportgps.R;
-import es.rgmf.libresportgps.TrackEditActivity;
-import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.common.Utilities;
-import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Track;
-import es.rgmf.libresportgps.file.FileManager;
 
 /**
  * This View is created to show the detail information of a Track.
@@ -66,18 +51,15 @@ public class TrackDetailFragment extends Fragment {
 	 * The name of the file that contain the track information.
 	 */
 	protected String mName;
-	/**
-	 * Key to know where come back from.
-	 */
-	private static final int TRACK_EDIT_ACTIVITY_BACK = 1;
 	
 	/**
 	 * Create an instance of this class.
 	 * 
 	 * @return Return the class instance.
 	 */
-	public static final TrackDetailFragment newInstance() {
+	public static TrackDetailFragment newInstance(Track track) {
 		TrackDetailFragment fragment = new TrackDetailFragment();
+		fragment.mTrack = track;
 		/*
 		Bundle bundle = new Bundle(1);
 		bundle.putInt("a_number", 1);
@@ -92,108 +74,14 @@ public class TrackDetailFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mRootView = inflater.inflate(R.layout.fragment_track_detail, container, false);
-		
-		setHasOptionsMenu(true);
 
 		if(getActivity() != null) {
 			this.mContext = getActivity().getApplicationContext();
 		}
 		
-	    Button button = (Button) mRootView.findViewById(R.id.track_detail_button);
-	    button.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// Get all track points of this point and create a map with 
-				// distance and elevation information.
-				TreeMap<Integer, Float> treeMap = DBModel.getDistEleMap(mContext, mTrack.getId());
-				
-				// Call the activity.
-				Intent intent = new Intent(getActivity(), AltimetryActivity.class);
-				intent.putExtra("map", treeMap);
-				intent.putExtra("maxX", (float) treeMap.lastKey());
-				intent.putExtra("maxY", mTrack.getMaxElevation());
-	        	startActivity(intent);
-			}
-		});
-		
 		setDataView();
 		
 		return mRootView;
-	}
-
-    /**
-	 * This method modifies the options in the bar menu adapting it to this
-	 * fragment.
-	 */
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		super.onCreateOptionsMenu(menu, inflater);
-	    menu.clear();
-	    inflater.inflate(R.menu.track_detail, menu);
-	}
-	
-	/**
-	 * Handle the clicked options in this fragment.
-	 */
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
-			/* THE USER CLICKS ON DELETE BUTTON ON BUTTON BAR */
-			case R.id.track_detail_delete:
-				new AlertDialog.Builder(getActivity())
-				.setTitle(R.string.delete_trackfile)
-				.setIcon(android.R.drawable.ic_dialog_alert)
-				.setMessage(getResources().getString(R.string.delete_trackfile_hint))
-				.setCancelable(true).setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						// Delete all files in the folder and folder included.
-						FileManager.delete(Session.getAppFolder() + "/" + mTrack.getId());
-						// Delete the register in the database.
-						if(!DBModel.deleteTrack(getActivity(), mTrack.getId()))
-							Toast.makeText(getActivity(), R.string.track_was_not_deleted,
-									Toast.LENGTH_LONG).show();
-						// Go back to tracks list fragment.
-						getFragmentManager().popBackStack();
-					}
-				}).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.cancel();
-					}
-				}).create().show();
-	            return true;
-	            
-
-			/* THE USER CLICK ON EDIT BUTTON ON BUTTON BAR */
-			case R.id.track_detail_edit:
-				Intent intent = new Intent(getActivity(), TrackEditActivity.class);
-				intent.putExtra("id", mTrack.getId());
-                intent.putExtra("title", mTrack.getTitle());
-                intent.putExtra("description", mTrack.getDescription());
-                if (mTrack.getSport() != null && mTrack.getSport().getLogo() != null && 
-                		!mTrack.getSport().getLogo().isEmpty()) {
-                	intent.putExtra("logo", mTrack.getSport().getLogo());
-                }
-	        	startActivityForResult(intent, TRACK_EDIT_ACTIVITY_BACK);
-				return true;
-		}
-		
-		return super.onOptionsItemSelected(item);
-	}
-	
-	/**
-	 * This method is called when activity called (TrackEditActivity) finish and come back here.
-	 */
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-	    // See which child activity is calling us back.
-	    switch (requestCode) {
-	        case TRACK_EDIT_ACTIVITY_BACK:
-	        	mTrack = DBModel.getTrack(mContext, mTrack.getId());
-	        	setDataView();
-	        default:
-	            break;
-	    }
 	}
 
 	/**
@@ -231,18 +119,15 @@ public class TrackDetailFragment extends Fragment {
 	        }
 		}
 	}
+	
 
-	/**
-	 * @return the track
-	 */
-	public Track getTrack() {
-		return mTrack;
+	public Track getTrack() { 
+		return mTrack; 
 	}
-
-	/**
-	 * @param track the track to set
-	 */
-	public void setTrack(Track track) {
-		this.mTrack = track;
+	
+	public void setTrack(Track t) { 
+		mTrack = t;
+		// If we change the track we need to change the viewing data.
+		setDataView(); 
 	}
 }

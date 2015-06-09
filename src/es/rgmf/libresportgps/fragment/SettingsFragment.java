@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import es.rgmf.libresportgps.R;
 
+
 /**
  * Settings fragment.
  * 

@@ -15,55 +15,84 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package es.rgmf.libresportgps;
+package es.rgmf.libresportgps.fragment;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
+import es.rgmf.libresportgps.R;
 
 /**
  * This Activity is created to show the altimetry of a track.
  * 
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
-public class AltimetryActivity extends Activity {
-	DrawView drawView;
-
+public class AltimetryFragment extends Fragment {
 	/**
-	 * This method is called when the activity is created.
-	 * 
-	 * The only thing this activity do is create a DrawView
-	 * to draw the altimetry.
+	 * The draw view.
 	 */
+	private DrawView mDrawView;
+	/**
+	 * Map of distance associated with the altitude.
+	 */
+	private Map<Integer, Float> mMap = new TreeMap<Integer, Float>();
+	/**
+	 * Maximum's distance.
+	 */
+	private Float mMaxX = 0f;
+	/**
+	 * Maximum's altitude.
+	 */
+	private Float mMaxY = 0f;
+	
+	/**
+	 * Create a new instance of this class.
+	 * 
+	 * @param map
+	 * @param maxX
+	 * @param maxY
+	 * @return
+	 */
+	public static AltimetryFragment newInstance(Map<Integer, Float> map, Float maxX, Float maxY) {
+		AltimetryFragment f = new AltimetryFragment();
+		f.mMap = map;
+		f.mMaxX = maxX;
+		f.mMaxY = maxY;
+		return f;
+	}
+	
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-	    super.onCreate(savedInstanceState);
-	    
-	    // Get all data passes by fragment.
-        Map<Integer, Float> map = (Map<Integer, Float>) getIntent().getExtras().get("map");
-        Float maxX = (Float) getIntent().getFloatExtra("maxX", 0f);
-        Float maxY = (Float) getIntent().getFloatExtra("maxY", 0f);
-        
-        // Wee need to re-order the map because after de-serialize the map can be 
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View rootView = inflater.inflate(R.layout.fragment_altimetry, container, false);
+		
+		// Wee need to re-order the map because after de-serialize the map can be 
         // unordered.
         TreeMap<Integer, Float> treeMap = new TreeMap<Integer, Float>();
-        treeMap.putAll(map);
+        treeMap.putAll(mMap);
 
         // Draw with ordered map.
-	    drawView = new DrawView(this, treeMap, 
-	    		maxX, maxY,
+	    mDrawView = new DrawView(getActivity(), treeMap, 
+	    		mMaxX, mMaxY,
 	    		getString(R.string.elevation), 
 	    		getString(R.string.distance));
-	    drawView.setBackgroundColor(Color.WHITE);
-	    setContentView(drawView);
+	    mDrawView.setBackgroundColor(Color.WHITE);
+	    
+	    RelativeLayout rl = (RelativeLayout) rootView.findViewById(R.id.rl_drawing_parent);
+	    rl.addView(mDrawView);
+		
+		return rootView;
 	}
 	
 	/**

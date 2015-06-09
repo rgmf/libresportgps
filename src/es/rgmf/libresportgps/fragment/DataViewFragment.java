@@ -23,6 +23,8 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -77,6 +79,8 @@ public class DataViewFragment extends AbstractViewFragment /*
 			Bundle savedInstanceState) {
 		rootView = inflater.inflate(R.layout.fragment_data_view, container,
 				false);
+
+		setHasOptionsMenu(true);
 
 		if (getActivity() != null) {
 			this.context = getActivity().getApplicationContext();
@@ -306,5 +310,14 @@ public class DataViewFragment extends AbstractViewFragment /*
 		accuracy.setText(String.format("%.0f", loc.getAccuracy()));
 		status.setText(String.format("%d / %d", Session.getSatellitesInUsed(),
 				Session.getSatellitesInView()));
+	}
+	
+	/**
+	 * This fragment have not menu items so we have to clear the menu.
+	 */
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	    menu.clear();
+		super.onCreateOptionsMenu(menu, inflater);
 	}
 }

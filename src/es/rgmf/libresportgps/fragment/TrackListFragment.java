@@ -21,11 +21,11 @@ import java.io.File;
 import java.util.ArrayList;
 
 import android.app.Activity;
-import android.app.ListFragment;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,6 +47,9 @@ import es.rgmf.libresportgps.fragment.dialog.FileDialog;
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
 public class TrackListFragment extends ListFragment {
+	private static final String POSITION_SELECTED = "position_selected";
+	private static final int NONE_SELECTED = -5;
+	
 	/**
 	 * This interface must be implemented by the activity that contain this
 	 * fragment.
@@ -87,6 +90,8 @@ public class TrackListFragment extends ListFragment {
 	private ArrayList<Track> mTracks;
 
 	private Context mContext;
+	
+	private int mPosition = NONE_SELECTED;
 
 	/**
 	 * Create an instance of this class.
@@ -125,7 +130,7 @@ public class TrackListFragment extends ListFragment {
 		super.onActivityCreated(savedInstanceState);
 
 		// Retain this fragment across configuration changes.
-		setRetainInstance(true);
+		//setRetainInstance(true);
 	}
 
 	/**
@@ -142,7 +147,7 @@ public class TrackListFragment extends ListFragment {
 		mContext = inflater.getContext();
 		TrackListAdapter adapter = new TrackListAdapter(mContext, mTracks);
 		setListAdapter(adapter);
-
+		
 		//return super.onCreateView(inflater, container, savedInstanceState);
 		return inflater.inflate(R.layout.fragment_track_list, container, false);
 	}
@@ -164,6 +169,7 @@ public class TrackListFragment extends ListFragment {
 		// Calls super.
 		super.onListItemClick(l, v, position, id);
 
+		mPosition = position;
 		Track track = (Track) (getListView().getItemAtPosition(position));
 		mSelectedCallback.onTrackSelected(track);
 	}

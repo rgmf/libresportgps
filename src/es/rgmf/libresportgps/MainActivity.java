@@ -18,11 +18,7 @@
 package es.rgmf.libresportgps;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -36,6 +32,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -48,18 +48,20 @@ import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.fragment.AbstractViewFragment;
 import es.rgmf.libresportgps.fragment.DataViewFragment;
 import es.rgmf.libresportgps.fragment.SettingsFragment;
-import es.rgmf.libresportgps.fragment.TrackDetailFragment;
+import es.rgmf.libresportgps.fragment.TrackFragment;
 import es.rgmf.libresportgps.fragment.TrackListFragment;
 import es.rgmf.libresportgps.gps.GpsLoggerService;
 import es.rgmf.libresportgps.gps.GpsLoggerServiceConnection;
 import es.rgmf.libresportgps.gps.IGpsLoggerServiceClient;
+
+
 
 /**
  * This class represent the main activity of the application.
  * 
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
-public class MainActivity extends Activity implements
+public class MainActivity extends FragmentActivity implements
 		NavigationDrawerFragment.NavigationDrawerCallbacks,
 		IGpsLoggerServiceClient, TrackListFragment.OnTrackSelectedListener,
 		TrackListFragment.ProgressCallbacks {
@@ -120,7 +122,7 @@ public class MainActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 
 		if (mFragmentManager == null) {
-			mFragmentManager = getFragmentManager();
+			mFragmentManager = getSupportFragmentManager();
 		}
 
 		setContentView(R.layout.activity_main);
@@ -182,9 +184,10 @@ public class MainActivity extends Activity implements
 	@Override
 	public void onNavigationDrawerItemSelected(int position) {
 		// update the main content by replacing fragments
-		FragmentTransaction transaction = mFragmentManager.beginTransaction();
+		FragmentTransaction transaction = mFragmentManager.beginTransaction(); 
+		
 		switch (position) {
-		case 0:
+		case 0: 
 			transaction
 					.replace(R.id.container, TrackListFragment.newInstance());
 			break;
@@ -192,13 +195,10 @@ public class MainActivity extends Activity implements
 			transaction.replace(R.id.container, DataViewFragment.newInstance());
 			break;
 		case 2:
-			transaction.replace(R.id.container, SettingsFragment.newInstance());
+			//transaction.replace(R.id.container, SettingsFragment.newInstance());
 		default:
 			break;
 		}
-		// If it selects an item from menu we need to pop the stack of fragments
-		// to
-		// remove the possible stacked fragment.
 		mFragmentManager.popBackStack();
 		transaction.commitAllowingStateLoss();
 	}
@@ -421,6 +421,19 @@ public class MainActivity extends Activity implements
 	 */
 	@Override
 	public void onTrackSelected(Track track) {
+		TrackFragment fragment = TrackFragment.newInstance(track);
+		FragmentManager fragmentManager = getSupportFragmentManager();
+        // clear back stack
+        //for (int i = 0; i < fragmentManager.getBackStackEntryCount(); i++) {
+        //    fragmentManager.popBackStack();
+        //}
+        FragmentTransaction t = fragmentManager.beginTransaction();
+        t.replace(R.id.container, fragment);
+        //fragmentManager.popBackStack();
+        t.addToBackStack(null);
+        t.commit();
+		
+		/*
 		TrackDetailFragment tdf = TrackDetailFragment.newInstance();
 		tdf.setTrack(track);
 
@@ -430,6 +443,7 @@ public class MainActivity extends Activity implements
 											// the user can
 											// back to the latter fragment.
 		transaction.commitAllowingStateLoss();
+		*/
 	}
 
 	/**

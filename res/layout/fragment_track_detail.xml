@@ -28,40 +28,12 @@
         android:layout_height="wrap_content"
         android:background="#ededed"
         android:padding="20dp">
-        
-        <LinearLayout
-            android:id="@+id/linear_layout_menu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-         	android:gravity="center"
-         	android:layout_gravity="center"
-         	android:layout_centerHorizontal="true"
-            android:orientation="horizontal" >
-            
-            <Button
-                android:id="@+id/track_detail_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:layout_weight="1"
-                android:text="@string/route_profile" />
-            
-            <Button
-                android:id="@+id/track_on_map_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:layout_weight="1"
-                android:text="@string/track_on_map" />
-            
-        </LinearLayout>
 
         <ImageView
             android:id="@+id/track_edit_logo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/unknown"
-            android:layout_below="@id/linear_layout_menu"
             android:padding="10dp" />
 
         <TextView
@@ -74,7 +46,6 @@
             android:layout_height="wrap_content"
             android:textColor="#454545"
             android:textSize="22sp"
-            android:layout_below="@id/linear_layout_menu"
             android:hint="@string/track_name_hint" />
 
         <TextView

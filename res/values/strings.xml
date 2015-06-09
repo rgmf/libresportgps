@@ -93,4 +93,6 @@
     <string name="track_on_map">Track on map</string>
     <string name="gps_update">GPS improvement</string>
     <string name="no_tracks_to_display">No tracks to display</string>
+    <string name="detail">Detail</string>
+    <string name="altimetry">Altimetry</string>
 </resources>
