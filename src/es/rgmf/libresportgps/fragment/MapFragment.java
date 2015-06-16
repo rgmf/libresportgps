@@ -18,7 +18,9 @@
 package es.rgmf.libresportgps.fragment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.osmdroid.DefaultResourceProxyImpl;
 import org.osmdroid.ResourceProxy;
@@ -40,21 +42,28 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 import es.rgmf.libresportgps.R;
 import es.rgmf.libresportgps.db.orm.TrackPoint;
 import es.rgmf.libresportgps.view.RouteMapView;
 
 /**
- * This View is created to show the detail information of a Track.
+ * This View is created to show the map information of a Track.
+ * 
+ * Through this view you can see the path and create segments
+ * clicking two points (begin and end point of the segment).
  * 
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
 public class MapFragment extends Fragment {
+	private static final int SCALE_OVERLAY = 0;
+	private static final int PATH_OVERLAY = 1;
+	private static final int ICON_OVERLAY = 2;
+	
 	/**
 	 * The osmdroid map view.
 	 */
@@ -67,6 +76,14 @@ public class MapFragment extends Fragment {
 	 * List of track points of the track we will show over the map.
 	 */
 	private List<TrackPoint> mListTrackPoint = new ArrayList<TrackPoint>();
+	/**
+	 * The index of the begin point of the segment.
+	 */
+	private Integer mIdxBeginPoint = null;
+	/**
+	 * The index of the end point of the segment.
+	 */
+	private Integer mIdxEndPoint = null;
 	
 	/**
 	 * Method to create instances.
@@ -100,7 +117,7 @@ public class MapFragment extends Fragment {
 		mMapView = (RouteMapView) rootView.findViewById(R.id.openmapview);
 		mMapView.setBuiltInZoomControls(true);
 		mMapView.setMultiTouchControls(true);
-		mMapView.getOverlays().add(scaleBarOverlay);
+		mMapView.getOverlays().add(SCALE_OVERLAY, scaleBarOverlay);
 
 		// Get and configure map controller.
 		mMapController = (MapController) mMapView.getController();
@@ -145,7 +162,7 @@ public class MapFragment extends Fragment {
 		mMapView.setBoundingBoxE6(new BoundingBoxE6(maxLat, minLng, minLat, maxLng));
 		
 		// Add the path create before.
-		mMapView.getOverlays().add(path);
+		mMapView.getOverlays().add(PATH_OVERLAY, path);
 		
 		// Create the marker to each track point.
 		Drawable marker = getResources().getDrawable(R.drawable.geopoint);
@@ -153,26 +170,19 @@ public class MapFragment extends Fragment {
         int markerHeight = marker.getIntrinsicHeight();
         marker.setBounds(0, markerHeight, markerWidth, 0);
         
+        // Add ItemizedIconOverlay overlay to the map view. This is a set of 
+        // icons.
         ResourceProxy resourceProxy = new DefaultResourceProxyImpl(getActivity());
-        
         MyItemizedIconOverlay anotherItemizedIconOverlay = new MyItemizedIconOverlay(overlays, myOnItemGestureListener, resourceProxy, marker);
-		mMapView.getOverlays().add(anotherItemizedIconOverlay);
-		
-		/*if (point != null) {
-			ViewTreeObserver vto = rootView.getViewTreeObserver();
-			vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-			    @Override
-			    public void onGlobalLayout() {
-			        mMapController.setCenter(mCenterPoint);
-			    }
-			});
-		}*/
+		mMapView.getOverlays().add(ICON_OVERLAY, anotherItemizedIconOverlay);
 		
 		return rootView;
 	}
 	
 	/**
 	 * To get "click" on the points.
+	 * 
+	 * We need these events to create segments on map view GeoPoints.
 	 */
 	OnItemGestureListener<OverlayItem> myOnItemGestureListener = new OnItemGestureListener<OverlayItem>() {		 
 	    @Override
@@ -183,10 +193,52 @@ public class MapFragment extends Fragment {
 	 
 	    @Override
 	    public boolean onItemSingleTapUp(int index, OverlayItem item) {
-	        Toast.makeText(
-	            getActivity(),
-	            item.getPoint().getLatitude() + " : " + item.getPoint().getLongitude(),
-	            Toast.LENGTH_LONG).show();
+	    	// Create the new marker.
+    		Drawable marker = getResources().getDrawable(R.drawable.geopoint_selected);
+            int markerWidth = marker.getIntrinsicWidth();
+            int markerHeight = marker.getIntrinsicHeight();
+            marker.setBounds(0, markerHeight, markerWidth, 0);
+            
+	    	if (mIdxBeginPoint == null) {
+	    		mIdxBeginPoint = index;
+	    		
+	    		// Get MyItemizedIconOverlay overlay from map view.
+		    	MyItemizedIconOverlay overlay = (MyItemizedIconOverlay) mMapView.getOverlays().get(ICON_OVERLAY);
+		    	overlay.setMarker(index, marker);
+		    	mMapView.invalidate();
+	    	}
+	    	else if (mIdxEndPoint == null) {
+	    		mIdxEndPoint = index;
+	    		
+	    		Log.v("Begin", mIdxBeginPoint + "");
+	    		Log.v("End", mIdxEndPoint + "");
+	    		
+	    		if (mIdxBeginPoint > mIdxEndPoint) {
+	    			mIdxEndPoint = mIdxBeginPoint;
+	    			mIdxBeginPoint = index;
+	    		}
+	    		
+	    		Log.v("Begin", mIdxBeginPoint + "");
+	    		Log.v("End", mIdxEndPoint + "");
+	    		
+	    		
+	    		
+	    		for (int i = mIdxBeginPoint + 1; i <= mIdxEndPoint; i++) {
+	    			// Get MyItemizedIconOverlay overlay from map view.
+	    	    	MyItemizedIconOverlay overlay = (MyItemizedIconOverlay) mMapView.getOverlays().get(ICON_OVERLAY);
+	    	    	overlay.setMarker(i, marker);
+	    	    	mMapView.invalidate();
+	    		}
+	    	}
+	    	
+	    	/*
+	    	item.setMarker(marker);
+	    	
+	    	Toast.makeText(
+	    			getActivity(),
+	    			item.getPoint().getLatitude() + " : " + item.getPoint().getLongitude(),
+	    			Toast.LENGTH_LONG).show();
+	    	*/
 	             
 	        return true;
 	    }
@@ -195,11 +247,20 @@ public class MapFragment extends Fragment {
 	/**
 	 * My own itemized icon overlay to draw points where track points are.
 	 * 
+	 * These icons can be default icons or custom icons.
+	 * 
 	 * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
 	 */
 	private class MyItemizedIconOverlay extends ItemizedIconOverlay<OverlayItem> {
-		Drawable mMarker;
-		 
+		/**
+		 * The default marker to points that are not marker.
+		 */
+		private Drawable mDefaultMarker;
+		/**
+		 * Map of custom markers.
+		 */
+		private Map<Integer, Drawable> mCustomMarkers;
+		
 	    public MyItemizedIconOverlay(
 	            List<OverlayItem> pList,
 	            org.osmdroid.views.overlay.ItemizedIconOverlay.OnItemGestureListener<OverlayItem> pOnItemGestureListener,
@@ -208,7 +269,9 @@ public class MapFragment extends Fragment {
 	    	
 	    	super(pList, pOnItemGestureListener, pResourceProxy);
 	 
-	    	mMarker = marker;
+	    	mDefaultMarker = marker;
+	    	
+	    	mCustomMarkers = new HashMap<Integer, Drawable>();
 	    }
 	 
 	    @Override
@@ -217,19 +280,33 @@ public class MapFragment extends Fragment {
 	        //super.draw(canvas, mapview, arg2);
 	 
 	        if (this.size() > 0) {
-	 
 	            for (int i = 0; i < this.size(); i++) {
 	                GeoPoint in = getItem(i).getPoint();
 	 
 	                Point out = new Point();
 	                mapview.getProjection().toPixels(in, out);
 	 
-	                Bitmap bm = ((BitmapDrawable) mMarker).getBitmap();
+	                Bitmap bm;
+	                if (mCustomMarkers.containsKey(i))
+	                	bm = ((BitmapDrawable) mCustomMarkers.get(i)).getBitmap();
+	                else	
+	                	bm = ((BitmapDrawable) mDefaultMarker).getBitmap();
+	                
 	                //Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
 	                canvas.drawBitmap(bm, out.x - bm.getWidth() / 2, out.y - bm.getHeight() / 2, null);
 	            }
 	        }
 	    }
+	    
+	    /**
+	     * Set a custom marker to a point.
+	     * 
+	     * @param index The index of the point to customize.
+	     * @param marker The custom marker.
+	     */
+	    public void setMarker(Integer index, Drawable marker) {
+			this.mCustomMarkers.put(index, marker);
+		}
 	 
 	    @Override
 	    public boolean onSingleTapUp(MotionEvent event, MapView mapView) {

@@ -18,7 +18,6 @@
 package es.rgmf.libresportgps.fragment;
 
 import java.util.List;
-import java.util.TreeMap;
 import java.util.Vector;
 
 import android.app.AlertDialog;
@@ -30,6 +29,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -101,7 +101,9 @@ public class TrackFragment extends Fragment {
         }
         
         // Get list of track points needed to the profile and the map.
+        Log.v("Init", "Init");
         List<TrackPoint> listTrackPoints = DBModel.getTrackPoints(getActivity(), mTrack.getId());
+        Log.v("Finish", "Finish");
         
         // Create list of fragments and add them to the list.
         List<Fragment> fragments = new Vector<Fragment>();

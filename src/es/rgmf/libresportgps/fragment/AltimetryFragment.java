@@ -34,7 +34,7 @@ import es.rgmf.libresportgps.R;
 import es.rgmf.libresportgps.db.orm.TrackPoint;
 
 /**
- * This Activity is created to show the altimetry of a track.
+ * This Activity is created to show the altimetry (profile) of a track.
  * 
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
