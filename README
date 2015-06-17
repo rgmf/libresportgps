@@ -2,4 +2,12 @@ LibreSportGPS.
 
 This project is a free (libre) software in developing state. At this moment it is usable to debug and test it.
 
-It is a GPS program to use in your sport sessions (at this moment only with cycling but in the future it could be use in your running sessions too).
+It is a GPS program to use in your sport sessions (cycling, running, trekking, mtb, canicross, etc).
+
+Features:
+- Data view with information about distance, speed, average speed, etc.
+- List of your activities (tracks).
+- Activities saved (gpx) in your SD Card.
+- Detail of your activities: name, description, sport icon, distance, speed stats, elevation gain, etc.
+- Profile of your acitivities.
+- Tracks on map view (OpenStreetMap View).
