@@ -29,6 +29,9 @@
     <string name="time_before_logging_summary">Use 0 para la máxima frecuencia, aunque es mejor reducir el tiempo entre cada registro para ahorrar batería.</string>
     <string name="time_before_logging_dialog_title">Tiempo en segundos</string>
     <string name="time_before_logging_hint">Segundos</string>
+    
+    <!-- Hints -->
+    <string name="add_segment_hint">Para crear un segmento, primero tienes que marcar dos puntos sobre el track que ves en el mapa: el punto inicial y el punto final del segmento. Después, pulsa sobre le botón crear segmento.</string>
 
     <string name="app_name">LibreSportGPS</string>
     <string name="display_track">Mostrar track</string>
@@ -94,4 +97,6 @@
     <string name="no_tracks_to_display">No hay tracks que mostrar</string>
     <string name="detail">Detalle</string>
     <string name="altimetry">Altimetría</string>
+    <string name="segment">Segment</string>
+    <string name="add_segment">Crear segmento</string>
 </resources>

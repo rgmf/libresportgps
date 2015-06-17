@@ -34,6 +34,9 @@ import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.PathOverlay;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -44,11 +47,19 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 import es.rgmf.libresportgps.R;
+import es.rgmf.libresportgps.TrackEditActivity;
+import es.rgmf.libresportgps.common.Session;
+import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.TrackPoint;
+import es.rgmf.libresportgps.file.FileManager;
 import es.rgmf.libresportgps.view.RouteMapView;
 
 /**
@@ -76,6 +87,10 @@ public class MapFragment extends Fragment {
 	 * List of track points of the track we will show over the map.
 	 */
 	private List<TrackPoint> mListTrackPoint = new ArrayList<TrackPoint>();
+	/**
+	 * The options menu.
+	 */
+	private Menu mMenu;
 	/**
 	 * The index of the begin point of the segment.
 	 */
@@ -108,6 +123,8 @@ public class MapFragment extends Fragment {
 			Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_map, container,
 				false);
+        
+        setHasOptionsMenu(true);
 		
 		// Create scale bar.
 		ScaleBarOverlay scaleBarOverlay = new ScaleBarOverlay(
@@ -180,6 +197,65 @@ public class MapFragment extends Fragment {
 	}
 	
 	/**
+	 * This method modifies the options in the bar menu adapting it to this
+	 * fragment.
+	 */
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		mMenu = menu;
+	    menu.clear();
+	    inflater.inflate(R.menu.segment, menu);
+	}
+	
+	/**
+	 * Handle the clicked options in this fragment.
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+			/* THE USER CLICKS ON ADD SEGMENT BUTTON ON BUTTON BAR */
+			case R.id.segment_add:
+				if (mIdxBeginPoint == null) {
+					new AlertDialog.Builder(getActivity())
+					.setTitle(R.string.add_segment)
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setMessage(getResources().getString(R.string.add_segment_hint))
+					.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+						}
+					}).create().show();
+				}
+
+	            return true;
+	        
+			/* THE USER CLICK ON CANCEL SEGMENT BUTTON ON BUTTON BAR */
+			case R.id.segment_cancel:
+				Drawable marker = getResources().getDrawable(R.drawable.geopoint);
+		        int markerWidth = marker.getIntrinsicWidth();
+		        int markerHeight = marker.getIntrinsicHeight();
+		        marker.setBounds(0, markerHeight, markerWidth, 0);
+				
+				for (int i = mIdxBeginPoint; i <= mIdxEndPoint; i++) {
+	    			// Get MyItemizedIconOverlay overlay from map view.
+	    	    	MyItemizedIconOverlay overlay = (MyItemizedIconOverlay) mMapView.getOverlays().get(ICON_OVERLAY);
+	    	    	overlay.setMarker(i, marker);
+	    	    	mMapView.invalidate();
+	    		}
+				
+				mIdxBeginPoint = null;
+				mIdxEndPoint = null;
+				
+				item.setVisible(false);
+				
+				return true;
+		}
+		
+		return super.onOptionsItemSelected(item);
+	}
+	
+	/**
 	 * To get "click" on the points.
 	 * 
 	 * We need these events to create segments on map view GeoPoints.
@@ -202,6 +278,9 @@ public class MapFragment extends Fragment {
 	    	if (mIdxBeginPoint == null) {
 	    		mIdxBeginPoint = index;
 	    		
+	    		// Set visibility of the cancel button menu true.
+	    		mMenu.findItem(R.id.segment_cancel).setVisible(true); 
+	    		
 	    		// Get MyItemizedIconOverlay overlay from map view.
 		    	MyItemizedIconOverlay overlay = (MyItemizedIconOverlay) mMapView.getOverlays().get(ICON_OVERLAY);
 		    	overlay.setMarker(index, marker);
@@ -210,18 +289,10 @@ public class MapFragment extends Fragment {
 	    	else if (mIdxEndPoint == null) {
 	    		mIdxEndPoint = index;
 	    		
-	    		Log.v("Begin", mIdxBeginPoint + "");
-	    		Log.v("End", mIdxEndPoint + "");
-	    		
 	    		if (mIdxBeginPoint > mIdxEndPoint) {
 	    			mIdxEndPoint = mIdxBeginPoint;
 	    			mIdxBeginPoint = index;
 	    		}
-	    		
-	    		Log.v("Begin", mIdxBeginPoint + "");
-	    		Log.v("End", mIdxEndPoint + "");
-	    		
-	    		
 	    		
 	    		for (int i = mIdxBeginPoint + 1; i <= mIdxEndPoint; i++) {
 	    			// Get MyItemizedIconOverlay overlay from map view.
