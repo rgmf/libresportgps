@@ -265,4 +265,20 @@ public class DBModel {
 		dbAdapter.close();
 		return list;
 	}
+	
+	/**
+	 * Get all track points from begin to end.
+	 * 
+	 * @param context The context.
+	 * @param begin The beginning track point id.
+	 * @param end The end track point id.
+	 * @return A track point list.
+	 */
+	public static List<TrackPoint> getTrackPointsFromTo(Context context, Long begin, Long end) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		List<TrackPoint> list = dbAdapter.getTrackPointsFromTo(begin, end);
+		dbAdapter.close();
+		return list;
+	}
 }

@@ -26,6 +26,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.db.orm.Sport;
 import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.db.orm.TrackPoint;
@@ -477,7 +478,7 @@ public class DBAdapter {
                 " FROM " +
                 DBHelper.TRACK_POINT_TBL_NAME +
                 
-                " WHERE " +
+                " WHERE " +                
                 DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.TRACK_ID_FIELD_NAME + "=" + trackId +
                 
                 " ORDER BY " +
@@ -491,7 +492,60 @@ public class DBAdapter {
             	tp.setId(cursor.getLong(0));
             	tp.setLat(cursor.getDouble(1));
             	tp.setLng(cursor.getDouble(2));
-            	tp.setTime(cursor.getLong(3));
+            	tp.setTime(Utilities.getMillisecondsFromStringGPXDate(cursor.getString(3)));
+            	tp.setDistance(cursor.getFloat(4));
+            	tp.setAccuracy(cursor.getFloat(5));
+            	tp.setElevation(cursor.getDouble(6));
+            	tp.setSpeed(cursor.getFloat(7));
+            	
+            	list.add(tp);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+    	
+		return list;
+	}
+    
+    /**
+     * Get all track points from begin to end.
+     * 
+     * @param begin The beginning track point id.
+     * @param end The end track point id.
+     * @return The track points list.
+     */
+    public List<TrackPoint> getTrackPointsFromTo(Long begin, Long end) {
+    	List<TrackPoint> list = new ArrayList<TrackPoint>();
+    	TrackPoint tp;
+    	String query = "SELECT " +
+
+                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " +    		// 0
+                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.LAT_FIELD_NAME + ", " +    		// 1
+                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.LONG_FIELD_NAME + ", " +    		// 2
+                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.TIME_FIELD_NAME + ", " +    		// 3
+                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME + ", " +  	// 4
+                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.ACCURACY_FIELD_NAME + ", " +    	// 5
+                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.ELEVATION_FIELD_NAME + ", " +    // 6
+                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.SPEED_FIELD_NAME +		    	// 7
+
+                " FROM " +
+                DBHelper.TRACK_POINT_TBL_NAME +
+                
+                " WHERE " +                
+                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.TRACK_ID_FIELD_NAME + ">=" + begin + " AND " +
+                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.TRACK_ID_FIELD_NAME + "<=" + end +
+                
+                " ORDER BY " +
+                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME;
+
+        Cursor cursor = db.rawQuery(query, null);
+        
+        if(cursor.moveToFirst()) {
+            do {
+            	tp = new TrackPoint();
+            	tp.setId(cursor.getLong(0));
+            	tp.setLat(cursor.getDouble(1));
+            	tp.setLng(cursor.getDouble(2));
+            	tp.setTime(Utilities.getMillisecondsFromStringGPXDate(cursor.getString(3)));
             	tp.setDistance(cursor.getFloat(4));
             	tp.setAccuracy(cursor.getFloat(5));
             	tp.setElevation(cursor.getDouble(6));

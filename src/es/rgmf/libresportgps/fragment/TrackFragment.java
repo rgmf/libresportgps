@@ -120,7 +120,7 @@ public class TrackFragment extends Fragment {
         	fragments.add(AltimetryFragment.newInstance(listTrackPoints, 0f, 0f));
         
         // 2.- MapFragment.
-        fragments.add(MapFragment.newInstance(listTrackPoints));
+        fragments.add(MapFragment.newInstance(mTrack.getId(), listTrackPoints));
         
         TrackPagerAdapter pagerAdapter = new TrackPagerAdapter(getFragmentManager(), getResources(), fragments);
         mPager.setAdapter(pagerAdapter);

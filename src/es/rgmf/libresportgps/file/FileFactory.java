@@ -20,6 +20,7 @@ package es.rgmf.libresportgps.file;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.file.writer.GpxWriter;
 import es.rgmf.libresportgps.file.writer.IWriter;

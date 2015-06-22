@@ -36,7 +36,6 @@ import org.osmdroid.views.overlay.ScaleBarOverlay;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -45,7 +44,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -53,13 +51,9 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 import es.rgmf.libresportgps.R;
-import es.rgmf.libresportgps.TrackEditActivity;
-import es.rgmf.libresportgps.common.Session;
-import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.TrackPoint;
-import es.rgmf.libresportgps.file.FileManager;
+import es.rgmf.libresportgps.fragment.dialog.AddSegmentDialog;
 import es.rgmf.libresportgps.view.RouteMapView;
 
 /**
@@ -84,6 +78,10 @@ public class MapFragment extends Fragment {
 	 */
 	private MapController mMapController;
 	/**
+	 * The track id.
+	 */
+	private Long mTrackId;
+	/**
 	 * List of track points of the track we will show over the map.
 	 */
 	private List<TrackPoint> mListTrackPoint = new ArrayList<TrackPoint>();
@@ -105,8 +103,9 @@ public class MapFragment extends Fragment {
 	 * @param list
 	 * @return
 	 */
-	public static MapFragment newInstance(List<TrackPoint> list) {
+	public static MapFragment newInstance(Long trackId, List<TrackPoint> list) {
 		MapFragment f = new MapFragment();
+		f.mTrackId = trackId;
 		f.mListTrackPoint = list;
 		return f;
 	}
@@ -216,7 +215,7 @@ public class MapFragment extends Fragment {
 		switch(item.getItemId()) {
 			/* THE USER CLICKS ON ADD SEGMENT BUTTON ON BUTTON BAR */
 			case R.id.segment_add:
-				if (mIdxBeginPoint == null) {
+				if (mIdxBeginPoint == null || mIdxEndPoint == null) {
 					new AlertDialog.Builder(getActivity())
 					.setTitle(R.string.add_segment)
 					.setIcon(android.R.drawable.ic_dialog_alert)
@@ -226,6 +225,13 @@ public class MapFragment extends Fragment {
 						public void onClick(DialogInterface dialog, int which) {
 						}
 					}).create().show();
+				}
+				else {
+					AddSegmentDialog dialog = new AddSegmentDialog(
+							mTrackId,
+							mListTrackPoint.get(mIdxBeginPoint),
+							mListTrackPoint.get(mIdxEndPoint));
+					dialog.show(getFragmentManager(), null);
 				}
 
 	            return true;
@@ -237,12 +243,20 @@ public class MapFragment extends Fragment {
 		        int markerHeight = marker.getIntrinsicHeight();
 		        marker.setBounds(0, markerHeight, markerWidth, 0);
 				
-				for (int i = mIdxBeginPoint; i <= mIdxEndPoint; i++) {
-	    			// Get MyItemizedIconOverlay overlay from map view.
+		        if (mIdxBeginPoint != null && mIdxEndPoint != null) {
+					for (int i = mIdxBeginPoint; i <= mIdxEndPoint; i++) {
+		    			// Get MyItemizedIconOverlay overlay from map view.
+		    	    	MyItemizedIconOverlay overlay = (MyItemizedIconOverlay) mMapView.getOverlays().get(ICON_OVERLAY);
+		    	    	overlay.setMarker(i, marker);
+		    	    	mMapView.invalidate();
+		    		}
+		        }
+		        else if (mIdxBeginPoint != null) {
+		        	// Get MyItemizedIconOverlay overlay from map view.
 	    	    	MyItemizedIconOverlay overlay = (MyItemizedIconOverlay) mMapView.getOverlays().get(ICON_OVERLAY);
-	    	    	overlay.setMarker(i, marker);
+	    	    	overlay.setMarker(mIdxBeginPoint, marker);
 	    	    	mMapView.invalidate();
-	    		}
+		        }
 				
 				mIdxBeginPoint = null;
 				mIdxEndPoint = null;
@@ -275,6 +289,7 @@ public class MapFragment extends Fragment {
             int markerHeight = marker.getIntrinsicHeight();
             marker.setBounds(0, markerHeight, markerWidth, 0);
             
+            // The index of the overlays is the same that the list mListTrackPoint.
 	    	if (mIdxBeginPoint == null) {
 	    		mIdxBeginPoint = index;
 	    		

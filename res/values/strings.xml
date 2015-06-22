@@ -32,6 +32,9 @@
     
     <!-- Hints -->
     <string name="add_segment_hint">To add a segment you have to click on two points on track you can see on the map: begin and end segmento points. Then you can click on add segmento button.</string>
+    <string name="required_value">Required value</string>
+    <string name="segment_created">Segment created</string>
+    <string name="fail_segment_created">Fail segment creation</string>
     
 
     <string name="app_name">LibreSportGPS</string>
@@ -100,4 +103,5 @@
     <string name="altimetry">Altimetry</string>
     <string name="segment">Segment</string>
     <string name="add_segment">Add Segment</string>
+    <string name="name">Name</string>
 </resources>

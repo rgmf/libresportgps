@@ -23,7 +23,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
-import android.util.Log;
 
 /**
  * Database helper.
@@ -34,7 +33,7 @@ import android.util.Log;
  *
  */
 class DBHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 12;
     private static final String DATABASE_NAME = "libresportgps.db";
     
     /*************************** Table names *********************************/
@@ -45,6 +44,8 @@ class DBHelper extends SQLiteOpenHelper {
     public static final String TRACK_POINT_TBL_NAME = "track_point";
     public static final String WAYPOINT_TBL_NAME = "waypoint";
     public static final String SEGMENT_TBL_NAME = "segment";
+    public static final String SEGMENT_POINT_TBL_NAME = "segment_point";
+    public static final String SEGMENT_TRACK_TBL_NAME = "segment_track";
     /*************************************************************************/
     
     /*************************** Fields names ********************************/
@@ -74,6 +75,9 @@ class DBHelper extends SQLiteOpenHelper {
     public static final String SPORT_FIELD_NAME = "sport";
     public static final String LOGO_FIELD_NAME = "logo";
     public static final String POINT_ORDER_FIELD_NAME = "point_order";
+    public static final String SEGMENT_FIELD_NAME = "segment";
+    public static final String AVG_SPEED_FIELD_NAME = "avg_speed";
+    public static final String TRACK_FIELD_NAME = "track";
     /*************************************************************************/
     
     /************************* SQL create table if not exists ******************************/
@@ -135,16 +139,26 @@ class DBHelper extends SQLiteOpenHelper {
     
     private static final String SEGMENT_TBL = "create table if not exists " + SEGMENT_TBL_NAME + "( " +
     		ID_FIELD_NAME + " integer primary key autoincrement, " +
-    		DISTANCE_FIELD_NAME + " real, " +
-    		START_TIME_FIELD_NAME + " integer, " +
-    		ACTIVITY_TIME_FIELD_NAME + " integer, " +
-    		FINISH_TIME_FIELD_NAME + " integer, " +
+    		NAME_FIELD_NAME + " text not null, " +
+    		DISTANCE_FIELD_NAME + " real not null, " +
+    		ELEVATION_GAIN_FIELD_NAME + " real);";
+    
+    private static final String SEGMENT_POINT_TBL = "create table if not exists " + SEGMENT_POINT_TBL_NAME + "( " +
+    		ID_FIELD_NAME + " integer primary key autoincrement, " +
+    		LAT_FIELD_NAME + " integer not null, " +
+    		LONG_FIELD_NAME + " integer not null, " +
+    		DISTANCE_FIELD_NAME + " real not null, " +
+    		ELEVATION_FIELD_NAME + " real not null, " +
+    		SEGMENT_FIELD_NAME + " integer not null references " + SEGMENT_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade);";
+    
+    private static final String SEGMENT_TRACK_TBL = "create table if not exists " + SEGMENT_TRACK_TBL_NAME + "( " +
+    		ID_FIELD_NAME + " integer primary key autoincrement, " +
+    		TIME_FIELD_NAME + " integer not null, " +
     		MAX_SPEED_FIELD_NAME + " real, " +
-    		MAX_ELEVATION_FIELD_NAME + " real, " +
-    		MIN_ELEVATION_FIELD_NAME + " real, " +
-    		ELEVATION_GAIN_FIELD_NAME + " real, " +
-    		ELEVATION_LOSS_FIELD_NAME + " real, " +
-    		TRACK_ID_FIELD_NAME + " integer not null references " + TRACK_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade);";
+    		AVG_SPEED_FIELD_NAME + " real, " +
+    		TRACK_FIELD_NAME + " integer not null references " + TRACK_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade, " +
+    		SEGMENT_FIELD_NAME + " integer not null references " + SEGMENT_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade);";
+    		
     /*************************************************************************/
     
     /**
@@ -230,6 +244,7 @@ class DBHelper extends SQLiteOpenHelper {
         	db.execSQL("UPDATE " + SPORT_TBL_NAME + " SET " +
                        LOGO_FIELD_NAME + "=" + "'trekking' " +
   			           "WHERE " + NAME_FIELD_NAME + "='Trekking'");
+        	break;
         case 10:
         	// In this database update we need to add a track point order field and update all registers.
         	db.execSQL("ALTER TABLE " + TRACK_POINT_TBL_NAME +
@@ -244,7 +259,6 @@ class DBHelper extends SQLiteOpenHelper {
         		int order;
         		// To all tracks we have to update their track points.
         		do {
-        			Log.v("Track: ", "" + trackCursor.getInt(0));
         			order = 1;
         			trackPointCursor = db.query(true, TRACK_POINT_TBL_NAME, trackPointCols, TRACK_ID_FIELD_NAME + "=" + trackCursor.getInt(0), null, null, null, null, null);
         			if (trackPointCursor != null && trackPointCursor.moveToFirst()) {
@@ -258,6 +272,17 @@ class DBHelper extends SQLiteOpenHelper {
         			}
         		} while (trackCursor.moveToNext());
         	}
+        	break;
+        case 11:
+        	//db.execSQL("ALTER TABLE " + TRACK_POINT_TBL_NAME + 
+        	//		" DROP COLUMN " + POINT_ORDER_FIELD_NAME );
+        	db.execSQL("DROP TABLE " + SEGMENT_TBL_NAME);
+        	db.execSQL(SEGMENT_TBL);
+        	db.execSQL(SEGMENT_POINT_TBL);
+        	db.execSQL(SEGMENT_TRACK_TBL);
+        case 12:
+        	db.execSQL("ALTER TABLE " + SEGMENT_TBL_NAME +
+        			" ADD " + DISTANCE_FIELD_NAME + " real not null default 0");
 		}
 	}
 }
