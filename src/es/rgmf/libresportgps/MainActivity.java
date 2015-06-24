@@ -42,7 +42,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
-import es.rgmf.libresportgps.common.Segment;
+import es.rgmf.libresportgps.common.SegmentUtil;
 import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Track;
@@ -543,7 +543,7 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	public void onDialogPositiveClick(String segmentName,
     		Long trackId, TrackPoint begin, TrackPoint end) {
-		if (Segment.addSegment(this, segmentName, trackId, begin, end)) {
+		if (SegmentUtil.addSegment(this, segmentName, trackId, begin, end)) {
 			Toast.makeText(this, R.string.segment_created, Toast.LENGTH_LONG).show();
 		}
 		else {

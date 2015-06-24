@@ -531,8 +531,8 @@ public class DBAdapter {
                 DBHelper.TRACK_POINT_TBL_NAME +
                 
                 " WHERE " +                
-                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.TRACK_ID_FIELD_NAME + ">=" + begin + " AND " +
-                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.TRACK_ID_FIELD_NAME + "<=" + end +
+                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ">=" + begin + " AND " +
+                DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + "<=" + end +
                 
                 " ORDER BY " +
                 DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME;
