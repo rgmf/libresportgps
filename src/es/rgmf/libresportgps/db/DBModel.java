@@ -23,7 +23,11 @@ import java.util.TreeMap;
 
 import android.content.Context;
 import android.location.Location;
+import android.support.v4.app.FragmentActivity;
 import es.rgmf.libresportgps.common.Session;
+import es.rgmf.libresportgps.db.orm.Segment;
+import es.rgmf.libresportgps.db.orm.SegmentPoint;
+import es.rgmf.libresportgps.db.orm.SegmentTrack;
 import es.rgmf.libresportgps.db.orm.Sport;
 import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.db.orm.TrackPoint;
@@ -280,5 +284,122 @@ public class DBModel {
 		List<TrackPoint> list = dbAdapter.getTrackPointsFromTo(begin, end);
 		dbAdapter.close();
 		return list;
+	}
+	
+	/**
+	 * Return all segment tracks or null.
+	 * 
+	 * @param context The context.
+	 * @param trackId The id of the track.
+	 * @return The list of segment tracks or null.
+	 */
+	public static List<SegmentTrack> getAllSegmentTrack(Context context, Long trackId) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		List<SegmentTrack> list = dbAdapter.getAllSegmentTrack(trackId);
+		dbAdapter.close();
+		return list;
+	}
+	
+	/**
+	 * Return the first segment point from all segments from the track. 
+	 * 
+	 * @param context The context.
+	 * @param trackId The track id.
+	 * @return a list or null.
+	 */
+	public static List<SegmentPoint> getAllFirstSegmentPoint(Context context, Long trackId) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		List<SegmentPoint> list = dbAdapter.getAllFirstSegmentPoint(trackId);
+		dbAdapter.close();
+		return list;
+	}
+	
+	/**
+	 * Create a new segment with transaction.
+	 * 
+	 * @param context
+	 * @param trackId
+	 * @param segment
+	 * @param segmentTrack
+	 * @param segmentPointList
+	 * @return true if ok.
+	 */
+	public static boolean newSegment(Context context, Long trackId, Segment segment,
+			SegmentTrack segmentTrack, List<SegmentPoint> segmentPointList) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		boolean result = dbAdapter.newSegment(trackId, segment, segmentTrack, segmentPointList);
+		dbAdapter.close();
+		return result;
+	}
+
+	/**
+	 * Add a new segment.
+	 * 
+	 * @param context Context object.
+	 * @param segment Segment object.
+	 * @return The identifier of the segment inserted.
+	 */
+	public static Long addSegment(Context context, Segment segment) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		Long id;
+		try {
+			id = dbAdapter.addSegment(segment);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		dbAdapter.close();
+		return id;
+	}
+
+	/**
+	 * Add a segment track.
+	 * 
+	 * @param context Context object.
+	 * @param trackId Track identifier.
+	 * @param segmentId Segment identifier.
+	 * @param segmentTrack Segment track object.
+	 * @return The identifier of the segment track inserted.
+	 */
+	public static Long addSegmentTrack(Context context, Long trackId,
+			Long segmentId, SegmentTrack segmentTrack) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		Long id;
+		try {
+			id = dbAdapter.addSegmentTrack(trackId, segmentId, segmentTrack);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		dbAdapter.close();
+		return id;
+	}
+
+	/**
+	 * Add a segment point.
+	 * 
+	 * @param context Context object.
+	 * @param segmentId Segment id of the segment points.
+	 * @param segmentPoint A segment point.
+	 * @return The identifier of the segment point inserted.
+	 */
+	public static Long addSegmentPoint(Context context, Long segmentId,
+			SegmentPoint segmentPoint) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		Long id;
+		try {
+			id = dbAdapter.addSegmentPoint(segmentId, segmentPoint);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		dbAdapter.close();
+		return id;
 	}
 }

@@ -33,7 +33,7 @@
     <!-- Hints -->
     <string name="add_segment_hint">Para crear un segmento, primero tienes que marcar dos puntos sobre el track que ves en el mapa: el punto inicial y el punto final del segmento. Después, pulsa sobre le botón crear segmento.</string>
     <string name="required_value">Inserta un valor</string>
-    <string name="segment_created">Segmento creado correctmaente</string>
+    <string name="segment_created">Segmento creado correctamente</string>
     <string name="fail_segment_created">No se ha podido crear el segmento</string>
 
     <string name="app_name">LibreSportGPS</string>

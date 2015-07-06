@@ -18,6 +18,7 @@
 package es.rgmf.libresportgps.fragment;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -37,6 +38,7 @@ import es.rgmf.libresportgps.R;
 import es.rgmf.libresportgps.adapter.TrackListAdapter;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Track;
+import es.rgmf.libresportgps.file.FileFactory;
 import es.rgmf.libresportgps.file.reader.GpxReader;
 import es.rgmf.libresportgps.fragment.dialog.FileDialog;
 
@@ -268,6 +270,14 @@ public class TrackListFragment extends ListFragment {
 			long trackId = DBModel.createTrack(getActivity(), track);
 			DBModel.addTrackPoints(getActivity(), trackId,
 					gpxReader.getTrackPoints());
+			
+			// Save gpx file.
+			String folderName = FileFactory.createFolderIfNotExists(String.valueOf(trackId));
+			try {
+				FileFactory.copyFile(mFile.getName(), folderName);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
 			return null;
 		}

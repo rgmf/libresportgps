@@ -18,7 +18,7 @@
 package es.rgmf.libresportgps.db.orm;
 
 /**
- * Sport Object Relational Mapping.
+ * Segment Object Relational Mapping.
  * 
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
@@ -51,5 +51,4 @@ public class Segment {
 	public void setElevationGain(Double elevationGain) {
 		this.elevationGain = elevationGain;
 	}
-	
 }

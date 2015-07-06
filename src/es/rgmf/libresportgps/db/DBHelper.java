@@ -33,7 +33,7 @@ import android.os.Environment;
  *
  */
 class DBHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 12;
+    private static final int DATABASE_VERSION = 13;
     private static final String DATABASE_NAME = "libresportgps.db";
     
     /*************************** Table names *********************************/
@@ -280,9 +280,15 @@ class DBHelper extends SQLiteOpenHelper {
         	db.execSQL(SEGMENT_TBL);
         	db.execSQL(SEGMENT_POINT_TBL);
         	db.execSQL(SEGMENT_TRACK_TBL);
+        	break;
         case 12:
-        	db.execSQL("ALTER TABLE " + SEGMENT_TBL_NAME +
-        			" ADD " + DISTANCE_FIELD_NAME + " real not null default 0");
+        	db.execSQL("ALTER TABLE " + SEGMENT_TRACK_TBL_NAME +
+        			" ADD COLUMN date_ date not null default 0");
+        	break;
+        case 13:
+        	//db.execSQL("ALTER TABLE " + SEGMENT_TRACK_TBL_NAME + 
+        	//		" DROP date_");
+        	break;
 		}
 	}
 }

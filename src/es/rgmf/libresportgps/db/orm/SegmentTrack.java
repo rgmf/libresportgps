@@ -17,17 +17,18 @@
 
 package es.rgmf.libresportgps.db.orm;
 
+
 /**
- * SegmentPoint Object Relational Mapping.
+ * SegmentTrack Object Relational Mapping.
  * 
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
-public class SegmentPoint {
+public class SegmentTrack {
 	private Long id;
-	private Double lat = 0d;
-	private Double lng = 0d;
-	private Float distance = 0f;
-	private Double elevation = 0d;
+	private Long time;
+	private Float maxSpeed;
+	private Float avgSpeed;
+	private Track track;
 	private Segment segment;
 	public Long getId() {
 		return id;
@@ -35,29 +36,29 @@ public class SegmentPoint {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public Double getLat() {
-		return lat;
+	public Long getTime() {
+		return time;
 	}
-	public void setLat(Double lat) {
-		this.lat = lat;
+	public void setTime(Long time) {
+		this.time = time;
 	}
-	public Double getLng() {
-		return lng;
+	public Float getMaxSpeed() {
+		return maxSpeed;
 	}
-	public void setLng(Double lng) {
-		this.lng = lng;
+	public void setMaxSpeed(Float maxSpeed) {
+		this.maxSpeed = maxSpeed;
 	}
-	public Float getDistance() {
-		return distance;
+	public Float getAvgSpeed() {
+		return avgSpeed;
 	}
-	public void setDistance(Float distance) {
-		this.distance = distance;
+	public void setAvgSpeed(Float avgSpeed) {
+		this.avgSpeed = avgSpeed;
 	}
-	public Double getElevation() {
-		return elevation;
+	public Track getTrack() {
+		return track;
 	}
-	public void setElevation(Double elevation) {
-		this.elevation = elevation;
+	public void setTrack(Track track) {
+		this.track = track;
 	}
 	public Segment getSegment() {
 		return segment;

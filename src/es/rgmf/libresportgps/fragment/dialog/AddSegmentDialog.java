@@ -123,12 +123,13 @@ public class AddSegmentDialog extends DialogFragment {
 	          @Override
 	          public void onClick(View v) {
 	        	  EditText segmentName = (EditText) getDialog().findViewById (R.id.segment_name);
-           	   if( segmentName.getText().toString().length() == 0 )
+           	   if (segmentName.getText().toString().length() == 0)
            	       segmentName.setError(getString(R.string.required_value));
            	   else {
            		   mSegmentName = segmentName.getText().toString();
            		   AddSegmentDialogListener activity = (AddSegmentDialogListener) getActivity();
            		   activity.onDialogPositiveClick(mSegmentName, mTrackId, mBeginPoint, mEndPoint);
+           		   getDialog().dismiss();
            	   }
 	        }
 	    });

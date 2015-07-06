@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
-import android.util.Log;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Segment;
 import es.rgmf.libresportgps.db.orm.SegmentPoint;
+import es.rgmf.libresportgps.db.orm.SegmentTrack;
 import es.rgmf.libresportgps.db.orm.TrackPoint;
 
 
@@ -42,15 +42,13 @@ public class SegmentUtil {
 		Float avgSpeed;
 		Float maxSpeed = Float.MIN_VALUE;
 		Long time;
-		Double eleGain = 0d;
+		Double eleGain;
 		List<TrackPoint> trackPointList;
 		List<SegmentPoint> segmentPointList;
 		SegmentPoint segmentPoint;
 		Segment segment;
-		Float distanceAccGain = 0f;
-		Double finishElevationGain;
-		Float distanceGain = 0f;
-		Double startElevationGain = begin.getElevation();
+		SegmentTrack segmentTrack;
+		Long segmentId;
 		
 		// Distance in meters.
 		distance = end.getDistance() - begin.getDistance();
@@ -61,18 +59,33 @@ public class SegmentUtil {
 		// Average speed in km/h.
 		avgSpeed = (distance / 1000f) / (time / (1000f * 60f * 60f));
 		
+		// Elevation gain.
+		eleGain = end.getElevation() - begin.getElevation();
+		
 		// Begin distance.
 		beginDistance = begin.getDistance();
 		
-		// Save in the list all segments points.
+		// Create the segment object.
+		segment = new Segment();
+		segment.setName(segmentName);
+		segment.setDistance(end.getDistance() - begin.getDistance());
+		segment.setElevationGain(eleGain);
+		
+		// Create the segment track.
+		segmentTrack = new SegmentTrack();
+		segmentTrack.setTime(time);
+		segmentTrack.setMaxSpeed(maxSpeed);
+		segmentTrack.setAvgSpeed(avgSpeed);
+		
+		// Create and add all segment points.
 		trackPointList = DBModel.getTrackPointsFromTo(context, begin.getId(), end.getId());
 		segmentPointList = new ArrayList<SegmentPoint>();
 		for (TrackPoint trackPoint : trackPointList) {
 			segmentPoint = new SegmentPoint();
 			
-			// Max speed.
-			if (trackPoint.getSpeed() > maxSpeed)
-				maxSpeed = trackPoint.getSpeed();
+			// Max speed (the speed is in m/s so we need to convert to km/h).
+			if ((trackPoint.getSpeed() * 3.6f) > maxSpeed)
+				maxSpeed = trackPoint.getSpeed() * 3.6f;
 			
 			// Set latitude and longitude.
 			segmentPoint.setLat(trackPoint.getLat());
@@ -84,39 +97,24 @@ public class SegmentUtil {
 			// Set elevation.
 			segmentPoint.setElevation(trackPoint.getElevation());
 			
-			// Add segment point to the list.
+			// Add segment point into the list.
 			segmentPointList.add(segmentPoint);
-			
-			// Recalculate elevation gain to add it to the segment later.
-			distanceAccGain += trackPoint.getDistance();
-			finishElevationGain = trackPoint.getElevation();
-			if (distanceAccGain >= distanceGain) {
-				if ((finishElevationGain - startElevationGain) >= Session.getMinElevationGain()) {
-					eleGain += (finishElevationGain - startElevationGain);
-				}
-				startElevationGain = finishElevationGain;
-				distanceAccGain = 0f;
-			}
 		}
-		
-		// Create the segment object.
-		segment = new Segment();
-		segment.setName(segmentName);
-		segment.setDistance(end.getDistance() - begin.getDistance());
-		segment.setElevationGain(eleGain);
-		
-		
-		
-		
+		/*
 		Log.v("Segment Name:", segment.getName());
 		Log.v("Distance:", segment.getDistance() + "");
 		Log.v("Time:", time + "");
+		Log.v("     Begin:", begin.getTime() + "");
+		Log.v("     End:", end.getTime() + "");
 		Log.v("Avg. Speed:", avgSpeed + "");
+		Log.v("Max. Speed:", maxSpeed + "");
 		Log.v("Ele. Gain:", (end.getElevation() - begin.getElevation()) + "");//eleGain + "");
-		Log.v("Avg. %:", ((100f * (end.getElevation() - begin.getElevation())) / segment.getDistance()) + "");
-		
-		
-		return false;
+		Log.v("Avg. %:", ((100f * segment.getElevationGain()) / segment.getDistance()) + "");
+		*/
+		if (DBModel.newSegment(context, trackId, segment, segmentTrack, segmentPointList))
+			return true;
+		else
+			return false;
 	}
 	
 }
