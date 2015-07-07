@@ -22,7 +22,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -127,9 +126,18 @@ public class AddSegmentDialog extends DialogFragment {
            	       segmentName.setError(getString(R.string.required_value));
            	   else {
            		   mSegmentName = segmentName.getText().toString();
+           		   
+           		   // With this code line we call to the callback in the Fragment that called this
+           		   // dialog (getTargetFragment).
+           		   AddSegmentDialogListener callback = (AddSegmentDialogListener) getTargetFragment();
+           		   callback.onDialogPositiveClick(mSegmentName, mTrackId, mBeginPoint, mEndPoint);
+           		   getDialog().dismiss();
+           		   
+           		   /*
            		   AddSegmentDialogListener activity = (AddSegmentDialogListener) getActivity();
            		   activity.onDialogPositiveClick(mSegmentName, mTrackId, mBeginPoint, mEndPoint);
            		   getDialog().dismiss();
+           		   */
            	   }
 	        }
 	    });

@@ -42,7 +42,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
-import es.rgmf.libresportgps.common.SegmentUtil;
 import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Track;
@@ -52,7 +51,7 @@ import es.rgmf.libresportgps.fragment.DataViewFragment;
 import es.rgmf.libresportgps.fragment.SettingsFragment;
 import es.rgmf.libresportgps.fragment.TrackFragment;
 import es.rgmf.libresportgps.fragment.TrackListFragment;
-import es.rgmf.libresportgps.fragment.dialog.AddSegmentDialog;
+import es.rgmf.libresportgps.fragment.dialog.AddSegmentDialog.AddSegmentDialogListener;
 import es.rgmf.libresportgps.gps.GpsLoggerService;
 import es.rgmf.libresportgps.gps.GpsLoggerServiceConnection;
 import es.rgmf.libresportgps.gps.IGpsLoggerServiceClient;
@@ -68,7 +67,7 @@ public class MainActivity extends FragmentActivity implements
 		NavigationDrawerFragment.NavigationDrawerCallbacks,
 		IGpsLoggerServiceClient, TrackListFragment.OnTrackSelectedListener,
 		TrackListFragment.ProgressCallbacks,
-		AddSegmentDialog.AddSegmentDialogListener {
+		AddSegmentDialogListener {
 
 	private ProgressDialog mProgressDialog = null;
 
@@ -543,12 +542,6 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	public void onDialogPositiveClick(String segmentName,
     		Long trackId, TrackPoint begin, TrackPoint end) {
-		if (SegmentUtil.addSegment(this, segmentName, trackId, begin, end)) {
-			Toast.makeText(this, R.string.segment_created, Toast.LENGTH_LONG).show();
-		}
-		else {
-			Toast.makeText(this, R.string.fail_segment_created, Toast.LENGTH_LONG).show();
-		}
 	}
 
 	/***** Implement the interface TrackListFragment.ProgressCallbacks *****/

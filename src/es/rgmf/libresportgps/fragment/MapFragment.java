@@ -52,11 +52,14 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 import es.rgmf.libresportgps.R;
+import es.rgmf.libresportgps.common.SegmentUtil;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.SegmentPoint;
 import es.rgmf.libresportgps.db.orm.TrackPoint;
 import es.rgmf.libresportgps.fragment.dialog.AddSegmentDialog;
+import es.rgmf.libresportgps.fragment.dialog.AddSegmentDialog.AddSegmentDialogListener;
 import es.rgmf.libresportgps.view.RouteMapView;
 
 /**
@@ -67,7 +70,7 @@ import es.rgmf.libresportgps.view.RouteMapView;
  * 
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
-public class MapFragment extends Fragment {
+public class MapFragment extends Fragment implements AddSegmentDialogListener {
 	private static final int SCALE_OVERLAY = 0;
 	private static final int PATH_OVERLAY = 1;
 	private static final int ICON_OVERLAY = 2;
@@ -148,10 +151,10 @@ public class MapFragment extends Fragment {
 		GeoPoint point = null;
 		OverlayItem overlay;
 		PathOverlay path = new PathOverlay(Color.RED, getActivity());
-		double minLat = Double.MAX_VALUE;
-		double minLng = Double.MAX_VALUE;
-		double maxLat = -Double.MAX_VALUE;
-		double maxLng = -Double.MAX_VALUE;
+		Double minLat = Double.MAX_VALUE;
+		Double minLng = Double.MAX_VALUE;
+		Double maxLat = -Double.MAX_VALUE;
+		Double maxLng = -Double.MAX_VALUE;
 		for (TrackPoint tp : mListTrackPoint) {
 			point = new GeoPoint(tp.getLat(), tp.getLng());
 			geopoints.add(point);
@@ -167,10 +170,13 @@ public class MapFragment extends Fragment {
 			// Refresh minimums and maximums.
 			if (minLat > tp.getLat())
 				minLat = tp.getLat();
+			
 			if (minLng > tp.getLng()) 
 				minLng = tp.getLng();
+			
 			if (maxLat < tp.getLat())
 				maxLat = tp.getLat();
+			
 			if (maxLng < tp.getLng())
 				maxLng = tp.getLng();
 		}
@@ -179,7 +185,7 @@ public class MapFragment extends Fragment {
 		mMapView.setCenterPoint(point);
 		
 		// The bounding box where the map view will zoom.
-		mMapView.setBoundingBoxE6(new BoundingBoxE6(maxLat, minLng, minLat, maxLng));
+		mMapView.setBoundingBoxE6(new BoundingBoxE6(maxLat, maxLng, minLat, minLng));
 		
 		// Add the path create before.
 		mMapView.getOverlays().add(PATH_OVERLAY, path);
@@ -258,33 +264,8 @@ public class MapFragment extends Fragment {
 							mTrackId,
 							mListTrackPoint.get(mIdxBeginPoint),
 							mListTrackPoint.get(mIdxEndPoint));
+					dialog.setTargetFragment(this, 1);
 					dialog.show(getFragmentManager(), null);
-					
-					
-					
-					
-					// Add ItemizedIconOverlay overlay to the map view. This is a set of 
-			        // icons.
-					/*List<OverlayItem> overlays = new ArrayList<OverlayItem>();
-					GeoPoint point;
-					OverlayItem overlay;
-					
-			        ResourceProxy resourceProxy = new DefaultResourceProxyImpl(getActivity());
-			        
-			        point = new GeoPoint(mListTrackPoint.get(mIdxBeginPoint).getLat(),
-			        		             mListTrackPoint.get(mIdxBeginPoint).getLng());
-			        overlay = new OverlayItem(String.valueOf(mListTrackPoint.get(mIdxBeginPoint).getId()), 
-			        		                  String.valueOf(mListTrackPoint.get(mIdxBeginPoint).getId()),
-			        		                  point);
-					overlays.add(overlay);
-					
-					Drawable marker = getResources().getDrawable(R.drawable.segment_overlay);
-			        int markerWidth = marker.getIntrinsicWidth();
-			        int markerHeight = marker.getIntrinsicHeight();
-			        marker.setBounds(0, markerHeight, markerWidth, 0);
-			        
-			        SegmentIconOverlay anotherItemizedIconOverlay = new SegmentIconOverlay(overlays, myOnItemGestureListener, resourceProxy, marker);
-					mMapView.getOverlays().add(SEGMENT_OVERLAY, anotherItemizedIconOverlay);*/
 				}
 
 	            return true;
@@ -298,7 +279,7 @@ public class MapFragment extends Fragment {
 				
 		        if (mIdxBeginPoint != null && mIdxEndPoint != null) {
 					for (int i = mIdxBeginPoint; i <= mIdxEndPoint; i++) {
-		    			// Get MyItemizedIconOverlay overlay from map view.
+		    			// Get ItemIconOverlay overlay from map view.
 		    	    	ItemIconOverlay overlay = (ItemIconOverlay) mMapView.getOverlays().get(ICON_OVERLAY);
 		    	    	overlay.setMarker(i, marker);
 		    	    	mMapView.invalidate();
@@ -334,8 +315,10 @@ public class MapFragment extends Fragment {
 
 		@Override
 		public boolean onItemSingleTapUp(int arg0, OverlayItem arg1) {
-			// TODO Auto-generated method stub
-			return false;
+			Toast.makeText(getActivity(), "Hola amigos", Toast.LENGTH_LONG).show();
+			
+			
+			return true;
 		}
 	};
 	
@@ -386,15 +369,6 @@ public class MapFragment extends Fragment {
 	    	    	mMapView.invalidate();
 	    		}
 	    	}
-	    	
-	    	/*
-	    	item.setMarker(marker);
-	    	
-	    	Toast.makeText(
-	    			getActivity(),
-	    			item.getPoint().getLatitude() + " : " + item.getPoint().getLongitude(),
-	    			Toast.LENGTH_LONG).show();
-	    	*/
 	             
 	        return true;
 	    }
@@ -508,4 +482,67 @@ public class MapFragment extends Fragment {
 	        }
 	    }
     }
+
+    /**
+     * Implement the method of the AddSegmentDialog interface.
+     * 
+     * When the user click on "ok" button from the dialog call this 
+     * callback.
+     * 
+     * This callback show to the user a message say her how segment 
+     * creation was. Later put a segment icon overlay, then change
+     * the icon points to red and change the option bar.
+     */
+	@Override
+	public void onDialogPositiveClick(String segmentName, Long trackId,
+			TrackPoint begin, TrackPoint end) {
+		// 1.- Show the toast message to the user.
+		if (SegmentUtil.addSegment(getActivity(), segmentName, trackId, begin, end)) {
+			Toast.makeText(getActivity(), R.string.segment_created, Toast.LENGTH_LONG).show();
+		}
+		else {
+			Toast.makeText(getActivity(), R.string.fail_segment_created, Toast.LENGTH_LONG).show();
+		}
+		
+		// 2.- Add the new SegmentIconOverlay overlay to the map view.
+		List<OverlayItem> segmentOverlays = new ArrayList<OverlayItem>();
+		GeoPoint segmentPoint;
+		OverlayItem segmentOverlay;
+		
+        ResourceProxy resourceProxy = new DefaultResourceProxyImpl(getActivity());
+        
+        segmentPoint = new GeoPoint(mListTrackPoint.get(mIdxBeginPoint).getLat(),
+        		             mListTrackPoint.get(mIdxBeginPoint).getLng());
+        segmentOverlay = new OverlayItem(String.valueOf(mListTrackPoint.get(mIdxBeginPoint).getId()), 
+        		                  String.valueOf(mListTrackPoint.get(mIdxBeginPoint).getId()),
+        		                  segmentPoint);
+		segmentOverlays.add(segmentOverlay);
+		
+		Drawable segmentMarker = getResources().getDrawable(R.drawable.segment_overlay);
+        int markerWidth = segmentMarker.getIntrinsicWidth();
+        int markerHeight = segmentMarker.getIntrinsicHeight();
+        segmentMarker.setBounds(0, markerHeight, markerWidth, 0);
+        
+        SegmentIconOverlay anotherItemizedIconOverlay = new SegmentIconOverlay(segmentOverlays, onSegmentItemGestureListener, resourceProxy, segmentMarker);
+		mMapView.getOverlays().add(SEGMENT_OVERLAY, anotherItemizedIconOverlay);
+		
+		// 3.- Change blue points to red points.
+		Drawable marker = getResources().getDrawable(R.drawable.geopoint);
+        markerWidth = marker.getIntrinsicWidth();
+        markerHeight = marker.getIntrinsicHeight();
+        marker.setBounds(0, markerHeight, markerWidth, 0);
+		for (int i = mIdxBeginPoint; i <= mIdxEndPoint; i++) {
+			// Get MyItemizedIconOverlay overlay from map view.
+	    	ItemIconOverlay overlay = (ItemIconOverlay) mMapView.getOverlays().get(ICON_OVERLAY);
+	    	overlay.setMarker(i, marker);
+	    	mMapView.invalidate();
+		}
+		
+		// 4.- Hide the cancel segment option from option bar menu.
+		mIdxBeginPoint = null;
+		mIdxEndPoint = null;
+		MenuItem item = mMenu.findItem(R.id.segment_cancel);
+		if (item != null)
+			item.setVisible(false);
+	}
 }
