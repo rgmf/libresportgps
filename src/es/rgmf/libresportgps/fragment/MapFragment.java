@@ -36,6 +36,7 @@ import org.osmdroid.views.overlay.ScaleBarOverlay;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -44,7 +45,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -54,6 +54,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import es.rgmf.libresportgps.R;
+import es.rgmf.libresportgps.SegmentActivity;
 import es.rgmf.libresportgps.common.SegmentUtil;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.SegmentPoint;
@@ -209,12 +210,11 @@ public class MapFragment extends Fragment implements AddSegmentDialogListener {
 		//List<SegmentTrack> segmentTrackList = DBModel.getAllSegmentTrack(getActivity(), mTrackId);
 		List<SegmentPoint> segmentPoints = DBModel.getAllFirstSegmentPoint(getActivity(), mTrackId);
 		for (SegmentPoint sp : segmentPoints) {
-			Log.v("Lat: ", sp.getLat() + "");
-			Log.v("Lng: ", sp.getLng() + "");
-			Log.v("Distance: ", sp.getDistance() + "");
-			segmentPoint = new GeoPoint(sp.getLat(), sp.getLng());
-			segmentOverlay = new OverlayItem(String.valueOf(sp.getId()), String.valueOf(sp.getId()), segmentPoint);
-			segmentOverlays.add(segmentOverlay);
+			if (sp.getSegment() != null && sp.getSegment().getId() != null) {
+				segmentPoint = new GeoPoint(sp.getLat(), sp.getLng());
+				segmentOverlay = new OverlayItem(String.valueOf(sp.getSegment().getId()), String.valueOf(sp.getSegment().getId()), segmentPoint);
+				segmentOverlays.add(segmentOverlay);
+			}
 		}
 		
 		marker = getResources().getDrawable(R.drawable.segment_overlay);
@@ -314,9 +314,11 @@ public class MapFragment extends Fragment implements AddSegmentDialogListener {
 		}
 
 		@Override
-		public boolean onItemSingleTapUp(int arg0, OverlayItem arg1) {
-			Toast.makeText(getActivity(), "Hola amigos", Toast.LENGTH_LONG).show();
-			
+		public boolean onItemSingleTapUp(int arg0, OverlayItem item) {
+			Intent intent = new Intent(getActivity(), SegmentActivity.class);
+			intent.putExtra("segmentId", Long.valueOf(item.getTitle()));
+			intent.putExtra("trackId", mTrackId);
+			startActivity(intent);
 			
 			return true;
 		}

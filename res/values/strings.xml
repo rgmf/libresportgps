@@ -16,27 +16,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- -->
- 
+-->
+
 <resources>
-    
+
     <!-- Error messages. -->
     <string name="db_error_to_create_track">The track cannot be created in the database.</string>
     <string name="track_was_not_deleted">The track was not deleted.</string>
-    
+
     <!-- Preferences strings -->
     <string name="time_before_logging_title">Time between registers</string>
     <string name="time_before_logging_summary">Use 0 to maximum frequency. The best option is reduce the time between each register to save battery.</string>
     <string name="time_before_logging_dialog_title">Seconds time</string>
     <string name="time_before_logging_hint">Seconds</string>
-    
+
     <!-- Hints -->
     <string name="add_segment_hint">To add a segment you have to click on two points on track you can see on the map: begin and end segmento points. Then you can click on add segmento button.</string>
     <string name="required_value">Required value</string>
     <string name="segment_created">Segment created</string>
     <string name="fail_segment_created">Fail segment creation</string>
-    
-
     <string name="app_name">LibreSportGPS</string>
     <string name="display_track">Display Track</string>
     <string name="gps_disabled">GPS disabled.</string>
@@ -66,31 +64,31 @@
     <string name="activity_not_started">The activity has not started.</string>
     <string name="out_of_service">Out of service. The tracking is stopped.</string>
     <string name="service_again_available">The service is again available. The tracking continue.</string>
-	<string name="delete_trackfile">Delete Track</string>
-	<string name="delete_trackfile_hint">Do you really like to delete the track? This action cannot be undo.</string>
-	<string name="activity_finished">Activity finished</string>
-	<string name="loading_data">Loading data...</string>
-	<string name="loading_file">Loading file...</string>
-	<string name="track_date_hint">Date</string>
-	<string name="track_distance_hint">Distance</string>
-	<string name="track_activity_time_hint">Activity Time</string>
-	<string name="track_elevation_hint">Elevation</string>
-	<string name="track_max_ele_hint">Max.</string>
-	<string name="track_min_ele_hint">Min.</string>
-	<string name="track_gain_ele_hint">Gain</string>
-	<string name="track_loss_ele_hint">Loss</string>
-	<string name="track_speed_hint">Speed</string>
-	<string name="track_max_speed_hint">Max.</string>
-	<string name="track_avg_speed_hint">Avg.</string>
-	<string name="button_delete">Delete</string>
-	<string name="gps_accuracy_hint">Accuracy</string>
-	<string name="gps_status_hint">GPS Status</string>
-	<string name="accuracy_unit">m</string>
-	<string name="track_name_hint">Name</string>
-	<string name="track_description_hint">Description</string>
-	<string name="logo_content_description">Sport Logo</string>
-	<string name="delete">Delete</string>
-	<string name="edit">Edit</string>
+    <string name="delete_trackfile">Delete Track</string>
+    <string name="delete_trackfile_hint">Do you really like to delete the track? This action cannot be undo.</string>
+    <string name="activity_finished">Activity finished</string>
+    <string name="loading_data">Loading data...</string>
+    <string name="loading_file">Loading file...</string>
+    <string name="track_date_hint">Date</string>
+    <string name="track_distance_hint">Distance</string>
+    <string name="track_activity_time_hint">Activity Time</string>
+    <string name="track_elevation_hint">Elevation</string>
+    <string name="track_max_ele_hint">Max.</string>
+    <string name="track_min_ele_hint">Min.</string>
+    <string name="track_gain_ele_hint">Gain</string>
+    <string name="track_loss_ele_hint">Loss</string>
+    <string name="track_speed_hint">Speed</string>
+    <string name="track_max_speed_hint">Max.</string>
+    <string name="track_avg_speed_hint">Avg.</string>
+    <string name="button_delete">Delete</string>
+    <string name="gps_accuracy_hint">Accuracy</string>
+    <string name="gps_status_hint">GPS Status</string>
+    <string name="accuracy_unit">m</string>
+    <string name="track_name_hint">Name</string>
+    <string name="track_description_hint">Description</string>
+    <string name="logo_content_description">Sport Logo</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
     <string name="unknown_sport">Unknown Sport</string>
     <string name="import_file">Import</string>
     <string name="elevation">Elevation</string>
@@ -104,4 +102,8 @@
     <string name="segment">Segment</string>
     <string name="add_segment">Add Segment</string>
     <string name="name">Name</string>
+    <string name="title_activity_segment">SegmentActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="training_time">This training time</string>
+
 </resources>

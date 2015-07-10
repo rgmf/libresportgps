@@ -676,9 +676,10 @@ public class DBAdapter {
     /**
      * Get and return all segments from the track identify by trackId.
      * @param trackId The track id.
+     * @param segmentId the segment id (this can be null. In this case will not apply this where filter).
      * @return The list of all segments from the track.
      */
-    public List<SegmentTrack> getAllSegmentTrack(Long trackId) {
+    public List<SegmentTrack> getAllSegmentTrack(Long trackId, Long segmentId) {
     	List<SegmentTrack> list = new ArrayList<SegmentTrack>();
     	SegmentTrack st;
     	Track track;
@@ -718,7 +719,7 @@ public class DBAdapter {
                 
 
                 " FROM " +
-                DBHelper.SEGMENT_TRACK_TBL_NAME + ", " + DBHelper.TRACK_TBL_NAME +
+                DBHelper.SEGMENT_TRACK_TBL_NAME + ", " + DBHelper.TRACK_TBL_NAME + ", " +
                 DBHelper.SPORT_TBL_NAME + ", " + DBHelper.SEGMENT_TBL_NAME +
                 
                 " WHERE " + 
@@ -731,10 +732,13 @@ public class DBAdapter {
                 DBHelper.SEGMENT_TRACK_TBL_NAME + "." + DBHelper.SEGMENT_FIELD_NAME + "=" +
                 DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + " AND " +
                 
-                DBHelper.TRACK_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + "=" + trackId + 
+                DBHelper.SEGMENT_TRACK_TBL_NAME + "." + DBHelper.TRACK_FIELD_NAME + "=" + trackId;
+    	
+    	if (segmentId != null)
+    		query += " AND " + DBHelper.SEGMENT_TRACK_TBL_NAME + "." + DBHelper.SEGMENT_FIELD_NAME + "=" + segmentId;
                 
-                " ORDER BY " +
-                DBHelper.SEGMENT_TRACK_TBL_NAME + "." + DBHelper.ID_FIELD_NAME;
+        query += " ORDER BY " +
+                 DBHelper.SEGMENT_TRACK_TBL_NAME + "." + DBHelper.ID_FIELD_NAME;
 
         Cursor cursor = db.rawQuery(query, null);
         
@@ -783,6 +787,16 @@ public class DBAdapter {
     	
 		return list;
 	}
+    
+    /**
+     * Get and return all segments from the track identify by trackId.
+     * @param trackId The track id.
+     * @param segmentId the segment id.
+     * @return The list of all segments from the track.
+     */
+    public List<SegmentTrack> getAllSegmentTrack(Long trackId) {
+    	return getAllSegmentTrack(trackId, null);
+    }
     
     /**
      * Get and return all first points from all segments from the

@@ -116,14 +116,33 @@ public class Utilities {
      */
     public static String timeStampFormatter(long timeStamp) {
     	if(timeStamp > 0) {
-    		long milliseconds = timeStamp % 1000;
-    		long seconds = (timeStamp / 1000) % 60;
-    		long minutes = (timeStamp / 1000 / 60) % 60;
-    		long hours = (timeStamp / 1000 / 60 / 60) % 24;
+    		long milliseconds, seconds, minutes, hours;
+    		milliseconds = timeStamp % 1000;
+    		seconds = (timeStamp / 1000) % 60;
+    		minutes = (timeStamp / 1000 / 60) % 60;
+    		hours = (timeStamp / 1000 / 60 / 60) % 24;
     		return String.format("%02d:%02d:%02d.%04d", hours, minutes, seconds, milliseconds);
     	}
     	else
     		return "00:00:00.00";
+    }
+    
+    /**
+     * Convert the timeStamp in the String HH:mm:ss:SS
+     * 
+     * @param timeStamp
+     * @return
+     */
+    public static String timeStampSecondsFormatter(long timeStamp) {
+    	if(timeStamp > 0) {
+    		long seconds, minutes, hours;
+    		seconds = (timeStamp / 1000) % 60;
+    		minutes = (timeStamp / 1000 / 60) % 60;
+    		hours = (timeStamp / 1000 / 60 / 60) % 24;
+    		return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    	}
+    	else
+    		return "00:00:00";
     }
     
     /**
@@ -176,7 +195,10 @@ public class Utilities {
      * @return
      */
 	public static String distance(double distance) {
-		return String.format("%.2f km", distance / 1000);
+		if (distance < 1000)
+			return String.format("%.2f m", distance);
+		else
+			return String.format("%.2f km", distance / 1000);
 	}
 
 	/**
@@ -187,6 +209,18 @@ public class Utilities {
      */
 	public static String elevation(double elevation) {
 		return String.format("%.2f m", elevation);
+	}
+	
+	/**
+	 * Return a string representing the gradient.
+	 * 
+	 * @param elevation
+	 * @param distance
+	 * @return
+	 */
+	public static String gradient(double elevation, double distance) {
+		double gradient = (100d * elevation) / distance;
+		return String.format("%.2f %%", gradient);
 	}
 
 	/**

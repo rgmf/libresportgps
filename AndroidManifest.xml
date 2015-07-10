@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- -->
- 
+-->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="es.rgmf.libresportgps"
     android:versionCode="1"
@@ -26,29 +26,30 @@
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="19" />
-    
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <!-- Needed to load OpenStreetMap tiles -->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name="es.rgmf.libresportgps.common.Session"
+        android:name=".common.Session"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-        
-        <service android:name="es.rgmf.libresportgps.gps.GpsLoggerService" android:exported="false">
-			<intent-filter>
-				<action android:name="es.rgmf.libresportgps.gps.GpsLoggerService" />
-			</intent-filter>
-		</service>
-        
+        <service
+            android:name=".gps.GpsLoggerService"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="es.rgmf.libresportgps.gps.GpsLoggerService" />
+            </intent-filter>
+        </service>
+
         <activity
-            android:name="es.rgmf.libresportgps.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name"
             android:uiOptions="splitActionBarWhenNarrow" >
             <intent-filter>
@@ -56,18 +57,27 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <meta-data android:name="android.support.UI_OPTIONS"
-                   android:value="splitActionBarWhenNarrow" />
+
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
         </activity>
-         
         <activity
-            android:name="es.rgmf.libresportgps.TrackEditActivity"
+            android:name=".TrackEditActivity"
             android:label="@string/app_name"
             android:uiOptions="splitActionBarWhenNarrow" >
-            <meta-data android:name="android.support.UI_OPTIONS"
-                   android:value="splitActionBarWhenNarrow" />
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
         </activity>
-        
+        <activity
+            android:name=".SegmentActivity"
+            android:label="@string/app_name"
+            android:uiOptions="splitActionBarWhenNarrow" >
+            <meta-data
+                android:name="android.support.UI_OPTIONS"
+                android:value="splitActionBarWhenNarrow" />
+        </activity>
     </application>
 
 </manifest>

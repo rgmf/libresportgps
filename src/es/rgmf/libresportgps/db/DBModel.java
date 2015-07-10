@@ -302,6 +302,22 @@ public class DBModel {
 	}
 	
 	/**
+	 * Return all segment tracks or null.
+	 * 
+	 * @param context The context.
+	 * @param trackId The id of the track.
+	 * @param segmentId the id of the segment.
+	 * @return The list of segment tracks or null.
+	 */
+	public static List<SegmentTrack> getAllSegmentTrack(Context context, Long trackId, Long segmentId) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		List<SegmentTrack> list = dbAdapter.getAllSegmentTrack(trackId, segmentId);
+		dbAdapter.close();
+		return list;
+	}
+	
+	/**
 	 * Return the first segment point from all segments from the track. 
 	 * 
 	 * @param context The context.

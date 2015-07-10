@@ -19,6 +19,13 @@
  -->
  
 <resources>
+    
+    <!-- Text sizes -->
+    <dimen name="text_mini">10dp</dimen>
+    <dimen name="text_small">12dp</dimen>
+    <dimen name="text_medium">16dp</dimen>
+    <dimen name="text_large">20dp</dimen>
+    <dimen name="text_xlarge">24dp</dimen>
 
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
