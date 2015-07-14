@@ -430,9 +430,29 @@ public class DBModel {
 			SegmentPoint segmentPoint, Double precision) {
 		DBAdapter dbAdapter = new DBAdapter(context);
 		dbAdapter.open();
-		List<TrackPoint> trackPointList = dbAdapter.findSegmentOtherTracks(trackId, segmentPoint.getBeginLat(), segmentPoint.getBeginLng(), precision);
-		for (TrackPoint tp : trackPointList) {
-			Log.v("Track name:", tp.getTrack().getTitle());
+		List<TrackPoint> trackBeginPointList = dbAdapter.findSegmentOtherTracks(trackId, segmentPoint.getBeginLat(), segmentPoint.getBeginLng(), precision);
+		List<TrackPoint> trackEndPointList = dbAdapter.findSegmentOtherTracks(trackId, segmentPoint.getEndLat(), segmentPoint.getEndLng(), precision);
+		Log.v("Begin", "Begin");
+		for (TrackPoint tbp : trackBeginPointList) {
+			Log.v("track name:", tbp.getTrack().getTitle());
+			Log.v("track id:", tbp.getTrack().getId() + "");
+			Log.v("track point id:", tbp.getId() + "");
+			Log.v("track point distance:", tbp.getDistance() + "");
+		}
+		Log.v("End", "End");
+		for (TrackPoint tep : trackEndPointList) {
+			Log.v("track name:", tep.getTrack().getTitle());
+			Log.v("track id:", tep.getTrack().getId() + "");
+			Log.v("track point id:", tep.getId() + "");
+			Log.v("track point distance:", tep.getDistance() + "");
+		}
+		Log.v("Finally", "Finally");
+		for (TrackPoint tbp : trackBeginPointList) {
+			for (TrackPoint tep : trackEndPointList) {
+				if (tbp.getTrack().getId().equals(tep.getTrack().getId()) && tbp.getDistance() < tep.getDistance()) {
+					Log.v("Naaaaaaaaaaaame", tep.getTrack().getTitle());
+				}
+			}
 		}
 		dbAdapter.close();
 	}
