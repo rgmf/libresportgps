@@ -33,7 +33,7 @@ import android.os.Environment;
  *
  */
 class DBHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 14;
     private static final String DATABASE_NAME = "libresportgps.db";
     
     /*************************** Table names *********************************/
@@ -78,6 +78,11 @@ class DBHelper extends SQLiteOpenHelper {
     public static final String SEGMENT_FIELD_NAME = "segment";
     public static final String AVG_SPEED_FIELD_NAME = "avg_speed";
     public static final String TRACK_FIELD_NAME = "track";
+    public static final String BEGIN_LAT_FIELD_NAME = "begin_lat";
+    public static final String END_LAT_FIELD_NAME = "end_lat";
+    public static final String BEGIN_LONG_FIELD_NAME = "begin_long";
+    public static final String END_LONG_FIELD_NAME = "end_long";
+    public static final String SEGMENT_POINT_FIELD_NAME = "segment_point";
     /*************************************************************************/
     
     /************************* SQL create table if not exists ******************************/
@@ -145,10 +150,11 @@ class DBHelper extends SQLiteOpenHelper {
     
     private static final String SEGMENT_POINT_TBL = "create table if not exists " + SEGMENT_POINT_TBL_NAME + "( " +
     		ID_FIELD_NAME + " integer primary key autoincrement, " +
-    		LAT_FIELD_NAME + " integer not null, " +
-    		LONG_FIELD_NAME + " integer not null, " +
+    		BEGIN_LAT_FIELD_NAME + " integer not null, " +
+    		BEGIN_LONG_FIELD_NAME + " integer not null, " +
+    		END_LAT_FIELD_NAME + " integer not null, " +
+    		END_LONG_FIELD_NAME + " integer not null, " +
     		DISTANCE_FIELD_NAME + " real not null, " +
-    		ELEVATION_FIELD_NAME + " real not null, " +
     		SEGMENT_FIELD_NAME + " integer not null references " + SEGMENT_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade);";
     
     private static final String SEGMENT_TRACK_TBL = "create table if not exists " + SEGMENT_TRACK_TBL_NAME + "( " +
@@ -157,7 +163,7 @@ class DBHelper extends SQLiteOpenHelper {
     		MAX_SPEED_FIELD_NAME + " real, " +
     		AVG_SPEED_FIELD_NAME + " real, " +
     		TRACK_FIELD_NAME + " integer not null references " + TRACK_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade, " +
-    		SEGMENT_FIELD_NAME + " integer not null references " + SEGMENT_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade);";
+    		SEGMENT_POINT_FIELD_NAME + " integer not null references " + SEGMENT_POINT_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade);";
     		
     /*************************************************************************/
     
@@ -288,6 +294,16 @@ class DBHelper extends SQLiteOpenHelper {
         case 13:
         	//db.execSQL("ALTER TABLE " + SEGMENT_TRACK_TBL_NAME + 
         	//		" DROP date_");
+        	break;
+        case 14:
+        	db.execSQL("DROP TABLE " + SEGMENT_TRACK_TBL_NAME);
+        	db.execSQL("DROP TABLE " + SEGMENT_POINT_TBL_NAME);
+        	db.execSQL("DROP TABLE " + SEGMENT_TBL_NAME);
+        	
+        	db.execSQL(SEGMENT_TBL);
+        	db.execSQL(SEGMENT_POINT_TBL);
+        	db.execSQL(SEGMENT_TRACK_TBL);
+        	
         	break;
 		}
 	}

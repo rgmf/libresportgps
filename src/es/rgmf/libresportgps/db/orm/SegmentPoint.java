@@ -24,10 +24,11 @@ package es.rgmf.libresportgps.db.orm;
  */
 public class SegmentPoint {
 	private Long id;
-	private Double lat = 0d;
-	private Double lng = 0d;
+	private Double beginLat = 0d;
+	private Double endLat = 0d;
+	private Double beginLng = 0d;
+	private Double endLng = 0d;
 	private Float distance = 0f;
-	private Double elevation = 0d;
 	private Segment segment;
 	public Long getId() {
 		return id;
@@ -35,34 +36,40 @@ public class SegmentPoint {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public Double getLat() {
-		return lat;
-	}
-	public void setLat(Double lat) {
-		this.lat = lat;
-	}
-	public Double getLng() {
-		return lng;
-	}
-	public void setLng(Double lng) {
-		this.lng = lng;
-	}
 	public Float getDistance() {
 		return distance;
 	}
 	public void setDistance(Float distance) {
 		this.distance = distance;
 	}
-	public Double getElevation() {
-		return elevation;
-	}
-	public void setElevation(Double elevation) {
-		this.elevation = elevation;
-	}
 	public Segment getSegment() {
 		return segment;
 	}
 	public void setSegment(Segment segment) {
 		this.segment = segment;
+	}
+	public Double getBeginLat() {
+		return beginLat;
+	}
+	public void setBeginLat(Double beginLat) {
+		this.beginLat = beginLat;
+	}
+	public Double getEndLat() {
+		return endLat;
+	}
+	public void setEndLat(Double endLat) {
+		this.endLat = endLat;
+	}
+	public Double getBeginLng() {
+		return beginLng;
+	}
+	public void setBeginLng(Double beginLng) {
+		this.beginLng = beginLng;
+	}
+	public Double getEndLng() {
+		return endLng;
+	}
+	public void setEndLng(Double endLng) {
+		this.endLng = endLng;
 	}
 }

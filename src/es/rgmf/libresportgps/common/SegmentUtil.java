@@ -17,9 +17,6 @@
 
 package es.rgmf.libresportgps.common;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Segment;
@@ -34,21 +31,28 @@ import es.rgmf.libresportgps.db.orm.TrackPoint;
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
 public class SegmentUtil {
-
+	public static double PRECISION_POINT = 2e-08; // (lat0 - lat1) * (lat0 - lat1) + (lng0 - lng1) * (lng0 - lng1) < PRECISION_POINT
+	
+	/**
+	 * Add a new segment.
+	 * 
+	 * @param context The context.
+	 * @param segmentName The segment name chosen by the user.
+	 * @param trackId The track's id from the segment belongs.
+	 * @param begin The begin point of the segment on the track.
+	 * @param end The end point of the segment on the track.
+	 * @return True if ok and false in other case.
+	 */
 	public static boolean addSegment(Context context, String segmentName, Long trackId,
 			TrackPoint begin, TrackPoint end) {
 		Float distance;
-		Float beginDistance;
 		Float avgSpeed;
 		Float maxSpeed = Float.MIN_VALUE;
 		Long time;
 		Double eleGain;
-		List<TrackPoint> trackPointList;
-		List<SegmentPoint> segmentPointList;
-		SegmentPoint segmentPoint;
 		Segment segment;
+		SegmentPoint segmentPoint;
 		SegmentTrack segmentTrack;
-		Long segmentId;
 		
 		// Distance in meters.
 		distance = end.getDistance() - begin.getDistance();
@@ -62,59 +66,42 @@ public class SegmentUtil {
 		// Elevation gain.
 		eleGain = end.getElevation() - begin.getElevation();
 		
-		// Begin distance.
-		beginDistance = begin.getDistance();
-		
 		// Create the segment object.
 		segment = new Segment();
 		segment.setName(segmentName);
-		segment.setDistance(end.getDistance() - begin.getDistance());
+		segment.setDistance(distance);
 		segment.setElevationGain(eleGain);
+		
+		// Create the segment point.
+		segmentPoint = new SegmentPoint();
+		segmentPoint.setBeginLat(begin.getLat());
+		segmentPoint.setEndLat(end.getLat());
+		segmentPoint.setBeginLng(begin.getLng());
+		segmentPoint.setEndLng(end.getLng());
+		segmentPoint.setDistance(distance);
+		segmentPoint.setSegment(segment);
 		
 		// Create the segment track.
 		segmentTrack = new SegmentTrack();
 		segmentTrack.setTime(time);
 		segmentTrack.setMaxSpeed(maxSpeed);
 		segmentTrack.setAvgSpeed(avgSpeed);
+		segmentTrack.setSegmentPoint(segmentPoint);
 		
-		// Create and add all segment points.
-		trackPointList = DBModel.getTrackPointsFromTo(context, begin.getId(), end.getId());
-		segmentPointList = new ArrayList<SegmentPoint>();
-		for (TrackPoint trackPoint : trackPointList) {
-			segmentPoint = new SegmentPoint();
-			
-			// Max speed (the speed is in m/s so we need to convert to km/h).
-			if ((trackPoint.getSpeed() * 3.6f) > maxSpeed)
-				maxSpeed = trackPoint.getSpeed() * 3.6f;
-			
-			// Set latitude and longitude.
-			segmentPoint.setLat(trackPoint.getLat());
-			segmentPoint.setLng(trackPoint.getLng());
-			
-			// Set distance to the fragment point
-			segmentPoint.setDistance(trackPoint.getDistance() - beginDistance);
-			
-			// Set elevation.
-			segmentPoint.setElevation(trackPoint.getElevation());
-			
-			// Add segment point into the list.
-			segmentPointList.add(segmentPoint);
-		}
-		/*
-		Log.v("Segment Name:", segment.getName());
-		Log.v("Distance:", segment.getDistance() + "");
-		Log.v("Time:", time + "");
-		Log.v("     Begin:", begin.getTime() + "");
-		Log.v("     End:", end.getTime() + "");
-		Log.v("Avg. Speed:", avgSpeed + "");
-		Log.v("Max. Speed:", maxSpeed + "");
-		Log.v("Ele. Gain:", (end.getElevation() - begin.getElevation()) + "");//eleGain + "");
-		Log.v("Avg. %:", ((100f * segment.getElevationGain()) / segment.getDistance()) + "");
-		*/
-		if (DBModel.newSegment(context, trackId, segment, segmentTrack, segmentPointList))
+		// Create a new segment associated to the track identiy by trackId.
+		if (DBModel.newSegment(context, trackId, segmentTrack)) {
+			findThisSemgnetInOtherTracks(context, trackId, segmentPoint);
 			return true;
+		}
 		else
 			return false;
 	}
 	
+	/**
+	 * This method find the segment in other tracks to add them to the 
+	 * database.
+	 */
+	public static void findThisSemgnetInOtherTracks(Context context, Long trackId, SegmentPoint segmentPoint) {
+		DBModel.findAndAddSegmentTracks(context, trackId, segmentPoint, PRECISION_POINT);
+	}
 }

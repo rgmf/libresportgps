@@ -29,13 +29,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import es.rgmf.libresportgps.adapter.SegmentResultAdapter;
 import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Segment;
+import es.rgmf.libresportgps.db.orm.SegmentPoint;
 import es.rgmf.libresportgps.db.orm.SegmentTrack;
 
 /**
@@ -103,6 +103,7 @@ public class SegmentActivity extends Activity {
 			View rootView = inflater.inflate(R.layout.fragment_segment,
 					container, false);
 			
+			// Get the same information to all segment tracks that are inside segment.
 			if (mSegmentTrackList != null && mSegmentTrackList.size() > 0) {
 				TextView titleText = (TextView) rootView.findViewById(R.id.title_text);
 				TextView distanceText = (TextView) rootView.findViewById(R.id.distance_text);
@@ -110,20 +111,17 @@ public class SegmentActivity extends Activity {
 				TextView gradientText = (TextView) rootView.findViewById(R.id.gradient_text);
 				//TextView timeText = (TextView) rootView.findViewById(R.id.time_text);
 				//TextView dateText = (TextView) rootView.findViewById(R.id.date_text);
-				Boolean setSegment = false;
 				
-				for (SegmentTrack st : mSegmentTrackList) {
-					if (!setSegment) {
-						Segment segment = st.getSegment();
-						if (segment != null) {
-							titleText.setText(segment.getName());
-							distanceText.setText(Utilities.distance(segment.getDistance()));
-							eleGainText.setText(Utilities.elevation(segment.getElevationGain()));
-							gradientText.setText(Utilities.gradient(segment.getElevationGain(), segment.getDistance()));
-						}
-						setSegment = true;
+				SegmentTrack segmentTrack = mSegmentTrackList.get(0);
+				SegmentPoint segmentPoint = segmentTrack.getSegmentPoint();
+				if (segmentPoint != null) {
+					Segment segment = segmentPoint.getSegment();
+					if (segment != null) {
+						titleText.setText(segment.getName());
+						distanceText.setText(Utilities.distance(segment.getDistance()));
+						eleGainText.setText(Utilities.elevation(segment.getElevationGain()));
+						gradientText.setText(Utilities.gradient(segment.getElevationGain(), segment.getDistance()));
 					}
-					//mTrainingTimeList.add(Utilities.timeStampSecondsFormatter(st.getTime()));
 				}
 			}
 			

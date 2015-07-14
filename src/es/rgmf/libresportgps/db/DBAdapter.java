@@ -180,17 +180,12 @@ public class DBAdapter {
 	 * @param segmentPointList
 	 * @return True if ok or false if not ok.
 	 */
-	public boolean newSegment(Long trackId,
-			Segment segment,
-			SegmentTrack segmentTrack,
-			List<SegmentPoint> segmentPointList) {
+	public boolean newSegment(Long trackId,	SegmentTrack segmentTrack) {
 		db.beginTransactionNonExclusive();
 		try {
-			Long segmentId = addSegment(segment);
-			addSegmentTrack(trackId, segmentId, segmentTrack);
-			for (SegmentPoint sp : segmentPointList) {
-				addSegmentPoint(segmentId, sp);
-			}
+			Long segmentId = addSegment(segmentTrack.getSegmentPoint().getSegment());
+			Long segmentPointId = addSegmentPoint(segmentId, segmentTrack.getSegmentPoint());
+			addSegmentTrack(trackId, segmentPointId, segmentTrack);
 			db.setTransactionSuccessful();
 			db.endTransaction();
 			return true;
@@ -227,13 +222,12 @@ public class DBAdapter {
 	 * Add a segment track.
 	 * 
 	 * @param trackId Track identifier.
-	 * @param segmentId Segment identifier.
+	 * @param segmentPointId Segment point identifier.
 	 * @param segmentTrack Segment track object.
 	 * @return The identifier of the segment track inserted.
 	 * @throws Exception 
 	 */
-	public long addSegmentTrack(Long trackId,
-			Long segmentId, SegmentTrack segmentTrack) throws Exception {
+	public long addSegmentTrack(Long trackId, Long segmentPointId, SegmentTrack segmentTrack) throws Exception {
 		ContentValues values = new ContentValues();
 		Long id;
 		
@@ -241,7 +235,7 @@ public class DBAdapter {
 		values.put(DBHelper.MAX_SPEED_FIELD_NAME, segmentTrack.getMaxSpeed());
 		values.put(DBHelper.AVG_SPEED_FIELD_NAME, segmentTrack.getAvgSpeed());
 		values.put(DBHelper.TRACK_FIELD_NAME, trackId);
-		values.put(DBHelper.SEGMENT_FIELD_NAME, segmentId);
+		values.put(DBHelper.SEGMENT_POINT_FIELD_NAME, segmentPointId);
 		try {
 			id = db.insertOrThrow(DBHelper.SEGMENT_TRACK_TBL_NAME, null, values);
 			return id;
@@ -258,15 +252,15 @@ public class DBAdapter {
 	 * @param segmentPoint A segment point.
 	 * @return The identifier of the segment point inserted.
 	 */
-	public long addSegmentPoint(Long segmentId,
-			SegmentPoint segmentPoint) throws Exception {
+	public long addSegmentPoint(Long segmentId, SegmentPoint segmentPoint) throws Exception {
 		ContentValues values = new ContentValues();
 		Long id;
 		
-		values.put(DBHelper.LAT_FIELD_NAME, segmentPoint.getLat());
-		values.put(DBHelper.LONG_FIELD_NAME, segmentPoint.getLng());
+		values.put(DBHelper.BEGIN_LAT_FIELD_NAME, segmentPoint.getBeginLat());
+		values.put(DBHelper.BEGIN_LONG_FIELD_NAME, segmentPoint.getBeginLng());
+		values.put(DBHelper.END_LAT_FIELD_NAME, segmentPoint.getEndLat());
+		values.put(DBHelper.END_LONG_FIELD_NAME, segmentPoint.getEndLng());
 		values.put(DBHelper.DISTANCE_FIELD_NAME, segmentPoint.getDistance());
-		values.put(DBHelper.ELEVATION_FIELD_NAME, segmentPoint.getElevation());
 		values.put(DBHelper.SEGMENT_FIELD_NAME, segmentId);
 		try {
 			id = db.insertOrThrow(DBHelper.SEGMENT_POINT_TBL_NAME, null, values);
@@ -682,6 +676,7 @@ public class DBAdapter {
     public List<SegmentTrack> getAllSegmentTrack(Long trackId, Long segmentId) {
     	List<SegmentTrack> list = new ArrayList<SegmentTrack>();
     	SegmentTrack st;
+    	SegmentPoint sp;
     	Track track;
     	Sport sport;
     	Segment segment;
@@ -711,16 +706,24 @@ public class DBAdapter {
                 DBHelper.SPORT_TBL_NAME + "." + DBHelper.NAME_FIELD_NAME + ", " +					// 18
                 DBHelper.SPORT_TBL_NAME + "." + DBHelper.DESC_FIELD_NAME + ", " +					// 19
                 DBHelper.SPORT_TBL_NAME + "." + DBHelper.LOGO_FIELD_NAME + ", " +					// 20
+                
+                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " + 			// 21
+                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.BEGIN_LAT_FIELD_NAME + ", " + 		// 22
+                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.END_LAT_FIELD_NAME + ", " + 		// 23
+                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.BEGIN_LONG_FIELD_NAME + ", " + 	// 24
+                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.END_LONG_FIELD_NAME + ", " + 		// 25
+                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME + ", " + 		// 26
 
-                DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " +					// 21
-                DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.NAME_FIELD_NAME + ", " +					// 22
-                DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME + ", " +				// 23
-                DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.ELEVATION_GAIN_FIELD_NAME + 				// 24
+                DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " +					// 27
+                DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.NAME_FIELD_NAME + ", " +					// 28
+                DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME + ", " +				// 29
+                DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.ELEVATION_GAIN_FIELD_NAME + 				// 30
                 
 
                 " FROM " +
                 DBHelper.SEGMENT_TRACK_TBL_NAME + ", " + DBHelper.TRACK_TBL_NAME + ", " +
-                DBHelper.SPORT_TBL_NAME + ", " + DBHelper.SEGMENT_TBL_NAME +
+                DBHelper.SPORT_TBL_NAME + ", " + DBHelper.SEGMENT_POINT_TBL_NAME + ", " + 
+                DBHelper.SEGMENT_TBL_NAME +
                 
                 " WHERE " + 
                 DBHelper.SEGMENT_TRACK_TBL_NAME + "." + DBHelper.TRACK_FIELD_NAME + "=" +
@@ -729,13 +732,16 @@ public class DBAdapter {
                 DBHelper.TRACK_TBL_NAME + "." + DBHelper.SPORT_FIELD_NAME + "=" +
                 DBHelper.SPORT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + " AND " +
 
-                DBHelper.SEGMENT_TRACK_TBL_NAME + "." + DBHelper.SEGMENT_FIELD_NAME + "=" +
+                DBHelper.SEGMENT_TRACK_TBL_NAME + "." + DBHelper.SEGMENT_POINT_FIELD_NAME + "=" +
+                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + " AND " +
+
+                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.SEGMENT_FIELD_NAME + "=" +
                 DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + " AND " +
                 
                 DBHelper.SEGMENT_TRACK_TBL_NAME + "." + DBHelper.TRACK_FIELD_NAME + "=" + trackId;
     	
     	if (segmentId != null)
-    		query += " AND " + DBHelper.SEGMENT_TRACK_TBL_NAME + "." + DBHelper.SEGMENT_FIELD_NAME + "=" + segmentId;
+    		query += " AND " + DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.SEGMENT_FIELD_NAME + "=" + segmentId;
                 
         query += " ORDER BY " +
                  DBHelper.SEGMENT_TRACK_TBL_NAME + "." + DBHelper.ID_FIELD_NAME;
@@ -767,10 +773,19 @@ public class DBAdapter {
                 track.setSport(sport);
             	
                 segment = new Segment();
-                segment.setId(cursor.getLong(21));
-                segment.setName(cursor.getString(22));
-                segment.setDistance(cursor.getFloat(23));
-                segment.setElevationGain(cursor.getDouble(24));
+                segment.setId(cursor.getLong(27));
+                segment.setName(cursor.getString(28));
+                segment.setDistance(cursor.getFloat(29));
+                segment.setElevationGain(cursor.getDouble(30));
+                
+                sp = new SegmentPoint();
+                sp.setId(cursor.getLong(21));
+                sp.setBeginLat(cursor.getDouble(22));
+                sp.setEndLat(cursor.getDouble(23));
+                sp.setBeginLng(cursor.getDouble(24));
+                sp.setEndLng(cursor.getDouble(25));
+                sp.setDistance(cursor.getFloat(26));
+                sp.setSegment(segment);
                 
             	st = new SegmentTrack();
             	st.setId(cursor.getLong(0));
@@ -778,7 +793,7 @@ public class DBAdapter {
             	st.setMaxSpeed(cursor.getFloat(2));
             	st.setAvgSpeed(cursor.getFloat(3));
             	st.setTrack(track);
-            	st.setSegment(segment);
+            	st.setSegmentPoint(sp);
             	
             	list.add(st);
             } while (cursor.moveToNext());
@@ -799,29 +814,36 @@ public class DBAdapter {
     }
     
     /**
-     * Get and return all first points from all segments from the
+     * Get and return all segment points from all segments from the
      * track identify by trackId.
      * 
      * @param trackId The track identifier.
      * @return The list of track points.
      */
-    public List<SegmentPoint> getAllFirstSegmentPoint(Long trackId) {
+    public List<SegmentPoint> getAllSegmentPointFromTrack(Long trackId) {
     	List<SegmentPoint> list = new ArrayList<SegmentPoint>();
     	SegmentPoint sp;
     	Segment segment;
     	
     	String query = "SELECT " +
 
-                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " +    		// 0
-                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.LAT_FIELD_NAME + ", " +    	// 1
-                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.LONG_FIELD_NAME + ", " +    	// 2
-                "MIN (" + DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME + ") AS " + DBHelper.DISTANCE_FIELD_NAME + ", " +   // 3
-                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.ELEVATION_FIELD_NAME + ", " +  // 4
+                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " +    			// 0
+                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.BEGIN_LAT_FIELD_NAME + ", " +    	// 1
+                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.END_LAT_FIELD_NAME + ", " +    	// 2
+                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.BEGIN_LONG_FIELD_NAME + ", " +    	// 3
+                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.END_LONG_FIELD_NAME + ", " +    	// 4
+                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME + ", " +	    // 5
                 
-				DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " +				// 5
-				DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.NAME_FIELD_NAME + ", " +				// 6
-				DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME + ", " +			// 7
-				DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.ELEVATION_GAIN_FIELD_NAME + 			// 8
+				DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " +					// 6
+				DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.NAME_FIELD_NAME + ", " +					// 7
+				DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME + ", " +				// 8
+				DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.ELEVATION_GAIN_FIELD_NAME + 				// 9
+				/*
+				DBHelper.SEGMENT_TRACK_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " +				// 10
+				DBHelper.SEGMENT_TRACK_TBL_NAME + "." + DBHelper.TIME_FIELD_NAME + ", " + 			// 11
+				DBHelper.SEGMENT_TRACK_TBL_NAME + "." + DBHelper.MAX_SPEED_FIELD_NAME + ", " +		// 12
+				DBHelper.SEGMENT_TRACK_TBL_NAME + "." + DBHelper.AVG_SPEED_FIELD_NAME +				// 13
+				*/
 
                 " FROM " +
                 DBHelper.SEGMENT_POINT_TBL_NAME + ", " +
@@ -836,30 +858,28 @@ public class DBAdapter {
                 DBHelper.SEGMENT_TRACK_TBL_NAME + "." + DBHelper.TRACK_FIELD_NAME + "=" +
                 DBHelper.TRACK_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + " AND " +
                 
-				DBHelper.SEGMENT_TRACK_TBL_NAME + "." + DBHelper.SEGMENT_FIELD_NAME + "=" +
-				DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + " AND " +
+				DBHelper.SEGMENT_TRACK_TBL_NAME + "." + DBHelper.SEGMENT_POINT_FIELD_NAME + "=" +
+				DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + " AND " +
                 
-                DBHelper.TRACK_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + "=" + trackId + 
-                
-                " GROUP BY " +
-                DBHelper.SEGMENT_POINT_TBL_NAME + "." + DBHelper.SEGMENT_FIELD_NAME;
-
+                DBHelper.TRACK_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + "=" + trackId;
+    	
         Cursor cursor = db.rawQuery(query, null);
         
         if(cursor.moveToFirst()) {
             do {
             	segment = new Segment();
-            	segment.setId(cursor.getLong(5));
-                segment.setName(cursor.getString(6));
-                segment.setDistance(cursor.getFloat(7));
-                segment.setElevationGain(cursor.getDouble(8));
+            	segment.setId(cursor.getLong(6));
+                segment.setName(cursor.getString(7));
+                segment.setDistance(cursor.getFloat(8));
+                segment.setElevationGain(cursor.getDouble(9));
             	
             	sp = new SegmentPoint();
             	sp.setId(cursor.getLong(0));
-            	sp.setLat(cursor.getDouble(1));
-            	sp.setLng(cursor.getDouble(2));
-            	sp.setDistance(cursor.getFloat(3));
-            	sp.setElevation(cursor.getDouble(4));
+            	sp.setBeginLat(cursor.getDouble(1));
+            	sp.setEndLat(cursor.getDouble(2));
+            	sp.setBeginLng(cursor.getDouble(3));
+            	sp.setEndLng(cursor.getDouble(4));
+            	sp.setDistance(cursor.getFloat(5));
             	sp.setSegment(segment);
             	
             	list.add(sp);
@@ -880,5 +900,113 @@ public class DBAdapter {
 		return db.delete(DBHelper.TRACK_TBL_NAME, 
 				DBHelper.ID_FIELD_NAME + "=" + trackId,
 				null) > 0;
+	}
+
+	/**
+	 * Find segments in other tracks than trackId.
+	 * 
+	 * @param trackId
+	 * @param lat
+	 * @param lng
+	 * @param precision
+	 * @return A list of track points from tracks whose difference with lat and lng are minus than 
+	 *         precision. For each track only return one track point.
+	 */
+	public List<TrackPoint> findSegmentOtherTracks(Long trackId, Double lat, Double lng, Double precision) {
+		List<TrackPoint> list = new ArrayList<TrackPoint>();
+		TrackPoint tp;
+		Track track;
+		Sport sport;
+		
+		String query = "SELECT " +
+				DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " +			// 0
+				DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.LAT_FIELD_NAME + ", " + 			// 1
+				DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.LONG_FIELD_NAME + ", " + 		// 2
+				DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.TIME_FIELD_NAME + ", " + 		// 3
+				DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME + ", " + 	// 4
+				DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.ACCURACY_FIELD_NAME + ", " + 	// 5
+				DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.ELEVATION_FIELD_NAME + ", " + 	// 6
+				DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.SPEED_FIELD_NAME + ", " + 		// 7
+
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " + 				// 8
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.TITLE_FIELD_NAME + ", " + 				// 9
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.RECORDING_FIELD_NAME + ", " + 			// 10
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.DESC_FIELD_NAME + ", " + 				// 11
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME + ", " + 			// 12
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.START_TIME_FIELD_NAME + ", " + 		// 13
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.ACTIVITY_TIME_FIELD_NAME + ", " + 		// 14
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.FINISH_TIME_FIELD_NAME + ", " + 		// 15
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.MAX_SPEED_FIELD_NAME + ", " + 			// 16
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.MAX_ELEVATION_FIELD_NAME + ", " + 		// 17
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.MIN_ELEVATION_FIELD_NAME + ", " + 		// 18
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.ELEVATION_GAIN_FIELD_NAME + ", " + 	// 19
+				DBHelper.TRACK_TBL_NAME + "." + DBHelper.ELEVATION_LOSS_FIELD_NAME + ", " + 	// 20
+                
+                DBHelper.SPORT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " +					// 21
+                DBHelper.SPORT_TBL_NAME + "." + DBHelper.NAME_FIELD_NAME + ", " +				// 22
+                DBHelper.SPORT_TBL_NAME + "." + DBHelper.DESC_FIELD_NAME + ", " +				// 23
+                DBHelper.SPORT_TBL_NAME + "." + DBHelper.LOGO_FIELD_NAME + ", " +				// 24
+                
+                "(((" + lat + " - " + DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.LAT_FIELD_NAME + ") * (" + lat + " - " + DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.LAT_FIELD_NAME + ")) + " +
+                 "((" + lng + " - " + DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.LONG_FIELD_NAME + ") * (" + lng + " - " + DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.LONG_FIELD_NAME + "))) as d " +
+                
+                "FROM " + 
+                	DBHelper.TRACK_TBL_NAME + ", " + DBHelper.SPORT_TBL_NAME + ", " + DBHelper.TRACK_POINT_TBL_NAME + 
+                
+                " WHERE " + 
+                	DBHelper.TRACK_POINT_TBL_NAME + "." + DBHelper.TRACK_ID_FIELD_NAME + "=" + 
+                	DBHelper.TRACK_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + " AND " +
+                	
+                	DBHelper.TRACK_TBL_NAME + "." + DBHelper.SPORT_FIELD_NAME + "=" +
+                	DBHelper.SPORT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + " AND " +
+                	
+                	DBHelper.TRACK_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + "<>" + trackId + " AND " +
+                	
+                	"d < " + precision;
+		
+		Cursor cursor = db.rawQuery(query, null);
+        
+        if(cursor.moveToFirst()) {
+            do {
+            	sport = new Sport();
+                sport.setId(cursor.getLong(21));
+                sport.setName(cursor.getString(22));
+                sport.setDescription(cursor.getString(23));
+                sport.setLogo(cursor.getString(24));
+
+                track = new Track();
+                track.setId(cursor.getLong(8));
+                track.setTitle(cursor.getString(9));
+                track.setRecording(cursor.getInt(10));
+                track.setDescription(cursor.getString(11));
+                track.setDistance(cursor.getFloat(12));
+                track.setStartTime(cursor.getLong(13));
+                track.setActivityTime(cursor.getLong(14));
+                track.setFinishTime(cursor.getLong(15));
+                track.setMaxSpeed(cursor.getFloat(16));
+                track.setMaxElevation(cursor.getFloat(17));
+                track.setMinElevation(cursor.getFloat(18));
+                track.setElevationGain(cursor.getFloat(19));
+                track.setElevationLoss(cursor.getFloat(20));
+                track.setSport(sport);
+            	
+            	tp = new TrackPoint();
+            	tp.setId(cursor.getLong(0));
+            	tp.setLat(cursor.getDouble(1));
+            	tp.setLng(cursor.getDouble(2));
+            	tp.setTime(cursor.getLong(3));
+            	tp.setDistance(cursor.getFloat(4));
+            	tp.setAccuracy(cursor.getFloat(5));
+            	tp.setElevation(cursor.getDouble(6));
+            	tp.setSpeed(cursor.getFloat(7));
+            	tp.setTrack(track);
+            	
+            	list.add(tp);
+            	
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+		
+		return list;
 	}
 }

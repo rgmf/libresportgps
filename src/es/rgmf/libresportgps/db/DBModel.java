@@ -23,7 +23,7 @@ import java.util.TreeMap;
 
 import android.content.Context;
 import android.location.Location;
-import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.db.orm.Segment;
 import es.rgmf.libresportgps.db.orm.SegmentPoint;
@@ -324,10 +324,10 @@ public class DBModel {
 	 * @param trackId The track id.
 	 * @return a list or null.
 	 */
-	public static List<SegmentPoint> getAllFirstSegmentPoint(Context context, Long trackId) {
+	public static List<SegmentPoint> getAllSegmentPointFromTrack(Context context, Long trackId) {
 		DBAdapter dbAdapter = new DBAdapter(context);
 		dbAdapter.open();
-		List<SegmentPoint> list = dbAdapter.getAllFirstSegmentPoint(trackId);
+		List<SegmentPoint> list = dbAdapter.getAllSegmentPointFromTrack(trackId);
 		dbAdapter.close();
 		return list;
 	}
@@ -342,11 +342,10 @@ public class DBModel {
 	 * @param segmentPointList
 	 * @return true if ok.
 	 */
-	public static boolean newSegment(Context context, Long trackId, Segment segment,
-			SegmentTrack segmentTrack, List<SegmentPoint> segmentPointList) {
+	public static boolean newSegment(Context context, Long trackId, SegmentTrack segmentTrack) {
 		DBAdapter dbAdapter = new DBAdapter(context);
 		dbAdapter.open();
-		boolean result = dbAdapter.newSegment(trackId, segment, segmentTrack, segmentPointList);
+		boolean result = dbAdapter.newSegment(trackId, segmentTrack);
 		dbAdapter.close();
 		return result;
 	}
@@ -417,5 +416,24 @@ public class DBModel {
 		}
 		dbAdapter.close();
 		return id;
+	}
+
+	/**
+	 * This method finds and creates segment tracks in other 
+	 * tracks than track identify by trackId.
+	 * 
+	 * @param trackId
+	 * @param segmentPoint
+	 * @param precision
+	 */
+	public static void findAndAddSegmentTracks(Context context, Long trackId,
+			SegmentPoint segmentPoint, Double precision) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		List<TrackPoint> trackPointList = dbAdapter.findSegmentOtherTracks(trackId, segmentPoint.getBeginLat(), segmentPoint.getBeginLng(), precision);
+		for (TrackPoint tp : trackPointList) {
+			Log.v("Track name:", tp.getTrack().getTitle());
+		}
+		dbAdapter.close();
 	}
 }

@@ -208,10 +208,10 @@ public class MapFragment extends Fragment implements AddSegmentDialogListener {
 		GeoPoint segmentPoint;
 		OverlayItem segmentOverlay;
 		//List<SegmentTrack> segmentTrackList = DBModel.getAllSegmentTrack(getActivity(), mTrackId);
-		List<SegmentPoint> segmentPoints = DBModel.getAllFirstSegmentPoint(getActivity(), mTrackId);
+		List<SegmentPoint> segmentPoints = DBModel.getAllSegmentPointFromTrack(getActivity(), mTrackId);
 		for (SegmentPoint sp : segmentPoints) {
 			if (sp.getSegment() != null && sp.getSegment().getId() != null) {
-				segmentPoint = new GeoPoint(sp.getLat(), sp.getLng());
+				segmentPoint = new GeoPoint(sp.getBeginLat(), sp.getBeginLng());
 				segmentOverlay = new OverlayItem(String.valueOf(sp.getSegment().getId()), String.valueOf(sp.getSegment().getId()), segmentPoint);
 				segmentOverlays.add(segmentOverlay);
 			}

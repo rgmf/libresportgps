@@ -61,8 +61,8 @@ public class SegmentResultAdapter extends ArrayAdapter<SegmentTrack> {
         SegmentTrack segmentTrack = mValues.get(position);
         if (segmentTrack != null) {
         	tvTime.setText(Utilities.timeStampSecondsFormatter(segmentTrack.getTime()));
-        	if (segmentTrack.getSegment() != null)
-        		tvAvgSpeed.setText(Utilities.avgSpeed(segmentTrack.getTime(), segmentTrack.getSegment().getDistance()));
+        	if (segmentTrack.getSegmentPoint() != null && segmentTrack.getSegmentPoint().getSegment() != null)
+        		tvAvgSpeed.setText(Utilities.avgSpeed(segmentTrack.getTime(), segmentTrack.getSegmentPoint().getSegment().getDistance()));
         	if (segmentTrack.getTrack() != null)
         		tvDate.setText(Utilities.timeStampCompleteFormatter(segmentTrack.getTrack().getStartTime()));
         }
