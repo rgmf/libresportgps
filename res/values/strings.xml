@@ -105,5 +105,12 @@
     <string name="title_activity_segment">SegmentActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="training_time">This training time</string>
+    <string name="stats_summary">Stats Summary</string>
+    <string name="total_distance">Total Distance</string>
+    <string name="max_distance">Max. Distance</string>
+    <string name="total_gain">Total Elevation Gain</string>
+    <string name="max_gain">Max. Elevation Gain</string>
+    <string name="total_time">Total Time</string>
+    <string name="max_time">Max. Time</string>
 
 </resources>

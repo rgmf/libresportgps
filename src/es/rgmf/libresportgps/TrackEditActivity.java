@@ -30,7 +30,7 @@ import es.rgmf.libresportgps.adapter.SportListAdapter;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Sport;
 import es.rgmf.libresportgps.db.orm.Track;
-import es.rgmf.libresportgps.fragment.TrackListFragment;
+import es.rgmf.libresportgps.fragment.TrackListFragment.OnTrackListSelectedListener;
 
 /**
  * This class represent the main activity of the application.
@@ -45,7 +45,7 @@ public class TrackEditActivity extends Activity {
 	 * onTrackSelected (see interface definition) using mCallback instance
 	 * of OnTrackSelectedListener interface (see interface definition).
 	 */
-	TrackListFragment.OnTrackSelectedListener mCallback;
+	OnTrackListSelectedListener mCallback;
     /**
      * This method is called when this activity is created.
      */

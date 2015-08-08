@@ -32,6 +32,7 @@ import es.rgmf.libresportgps.db.orm.TrackPoint;
  */
 public class SegmentUtil {
 	public static double PRECISION_POINT = 2e-08; // (lat0 - lat1) * (lat0 - lat1) + (lng0 - lng1) * (lng0 - lng1) < PRECISION_POINT
+	public static double PRECISION_DISTANCE = 20d; // In meters.
 	
 	/**
 	 * Add a new segment.
@@ -102,6 +103,6 @@ public class SegmentUtil {
 	 * database.
 	 */
 	public static void findThisSemgnetInOtherTracks(Context context, Long trackId, SegmentPoint segmentPoint) {
-		DBModel.findAndAddSegmentTracks(context, trackId, segmentPoint, PRECISION_POINT);
+		DBModel.findAndAddSegmentTracks(context, trackId, segmentPoint, PRECISION_POINT, PRECISION_DISTANCE);
 	}
 }

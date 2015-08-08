@@ -49,6 +49,7 @@ import es.rgmf.libresportgps.db.orm.TrackPoint;
 import es.rgmf.libresportgps.fragment.AbstractViewFragment;
 import es.rgmf.libresportgps.fragment.DataViewFragment;
 import es.rgmf.libresportgps.fragment.SettingsFragment;
+import es.rgmf.libresportgps.fragment.StatsFragment;
 import es.rgmf.libresportgps.fragment.TrackFragment;
 import es.rgmf.libresportgps.fragment.TrackListFragment;
 import es.rgmf.libresportgps.fragment.dialog.AddSegmentDialog.AddSegmentDialogListener;
@@ -65,7 +66,7 @@ import es.rgmf.libresportgps.gps.IGpsLoggerServiceClient;
  */
 public class MainActivity extends FragmentActivity implements
 		NavigationDrawerFragment.NavigationDrawerCallbacks,
-		IGpsLoggerServiceClient, TrackListFragment.OnTrackSelectedListener,
+		IGpsLoggerServiceClient, TrackListFragment.OnTrackListSelectedListener,
 		TrackListFragment.ProgressCallbacks,
 		AddSegmentDialogListener {
 
@@ -447,6 +448,42 @@ public class MainActivity extends FragmentActivity implements
 											// back to the latter fragment.
 		transaction.commitAllowingStateLoss();
 		*/
+	}
+	
+	/**
+	 * This method is called when user click on track list year item in the
+	 * TrackListFragment fragment.
+	 * 
+	 * @param year
+	 *            The number of the year according to Calendar object.
+	 */
+	@Override
+	public void onYearSelected(int year) {
+		StatsFragment fragment = StatsFragment.newInstance(year, StatsFragment.NONE, StatsFragment.NONE);
+		FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction t = fragmentManager.beginTransaction();
+        t.replace(R.id.container, fragment);
+        //fragmentManager.popBackStack();
+        t.addToBackStack(null);
+        t.commit();
+	}
+	
+	/**
+	 * This method is called when user click on track list month item in the
+	 * TrackListFragment fragment.
+	 * 
+	 * @param year
+	 *            The number of the month according to Calendar object.
+	 */
+	@Override
+	public void onMonthSelected(int year, int month) {
+		StatsFragment fragment = StatsFragment.newInstance(year, month, StatsFragment.NONE);
+		FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction t = fragmentManager.beginTransaction();
+        t.replace(R.id.container, fragment);
+        //fragmentManager.popBackStack();
+        t.addToBackStack(null);
+        t.commit();
 	}
 
 	/**

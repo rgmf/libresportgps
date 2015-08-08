@@ -18,7 +18,9 @@
 package es.rgmf.libresportgps.db;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import android.content.ContentValues;
@@ -26,7 +28,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import es.rgmf.libresportgps.common.Utilities;
+import es.rgmf.libresportgps.data.Stats;
 import es.rgmf.libresportgps.db.orm.Segment;
 import es.rgmf.libresportgps.db.orm.SegmentPoint;
 import es.rgmf.libresportgps.db.orm.SegmentTrack;
@@ -889,6 +893,84 @@ public class DBAdapter {
     	
 		return list;
 	}
+    
+    /**
+	 * Get stats by sport filtering by paramethers. if they are not null.
+	 *
+	 * @param year Year.
+	 * @param month Month.
+	 * @param sport Sport id.
+	 * @return
+	 */
+	public Map<Long, Stats> getStats(Integer year, Integer month, Integer sportId) {
+		Map<Long, Stats> map = new LinkedHashMap<Long, Stats>();
+    	Stats stats;
+    	Sport sport;
+    	
+    	String query = "SELECT " +
+    			"COUNT(" + DBHelper.TRACK_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ") AS workouts, " +						// 0
+    			"SUM(" + DBHelper.TRACK_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME + ") AS distance, " +					// 1
+    			"MAX(" + DBHelper.TRACK_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME + ") AS max_distance, " +				// 2
+    			"SUM(" + DBHelper.TRACK_TBL_NAME + "." + DBHelper.ELEVATION_GAIN_FIELD_NAME + ") AS elevation, " +			// 3
+    			"MAX(" + DBHelper.TRACK_TBL_NAME + "." + DBHelper.ELEVATION_GAIN_FIELD_NAME + ") AS max_elevation, " +		// 4
+    			"SUM(" + DBHelper.TRACK_TBL_NAME + "." + DBHelper.ACTIVITY_TIME_FIELD_NAME + ") AS time, " +				// 5
+    			"MAX(" + DBHelper.TRACK_TBL_NAME + "." + DBHelper.ACTIVITY_TIME_FIELD_NAME + ") AS max_time, " +			// 6
+    			DBHelper.SPORT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " +												// 7
+    			DBHelper.SPORT_TBL_NAME + "." + DBHelper.NAME_FIELD_NAME + ", " +											// 8
+    			DBHelper.SPORT_TBL_NAME + "." + DBHelper.DESC_FIELD_NAME + ", " +											// 9
+    			DBHelper.SPORT_TBL_NAME + "." + DBHelper.LOGO_FIELD_NAME +													// 10
+    			
+    			" FROM " + DBHelper.TRACK_TBL_NAME + ", " + DBHelper.SPORT_TBL_NAME +
+    			
+    			" WHERE " +
+    			DBHelper.TRACK_TBL_NAME + "." + DBHelper.SPORT_FIELD_NAME + "=" +
+    			DBHelper.SPORT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME;
+    	
+    	if (year != null) {
+    		query += " AND STRFTIME('%Y', " + DBHelper.TRACK_TBL_NAME + "." + DBHelper.START_TIME_FIELD_NAME + " / 1000, 'unixepoch') = '" + year + "'";
+    	}
+    	
+    	if (month != null) {
+    		// I need to subtract 1 because Calendar object begin months by 0 (January).
+    		query += " AND STRFTIME('%m', " + DBHelper.TRACK_TBL_NAME + "." + DBHelper.START_TIME_FIELD_NAME + " / 1000, 'unixepoch') = '" + String.format("%02d", month) + "'";
+    	}
+    	
+    	if (sportId != null) {
+    		query += " AND " + DBHelper.SPORT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + "=" + sportId;
+    	}
+    	
+    	query += " GROUP BY " + DBHelper.TRACK_TBL_NAME + "." + DBHelper.SPORT_FIELD_NAME +
+    			" ORDER BY workouts DESC";
+    	
+        Cursor cursor = db.rawQuery(query, null);
+        
+        if(cursor.moveToFirst()) {
+            do {
+            	sport = new Sport();
+            	sport.setId(cursor.getLong(7));
+            	sport.setName(cursor.getString(8));
+            	sport.setDescription(cursor.getString(9));
+            	sport.setLogo(cursor.getString(10));
+            	
+            	stats = new Stats();
+            	stats.setWorkouts(cursor.getInt(0));
+            	stats.setDistance(cursor.getInt(1));
+            	stats.setMaxDistance(cursor.getInt(2));
+            	stats.setGain(cursor.getInt(3));
+            	stats.setMaxGain(cursor.getInt(4));
+            	stats.setTime(cursor.getLong(5));
+            	stats.setMaxTime(cursor.getLong(6));
+            	stats.setSport(sport);
+            	
+            	Log.v("Name:", sport.getName());
+            	
+            	map.put(sport.getId(), stats);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+    	
+		return map;
+	}
 
 	/**
 	 * Delete the track identifier by trackId.
@@ -962,7 +1044,9 @@ public class DBAdapter {
                 	
                 	DBHelper.TRACK_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + "<>" + trackId + " AND " +
                 	
-                	"d < " + precision;
+                	"d < " + precision + 
+                	
+                " ORDER BY " + DBHelper.TRACK_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", d";
 		
 		Cursor cursor = db.rawQuery(query, null);
         
@@ -1009,4 +1093,39 @@ public class DBAdapter {
 		
 		return list;
 	}
+
+	
+	
+	
+	
+	/*
+	public void reloadSegments() {
+        db.execSQL("DROP TABLE " + DBHelper.SEGMENT_TRACK_TBL_NAME);
+    	db.execSQL("DROP TABLE " + DBHelper.SEGMENT_POINT_TBL_NAME);
+    	db.execSQL("DROP TABLE " + DBHelper.SEGMENT_TBL_NAME);
+    	
+    	db.execSQL("create table if not exists " + DBHelper.SEGMENT_TBL_NAME + "( " +
+    			DBHelper.ID_FIELD_NAME + " integer primary key autoincrement, " +
+    			DBHelper.NAME_FIELD_NAME + " text not null, " +
+    			DBHelper.DISTANCE_FIELD_NAME + " real not null, " +
+    			DBHelper.ELEVATION_GAIN_FIELD_NAME + " real);");
+        
+        db.execSQL("create table if not exists " + DBHelper.SEGMENT_POINT_TBL_NAME + "( " +
+        		DBHelper.ID_FIELD_NAME + " integer primary key autoincrement, " +
+        		DBHelper.BEGIN_LAT_FIELD_NAME + " integer not null, " +
+        		DBHelper.BEGIN_LONG_FIELD_NAME + " integer not null, " +
+        		DBHelper.END_LAT_FIELD_NAME + " integer not null, " +
+        		DBHelper.END_LONG_FIELD_NAME + " integer not null, " +
+        		DBHelper.DISTANCE_FIELD_NAME + " real not null, " +
+        		DBHelper.SEGMENT_FIELD_NAME + " integer not null references " + DBHelper.SEGMENT_TBL_NAME + " (" + DBHelper.ID_FIELD_NAME + ") on delete cascade on update cascade);");
+        
+        db.execSQL("create table if not exists " + DBHelper.SEGMENT_TRACK_TBL_NAME + "( " +
+        		DBHelper.ID_FIELD_NAME + " integer primary key autoincrement, " +
+        		DBHelper.TIME_FIELD_NAME + " integer not null, " +
+        		DBHelper.MAX_SPEED_FIELD_NAME + " real, " +
+        		DBHelper.AVG_SPEED_FIELD_NAME + " real, " +
+        		DBHelper.TRACK_FIELD_NAME + " integer not null references " + DBHelper.TRACK_TBL_NAME + " (" + DBHelper.ID_FIELD_NAME + ") on delete cascade on update cascade, " +
+        		DBHelper.SEGMENT_POINT_FIELD_NAME + " integer not null references " + DBHelper.SEGMENT_POINT_TBL_NAME + " (" + DBHelper.ID_FIELD_NAME + ") on delete cascade on update cascade);");
+	}
+	*/
 }

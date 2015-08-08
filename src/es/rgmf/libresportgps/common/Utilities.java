@@ -21,6 +21,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 import android.graphics.BitmapFactory;
 
@@ -128,7 +129,7 @@ public class Utilities {
     }
     
     /**
-     * Convert the timeStamp in the String HH:mm:ss:SS
+     * Convert the timeStamp in the String HH:mm:ss
      * 
      * @param timeStamp
      * @return
@@ -196,9 +197,19 @@ public class Utilities {
      */
 	public static String distance(double distance) {
 		if (distance < 1000)
-			return String.format("%.2f m", distance);
+			return String.format("%d m", distance);
 		else
-			return String.format("%.2f km", distance / 1000);
+			return String.format("%.2f km", distance / 1000d);
+	}
+	
+	/**
+	 * Return a string representing a gain.
+	 * 
+	 * @param gain
+	 * @return
+	 */
+	public static String gain(int gain) {
+		return String.format("%d m", gain);
 	}
 
 	/**
@@ -276,6 +287,19 @@ public class Utilities {
 	    }
 	
 	    return inSampleSize;
+	}
+
+	/**
+	 * Return a complete name of the month String.
+	 * 
+	 * @param m number of the Calendar month.
+	 * @return
+	 */
+	public static String getNameOfCalendarMonth(int m) {
+		Calendar cal = Calendar.getInstance();
+		// We need to subtract 1 because Calendar begin by 0 (January).
+		cal.set(Calendar.MONTH, m - 1);
+		return cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
 	}
 	
 	/**

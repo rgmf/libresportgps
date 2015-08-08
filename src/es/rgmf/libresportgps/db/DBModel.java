@@ -19,12 +19,14 @@ package es.rgmf.libresportgps.db;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 import es.rgmf.libresportgps.common.Session;
+import es.rgmf.libresportgps.data.Stats;
 import es.rgmf.libresportgps.db.orm.Segment;
 import es.rgmf.libresportgps.db.orm.SegmentPoint;
 import es.rgmf.libresportgps.db.orm.SegmentTrack;
@@ -333,6 +335,23 @@ public class DBModel {
 	}
 	
 	/**
+	 * Get stats by sport filtering by paramethers. if they are not null.
+	 * 
+	 * @param conext The context.
+	 * @param year Year.
+	 * @param month Month.
+	 * @param sport Sport id.
+	 * @return
+	 */
+	public static Map<Long, Stats> getStats(Context context, Integer year, Integer month, Integer sport) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		Map<Long, Stats> map = dbAdapter.getStats(year, month, sport);
+		dbAdapter.close();
+		return map;
+	}
+	
+	/**
 	 * Create a new segment with transaction.
 	 * 
 	 * @param context
@@ -424,36 +443,53 @@ public class DBModel {
 	 * 
 	 * @param trackId
 	 * @param segmentPoint
-	 * @param precision
+	 * @param pointPrecision
+	 * @param distancePrecision
 	 */
 	public static void findAndAddSegmentTracks(Context context, Long trackId,
-			SegmentPoint segmentPoint, Double precision) {
+			SegmentPoint segmentPoint, Double pointPrecision, Double distancePrecision) {
 		DBAdapter dbAdapter = new DBAdapter(context);
 		dbAdapter.open();
-		List<TrackPoint> trackBeginPointList = dbAdapter.findSegmentOtherTracks(trackId, segmentPoint.getBeginLat(), segmentPoint.getBeginLng(), precision);
-		List<TrackPoint> trackEndPointList = dbAdapter.findSegmentOtherTracks(trackId, segmentPoint.getEndLat(), segmentPoint.getEndLng(), precision);
-		Log.v("Begin", "Begin");
+		List<TrackPoint> trackBeginPointList = dbAdapter.findSegmentOtherTracks(trackId, segmentPoint.getBeginLat(), segmentPoint.getBeginLng(), pointPrecision);
+		List<TrackPoint> trackEndPointList = dbAdapter.findSegmentOtherTracks(trackId, segmentPoint.getEndLat(), segmentPoint.getEndLng(), pointPrecision);
+		
+		Log.v("BEGIN TRACK POINTS", "BEGIN TRACK POINTS");
 		for (TrackPoint tbp : trackBeginPointList) {
-			Log.v("track name:", tbp.getTrack().getTitle());
-			Log.v("track id:", tbp.getTrack().getId() + "");
-			Log.v("track point id:", tbp.getId() + "");
-			Log.v("track point distance:", tbp.getDistance() + "");
+			Log.v("Track title - Distance", tbp.getTrack().getTitle() + " - " + tbp.getDistance());
 		}
-		Log.v("End", "End");
+		
+
+		Log.v("END TRACK POINTS", "END TRACK POINTS");
 		for (TrackPoint tep : trackEndPointList) {
-			Log.v("track name:", tep.getTrack().getTitle());
-			Log.v("track id:", tep.getTrack().getId() + "");
-			Log.v("track point id:", tep.getId() + "");
-			Log.v("track point distance:", tep.getDistance() + "");
+			Log.v("Track title - Distance", tep.getTrack().getTitle() + " - " + tep.getDistance());
 		}
-		Log.v("Finally", "Finally");
+		
+		
 		for (TrackPoint tbp : trackBeginPointList) {
 			for (TrackPoint tep : trackEndPointList) {
-				if (tbp.getTrack().getId().equals(tep.getTrack().getId()) && tbp.getDistance() < tep.getDistance()) {
-					Log.v("Naaaaaaaaaaaame", tep.getTrack().getTitle());
+				if (tbp.getTrack().getId().equals(tep.getTrack().getId()) && tbp.getDistance() < tep.getDistance() &&
+						Math.abs((tep.getDistance() - tbp.getDistance()) - segmentPoint.getSegment().getDistance()) < distancePrecision) {
+					Log.v("Título del track", tep.getTrack().getTitle());
+					Log.v("Distancia del segmento en el track (candidato)", (tep.getDistance() - tbp.getDistance()) + "");
+					Log.v("Distancia del segmento: ", segmentPoint.getSegment().getDistance() + "");
 				}
 			}
 		}
 		dbAdapter.close();
 	}
+
+	
+	
+	
+	
+	
+	
+	/*
+	public static void reloadSegments(Context context) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		dbAdapter.reloadSegments();
+		dbAdapter.close();
+	}
+	*/
 }

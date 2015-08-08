@@ -20,6 +20,7 @@ package es.rgmf.libresportgps.fragment;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import android.app.Activity;
 import android.content.Context;
@@ -36,6 +37,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import es.rgmf.libresportgps.R;
 import es.rgmf.libresportgps.adapter.TrackListAdapter;
+import es.rgmf.libresportgps.data.TrackListHead;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.file.FileFactory;
@@ -43,8 +45,7 @@ import es.rgmf.libresportgps.file.reader.GpxReader;
 import es.rgmf.libresportgps.fragment.dialog.FileDialog;
 
 /**
- * This View is created to show the list of tracks the application have in his
- * external storage folder.
+ * This View is created to show the list of tracks.
  * 
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
@@ -61,8 +62,10 @@ public class TrackListFragment extends ListFragment {
 	 * 
 	 * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
 	 */
-	public interface OnTrackSelectedListener {
+	public interface OnTrackListSelectedListener {
 		public void onTrackSelected(Track track);
+		public void onYearSelected(int year);
+		public void onMonthSelected(int year, int month);
 	}
 
 	/**
@@ -70,7 +73,7 @@ public class TrackListFragment extends ListFragment {
 	 * onTrackSelected (see interface definition) using mCallback instance of
 	 * OnTrackSelectedListener interface (see interface definition).
 	 */
-	OnTrackSelectedListener mSelectedCallback;
+	OnTrackListSelectedListener mSelectedCallback;
 
 	/**
 	 * Callback interface through which the fragment will report the task's
@@ -115,7 +118,7 @@ public class TrackListFragment extends ListFragment {
 		// This makes sure that the container activity has implemented
 		// the callback interface. If not, it throws an exception
 		try {
-			mSelectedCallback = (OnTrackSelectedListener) activity;
+			mSelectedCallback = (OnTrackListSelectedListener) activity;
 			mProgressCallback = (ProgressCallbacks) activity;
 		} catch (ClassCastException e) {
 			throw new ClassCastException(activity.toString()
@@ -146,8 +149,26 @@ public class TrackListFragment extends ListFragment {
 		// Get all tracks information.
 		mTracks = DBModel.getTracks(getActivity());
 
+		// Create values to add to the adapter (headers and values).
 		mContext = inflater.getContext();
-		TrackListAdapter adapter = new TrackListAdapter(mContext, mTracks);
+		TrackListAdapter adapter = new TrackListAdapter(mContext);
+		int year = -1; // To force the first time cal.get(Calendar.YEAR != year
+		int month = -1; // To force the first time cal.get(Calendar.MONTH != moth
+		for (Track track : mTracks) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTimeInMillis(track.getStartTime());
+			if (cal.get(Calendar.YEAR) != year) {
+				year = cal.get(Calendar.YEAR);
+				TrackListHead head = new TrackListHead(TrackListHead.TYPE_YEAR, cal);
+				adapter.add(head);
+			}
+			if (cal.get(Calendar.MONTH) != month) {
+				month = cal.get(Calendar.MONTH);
+				TrackListHead head = new TrackListHead(TrackListHead.TYPE_MONTH, cal);
+				adapter.add(head);
+			}
+			adapter.add(track);
+		}
 		setListAdapter(adapter);
 		
 		//return super.onCreateView(inflater, container, savedInstanceState);
@@ -171,9 +192,22 @@ public class TrackListFragment extends ListFragment {
 		// Calls super.
 		super.onListItemClick(l, v, position, id);
 
-		mPosition = position;
-		Track track = (Track) (getListView().getItemAtPosition(position));
-		mSelectedCallback.onTrackSelected(track);
+		if (getListView().getItemAtPosition(position) instanceof Track) {
+			mPosition = position;
+			Track track = (Track) (getListView().getItemAtPosition(position));
+			mSelectedCallback.onTrackSelected(track);
+		}
+		else if (getListView().getItemAtPosition(position) instanceof TrackListHead) {
+			TrackListHead head = (TrackListHead) (getListView().getItemAtPosition(position));
+			switch (head.getType()) {
+			case TrackListHead.TYPE_YEAR:
+			    mSelectedCallback.onYearSelected(head.getYearNumber());
+			    break;
+			case TrackListHead.TYPE_MONTH:
+			    mSelectedCallback.onMonthSelected(head.getYearNumber(), head.getMonthNumber());
+			    break;
+			}
+		}
 	}
 
 	/**

@@ -104,4 +104,11 @@
     <string name="add_segment">Crear segmento</string>
     <string name="name">Nombre</string>
     <string name="training_time">Tiempo para esta salida</string>
+    <string name="stats_summary">Resumen Estadísticas</string>
+    <string name="total_distance">Distancia Total</string>
+    <string name="max_distance">Max. Distancia</string>
+    <string name="total_gain">Ganancia Altitud Total</string>
+    <string name="max_gain">Max. Ganancia Altitud</string>
+    <string name="total_time">Tiempo Total</string>
+    <string name="max_time">Max. Tiempo</string>
 </resources>
