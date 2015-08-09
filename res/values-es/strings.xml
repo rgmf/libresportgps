@@ -69,7 +69,7 @@
 	<string name="delete_trackfile_hint">¿Quieres eliminar el track? Esta acción no se puede deshacer.</string>
 	<string name="activity_finished">Actividad finalizada</string>
 	<string name="loading_data">Cargando datos...</string>
-	<string name="loading_file">Cargando fichero...</string>
+	<string name="loading_file">Cargando fichero... Esto puede llevar un tiempo, sea paciente...</string>
 	<string name="track_date_hint">Fecha</string>
 	<string name="track_distance_hint">Distancia</string>
 	<string name="track_activity_time_hint">Tiempo Actividad</string>

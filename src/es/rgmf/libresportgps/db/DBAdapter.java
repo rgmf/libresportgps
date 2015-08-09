@@ -28,7 +28,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.data.Stats;
 import es.rgmf.libresportgps.db.orm.Segment;
@@ -961,8 +960,6 @@ public class DBAdapter {
             	stats.setTime(cursor.getLong(5));
             	stats.setMaxTime(cursor.getLong(6));
             	stats.setSport(sport);
-            	
-            	Log.v("Name:", sport.getName());
             	
             	map.put(sport.getId(), stats);
             } while (cursor.moveToNext());

@@ -68,7 +68,7 @@
     <string name="delete_trackfile_hint">Do you really like to delete the track? This action cannot be undo.</string>
     <string name="activity_finished">Activity finished</string>
     <string name="loading_data">Loading data...</string>
-    <string name="loading_file">Loading file...</string>
+    <string name="loading_file">Loading file... Be patient, this can take too time...</string>
     <string name="track_date_hint">Date</string>
     <string name="track_distance_hint">Distance</string>
     <string name="track_activity_time_hint">Activity Time</string>

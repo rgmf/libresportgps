@@ -199,6 +199,8 @@ public class MainActivity extends FragmentActivity implements
 			transaction.replace(R.id.container, DataViewFragment.newInstance());
 			break;
 		case 2:
+			Intent intent = new Intent(this, SettingsActivity.class);
+		    startActivity(intent);
 			//transaction.replace(R.id.container, SettingsFragment.newInstance());
 		default:
 			break;

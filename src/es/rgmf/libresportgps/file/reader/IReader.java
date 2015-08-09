@@ -43,8 +43,8 @@ public interface IReader {
 	public class Elevation {
 		protected double gain = 0d;
 		protected double loss = 0d;
-		protected double max = 0d;
-		protected double min = 0d;
+		protected double max = Double.MIN_VALUE;
+		protected double min = Double.MAX_VALUE;
 		public double getGain() {
 			return gain;
 		}

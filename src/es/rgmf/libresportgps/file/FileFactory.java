@@ -55,6 +55,12 @@ public class FileFactory {
 		return files;
 	}
 	
+	/**
+	 * Create a folder if not exists called trackId inside the app folder.
+	 * 
+	 * @param trackId
+	 * @return
+	 */
 	public static String createFolderIfNotExists(String trackId) {
 		String folderName = Session.getAppFolder() + "/" + trackId;
 		
@@ -66,9 +72,16 @@ public class FileFactory {
 		return folderName;
 	}
 	
-	public static void copyFile(String fileName, String folderName) throws IOException {
-		InputStream in = new FileInputStream(fileName);
-		OutputStream out = new FileOutputStream(folderName + "/" + fileName);
+	/**
+	 * Copy the file fd in the folder name folderName.
+	 * 
+	 * @param fd
+	 * @param folderName
+	 * @throws IOException
+	 */
+	public static void copyFile(File fd, String folderName) throws IOException {
+		InputStream in = new FileInputStream(fd.getAbsolutePath());
+		OutputStream out = new FileOutputStream(folderName + "/" + fd.getName());
 		
 		// Transfer bytes from in to out
 	    byte[] buf = new byte[1024];

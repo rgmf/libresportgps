@@ -292,6 +292,7 @@ public class TrackListFragment extends ListFragment {
 			track.setMaxElevation(new Float(gpxReader.getElevation().getMax()));
 			track.setMinElevation(new Float(gpxReader.getElevation().getMin()));
 			track.setElevationGain(new Float(gpxReader.getElevation().getGain()));
+			track.setElevationLoss(new Float(gpxReader.getElevation().getLoss()));
 			track.setActivityTime(gpxReader.getActivityTime());
 			track.setStartTime(gpxReader.getStartTime());
 			track.setFinishTime(gpxReader.getFinishTime());
@@ -308,7 +309,7 @@ public class TrackListFragment extends ListFragment {
 			// Save gpx file.
 			String folderName = FileFactory.createFolderIfNotExists(String.valueOf(trackId));
 			try {
-				FileFactory.copyFile(mFile.getName(), folderName);
+				FileFactory.copyFile(mFile, folderName);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

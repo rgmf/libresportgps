@@ -41,18 +41,12 @@ public class GpxReader extends DefaultHandler implements IReader {
 	private double distance = 0d;
 	private Speed speed = new Speed();
 	private Elevation elevation = new Elevation();
+	private Double currentEle = null;
+	private double tolerance = Session.getMinElevationGain();
 	private Long activityTime = 0L;
 	private Long startTime = null;
 	private Long finishTime = null;
 	private List<TrackPoint> mTrackPoint = new ArrayList<TrackPoint>();
-
-	private class ElevationGain {
-		private Double MIN_ELEVATION = Session.getMinElevationGain(); // in meters.
-		private Double DISTANCE = Session.getDistanceGain(); // in meters.
-		private Double start = null;
-		private Double finish = null;
-		private Double distance = 0d;
-	}
 
 	public GpxReader() {
 	}
@@ -60,8 +54,8 @@ public class GpxReader extends DefaultHandler implements IReader {
 	public void loadFile(String gpxFile) {
 		XmlPullParserFactory factory;
 		Double prevLat = null, prevLon = null, currentLat = null, currentLon = null;
-		boolean setDistance = true, min = false, trkPointStarted = false;
-		ElevationGain elevationGain = new ElevationGain();
+		boolean setDistance = true, trkPointStarted = false;
+		Elevation eleStats = new Elevation();
 		TrackPoint trkPoint = new TrackPoint();
 
 		try {
@@ -114,15 +108,6 @@ public class GpxReader extends DefaultHandler implements IReader {
 											currentLon);
 								prevLat = currentLat;
 								prevLon = currentLon;
-
-								elevationGain.distance += distance;
-								if (elevationGain.distance >= elevationGain.DISTANCE) {
-									if ((elevationGain.finish - elevationGain.start) >= elevationGain.MIN_ELEVATION) {
-										elevation.gain += (elevationGain.finish - elevationGain.start);
-									}
-									elevationGain.start = elevationGain.finish;
-									elevationGain.distance = 0d;
-								}
 							}
 						}
 						setDistance = true;
@@ -155,19 +140,21 @@ public class GpxReader extends DefaultHandler implements IReader {
 						trkPoint.setElevation(elevationAux);
 						if (elevation.max < elevationAux)
 							elevation.max = elevationAux;
-						if (min) {
-							if (elevation.min > elevationAux) {
-								elevation.min = elevationAux;
-							}
-						} else {
+						if (elevation.min > elevationAux)
 							elevation.min = elevationAux;
-							min = true;
-						}
 
-						if (elevationGain.start == null) {
-							elevationGain.start = elevationAux;
+						// Gain a Loss.
+						if (currentEle == null) {
+							currentEle = elevationAux;
 						}
-						elevationGain.finish = elevationAux;
+						else if (elevationAux > currentEle + tolerance) {
+							elevation.gain += (elevationAux - currentEle);
+							currentEle = elevationAux;
+						}
+						else if (elevationAux < currentEle - tolerance) {
+							elevation.loss += (currentEle - elevationAux);
+							currentEle = elevationAux;
+						}
 					}
 				}
 				eventType = parser.next();

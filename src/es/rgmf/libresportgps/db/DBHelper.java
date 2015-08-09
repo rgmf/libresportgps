@@ -283,7 +283,7 @@ class DBHelper extends SQLiteOpenHelper {
         case 11:
         	//db.execSQL("ALTER TABLE " + TRACK_POINT_TBL_NAME + 
         	//		" DROP COLUMN " + POINT_ORDER_FIELD_NAME );
-        	db.execSQL("DROP TABLE " + SEGMENT_TBL_NAME);
+        	db.execSQL("DROP TABLE IF EXISTS " + SEGMENT_TBL_NAME);
         	db.execSQL(SEGMENT_TBL);
         	db.execSQL(SEGMENT_POINT_TBL);
         	db.execSQL(SEGMENT_TRACK_TBL);
@@ -297,9 +297,9 @@ class DBHelper extends SQLiteOpenHelper {
         	//		" DROP date_");
         	break;
         case 14:
-        	db.execSQL("DROP TABLE " + SEGMENT_TRACK_TBL_NAME);
-        	db.execSQL("DROP TABLE " + SEGMENT_POINT_TBL_NAME);
-        	db.execSQL("DROP TABLE " + SEGMENT_TBL_NAME);
+        	db.execSQL("DROP TABLE IF EXISTS " + SEGMENT_TRACK_TBL_NAME);
+        	db.execSQL("DROP TABLE IF EXISTS " + SEGMENT_POINT_TBL_NAME);
+        	db.execSQL("DROP TABLE IF EXISTS " + SEGMENT_TBL_NAME);
         	
         	db.execSQL(SEGMENT_TBL);
         	db.execSQL(SEGMENT_POINT_TBL);

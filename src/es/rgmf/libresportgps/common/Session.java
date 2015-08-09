@@ -59,11 +59,8 @@ public class Session extends Application {
 	private static String appFolder = Environment.getExternalStorageDirectory() + "/libresportgps";
 	
 	// Session data to calculate elevation gain.
-	private static Double minElevationGain = 0.99d;
-	private static Double distanceGain = 100d;
-	private static Double startElevationGain = 0d;
-	private static Double finishElevationGain = 0d;
-	private static Double distanceAccGain = 0d;
+	private static Double minElevationGain = 8d;
+	private static Double currentElevation = 0d;
 	
 	public static void reset() {
 		trackId = -1;
@@ -267,7 +264,7 @@ public class Session extends Application {
 
 	public static void setStartAltitude(double startAltitude) {
 		Session.startAltitude = startAltitude;
-		Session.startElevationGain = startAltitude;
+		Session.currentElevation = startAltitude;
 	}
 
 	public static double getAltitudeGain() {
@@ -279,14 +276,13 @@ public class Session extends Application {
 	}
 	
 	public static void setAltitudeGain(double distance, double altitude) {
-		distanceAccGain += distance;
-		finishElevationGain = altitude;
-		if (distanceAccGain >= distanceGain) {
-			if ((finishElevationGain - startElevationGain) >= minElevationGain) {
-				altitudeGain += (finishElevationGain - startElevationGain);
-			}
-			startElevationGain = finishElevationGain;
-			distanceAccGain = 0d;
+		if (altitude > currentElevation + minElevationGain) {
+			altitudeGain += (altitude - currentElevation);
+			currentElevation = altitude;
+		}
+		else if (altitude < currentElevation - minElevationGain) {
+			altitudeLoss += (currentElevation - altitude);
+			currentElevation = altitude;
 		}
 	}
 
@@ -304,14 +300,6 @@ public class Session extends Application {
 
 	public static void setMinElevationGain(Double minElevationGain) {
 		Session.minElevationGain = minElevationGain;
-	}
-
-	public static Double getDistanceGain() {
-		return distanceGain;
-	}
-
-	public static void setDistanceGain(Double distanceGain) {
-		Session.distanceGain = distanceGain;
 	}
 
 	public static long getTimeBeforeLogging() {
