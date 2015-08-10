@@ -57,11 +57,53 @@
          The drawer is given a fixed width in dp and extends the full height of
          the container.
     -->
-    <fragment
-        android:id="@+id/navigation_drawer"
-        android:name="es.rgmf.libresportgps.NavigationDrawerFragment"
-        android:layout_width="@dimen/navigation_drawer_width"
-        android:layout_height="match_parent"
-        android:layout_gravity="start" />
+    <RelativeLayout
+	    android:id="@+id/relative_layout"
+	    android:layout_width="@dimen/navigation_drawer_width"
+	    android:layout_height="match_parent"
+	    android:layout_gravity="start" >
+	    
+	    <ListView
+	        android:id="@+id/list_slidermenu"
+	        android:layout_width="@dimen/navigation_drawer_width"
+	        android:layout_height="match_parent"
+	        android:layout_gravity="start"
+	        android:choiceMode="singleChoice"       
+	        android:listSelector="@drawable/drawer_shadow"
+	        android:background="#ccc" />
+	    
+	    <LinearLayout
+	        android:id="@+id/settings_layout"
+	        android:layout_width="match_parent"
+	        android:layout_height="48dp"
+	        android:orientation="horizontal"
+	        android:layout_alignParentBottom="true"
+	        android:background="#000000">
+	        
+	        <ImageView
+		        android:id="@+id/ic_settings"
+		        android:layout_width="25dp"
+		        android:layout_height="wrap_content"
+		        android:layout_alignParentLeft="true"
+		        android:layout_marginLeft="12dp"
+		        android:layout_marginRight="12dp"
+		        android:src="@drawable/ic_action_settings"
+		        android:layout_gravity="center_vertical" />
+		 
+		    <TextView
+		        android:id="@+id/settings_text"
+		        android:layout_width="wrap_content"
+		        android:layout_height="match_parent"
+		        android:layout_toRightOf="@id/ic_settings"
+		        android:minHeight="?android:attr/listPreferredItemHeightSmall"
+		        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+		        android:textColor="@android:color/primary_text_dark"
+		        android:gravity="center_vertical"
+		        android:paddingRight="40dp"
+		        android:text="@string/action_settings"/>
+	        
+	    </LinearLayout>
+	    
+    </RelativeLayout>
 
 </android.support.v4.widget.DrawerLayout>

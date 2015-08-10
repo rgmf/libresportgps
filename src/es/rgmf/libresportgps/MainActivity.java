@@ -17,6 +17,8 @@
 
 package es.rgmf.libresportgps;
 
+import java.util.ArrayList;
+
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -26,12 +28,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -41,8 +45,15 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
+import es.rgmf.libresportgps.adapter.NavDrawerListAdapter;
 import es.rgmf.libresportgps.common.Session;
+import es.rgmf.libresportgps.data.NavDrawerItem;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.db.orm.TrackPoint;
@@ -57,15 +68,12 @@ import es.rgmf.libresportgps.gps.GpsLoggerService;
 import es.rgmf.libresportgps.gps.GpsLoggerServiceConnection;
 import es.rgmf.libresportgps.gps.IGpsLoggerServiceClient;
 
-
-
 /**
  * This class represent the main activity of the application.
  * 
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
 public class MainActivity extends FragmentActivity implements
-		NavigationDrawerFragment.NavigationDrawerCallbacks,
 		IGpsLoggerServiceClient, TrackListFragment.OnTrackListSelectedListener,
 		TrackListFragment.ProgressCallbacks,
 		AddSegmentDialogListener {
@@ -84,12 +92,47 @@ public class MainActivity extends FragmentActivity implements
 	 * Fragment manager.
 	 */
 	private FragmentManager mFragmentManager;
-
+	
 	/**
-	 * Fragment managing the behaviors, interactions and presentation of the
-	 * navigation drawer.
+	 * The drawer layout.
 	 */
-	private NavigationDrawerFragment mNavigationDrawerFragment;
+	private DrawerLayout mDrawerLayout;
+	private RelativeLayout mRelativeLayout;
+	
+	/**
+	 * The drawer list view.
+	 */
+    private ListView mDrawerList;
+    
+    /**
+     * The drawer toggle.
+     */
+    private ActionBarDrawerToggle mDrawerToggle;
+    
+    /**
+     * Navigation drawer title.
+     */
+    private CharSequence mDrawerTitle;
+ 
+    /**
+     * Drawer list of items titles.
+     */
+    private String[] mNavMenuTitles;
+    
+    /**
+     * The icons of the drawer list items.
+     */
+    private TypedArray mNavMenuIcons;
+ 
+    /**
+     * List of drawer items
+     */
+    private ArrayList<NavDrawerItem> mNavDrawerItems;
+    
+    /**
+     * The drawer list adapter.
+     */
+    private NavDrawerListAdapter mDrawerListAdapter;
 
 	/**
 	 * Used to store the last screen title. For use in
@@ -132,21 +175,80 @@ public class MainActivity extends FragmentActivity implements
 		setContentView(R.layout.activity_main);
 
 		serviceIntent = new Intent(this, GpsLoggerService.class);
-
-		mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager()
-				.findFragmentById(R.id.navigation_drawer);
 		mTitle = getTitle();
 
-		// Set up the drawer.
-		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
-				(DrawerLayout) findViewById(R.id.drawer_layout));
-
+		// Load slide menu items from resources.
+        mNavMenuTitles = getResources().getStringArray(R.array.nav_drawer_items);
+ 
+        // Load navigation drawer icons from resources.
+        mNavMenuIcons = getResources()
+                .obtainTypedArray(R.array.nav_drawer_icons);
+ 
+        // Get drawer layout and list view.
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mRelativeLayout = (RelativeLayout) findViewById(R.id.relative_layout);
+        mDrawerList = (ListView) findViewById(R.id.list_slidermenu);
+ 
+        // Create and add navigation drawer items to array.
+        mNavDrawerItems = new ArrayList<NavDrawerItem>();
+        mNavDrawerItems.add(new NavDrawerItem(mNavMenuTitles[0], mNavMenuIcons.getResourceId(0, -1)));
+        mNavDrawerItems.add(new NavDrawerItem(mNavMenuTitles[1], mNavMenuIcons.getResourceId(1, -1)));
+        
+        // Recycle the typed array.
+        mNavMenuIcons.recycle();
+        
+        // Setting the navigation drawer list adapter.
+        mDrawerListAdapter = new NavDrawerListAdapter(getApplicationContext(),
+                mNavDrawerItems);
+        mDrawerList.setAdapter(mDrawerListAdapter);
+        
+        // Enabling action bar app icon and behaving it as toggle button.
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setHomeButtonEnabled(true);
+        
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+                R.drawable.ic_drawer, //nav menu toggle icon
+                R.string.app_name, // nav drawer open - description for accessibility
+                R.string.app_name // nav drawer close - description for accessibility
+        ){
+            public void onDrawerClosed(View view) {
+                getActionBar().setTitle(mTitle);
+                // calling onPrepareOptionsMenu() to show action bar icons
+                invalidateOptionsMenu();
+            }
+ 
+            public void onDrawerOpened(View drawerView) {
+                getActionBar().setTitle(mDrawerTitle);
+                // calling onPrepareOptionsMenu() to hide action bar icons
+                invalidateOptionsMenu();
+            }
+        };
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+ 
+        if (savedInstanceState == null) {
+            // On first time display view for first navigation item.
+        	onNavigationDrawerItemSelected(0);
+        }
+        
+        mDrawerList.setOnItemClickListener(new SlideMenuClickListener());
+        
+        // Settings on click.
+        LinearLayout settings = (LinearLayout) findViewById(R.id.settings_layout);
+        settings.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(v.getContext(), SettingsActivity.class);
+			    startActivity(intent);
+			}
+		});
+        
 		// Check if external storage is available.
 		checkExternalStorage();
 
 		// Set LibreSportGPS to keepScreenOn.
-		View libresportgpsView = findViewById(R.id.drawer_layout);
-		libresportgpsView.setKeepScreenOn(true);
+		//View libresportgpsView = findViewById(R.id.drawer_layout);
+		//libresportgpsView.setKeepScreenOn(true);
+		mDrawerLayout.setKeepScreenOn(true);
 
 		// Check GPS status provider to show a message if GPS is disabled.
 		this.checkGpsProvider();
@@ -181,11 +283,43 @@ public class MainActivity extends FragmentActivity implements
 
 		Session.setTimeBeforeLogging(timeBeforeLogging);
 	}
+	
+	@Override
+    public void setTitle(CharSequence title) {
+        mTitle = title;
+        getActionBar().setTitle(mTitle);
+    }
+	
+	@Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
+    }
+ 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Pass any configuration change to the drawer toggls
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+    
+    /**
+     * Slide menu item click listener
+     * */
+    private class SlideMenuClickListener implements
+            ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position,
+                long id) {
+            // display view for selected nav drawer item
+        	onNavigationDrawerItemSelected(position);
+        }
+    }
 
 	/**
 	 * This method is called when you chose an option in Navigation Drawer.
 	 */
-	@Override
 	public void onNavigationDrawerItemSelected(int position) {
 		// update the main content by replacing fragments
 		FragmentTransaction transaction = mFragmentManager.beginTransaction(); 
@@ -198,32 +332,14 @@ public class MainActivity extends FragmentActivity implements
 		case 1:
 			transaction.replace(R.id.container, DataViewFragment.newInstance());
 			break;
-		case 2:
-			Intent intent = new Intent(this, SettingsActivity.class);
-		    startActivity(intent);
-			//transaction.replace(R.id.container, SettingsFragment.newInstance());
 		default:
 			break;
 		}
 		mFragmentManager.popBackStack();
 		transaction.commitAllowingStateLoss();
-	}
-
-	/**
-	 * When a section is attached.
-	 * 
-	 * @param number
-	 */
-	public void onSectionAttached(int number) {
-		switch (number) {
-		case 1:
-			mTitle = getString(R.string.title_start_section);
-		case 2:
-			mTitle = getString(R.string.title_data_section);
-			break;
-		case 3:
-			mTitle = getString(R.string.action_settings);
-		}
+		mDrawerLayout.closeDrawer(mRelativeLayout);
+		mDrawerList.setItemChecked(position, true);
+		mDrawerList.setSelection(position);
 	}
 
 	/**
@@ -300,13 +416,13 @@ public class MainActivity extends FragmentActivity implements
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		if (!mNavigationDrawerFragment.isDrawerOpen()) {
+		//if (!mNavigationDrawerFragment.isDrawerOpen()) {
 			// Only show items in the action bar relevant to this screen
 			// if the drawer is not showing. Otherwise, let the drawer
 			// decide what to show in the action bar.
 			return true;
-		}
-		return super.onCreateOptionsMenu(menu);
+		//}
+		//return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
@@ -318,6 +434,9 @@ public class MainActivity extends FragmentActivity implements
 		 * int id = item.getItemId(); if (id == R.id.action_settings) { return
 		 * true; }
 		 */
+		if (mDrawerToggle.onOptionsItemSelected(item)) {
+			return true;
+		}
 		return super.onOptionsItemSelected(item);
 	}
 

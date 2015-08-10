@@ -19,6 +19,19 @@
 -->
 
 <resources>
+    
+    <!-- Nav Drawer Menu Items -->
+    <string-array name="nav_drawer_items">
+        <item >Tracks</item>
+        <item >Activity View</item>
+    </string-array>
+     
+    <!-- Nav Drawer List Item Icons -->
+    <!-- Keep them in order as the titles are in -->
+    <array name="nav_drawer_icons">
+        <item>@drawable/ic_action_storage</item>
+        <item>@drawable/ic_action_play</item>
+    </array>
 
     <!-- Error messages. -->
     <string name="db_error_to_create_track">The track cannot be created in the database.</string>

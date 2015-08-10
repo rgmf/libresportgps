@@ -20,6 +20,19 @@
  
 <resources>
     
+    <!-- Nav Drawer Menu Items -->
+    <string-array name="nav_drawer_items">
+        <item >Tracks</item>
+        <item >Vista Actividad</item>
+    </string-array>
+     
+    <!-- Nav Drawer List Item Icons -->
+    <!-- Keep them in order as the titles are in -->
+    <array name="nav_drawer_icons">
+        <item>@drawable/ic_action_storage</item>
+        <item>@drawable/ic_action_play</item>
+    </array>
+    
     <!-- Error messages. -->
     <string name="db_error_to_create_track">El track no puede ser creado en la base de datos.</string>
     <string name="track_was_not_deleted">El track no fue eliminado.</string>
