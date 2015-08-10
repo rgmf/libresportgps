@@ -24,6 +24,7 @@
     <string-array name="nav_drawer_items">
         <item >Tracks</item>
         <item >Activity View</item>
+        <item>Stats</item>
     </string-array>
      
     <!-- Nav Drawer List Item Icons -->
@@ -31,6 +32,7 @@
     <array name="nav_drawer_icons">
         <item>@drawable/ic_action_storage</item>
         <item>@drawable/ic_action_play</item>
+        <item>@drawable/ic_stats</item>
     </array>
 
     <!-- Error messages. -->

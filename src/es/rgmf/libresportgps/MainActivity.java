@@ -193,6 +193,7 @@ public class MainActivity extends FragmentActivity implements
         mNavDrawerItems = new ArrayList<NavDrawerItem>();
         mNavDrawerItems.add(new NavDrawerItem(mNavMenuTitles[0], mNavMenuIcons.getResourceId(0, -1)));
         mNavDrawerItems.add(new NavDrawerItem(mNavMenuTitles[1], mNavMenuIcons.getResourceId(1, -1)));
+        mNavDrawerItems.add(new NavDrawerItem(mNavMenuTitles[2], mNavMenuIcons.getResourceId(2, -1)));
         
         // Recycle the typed array.
         mNavMenuIcons.recycle();
@@ -331,6 +332,9 @@ public class MainActivity extends FragmentActivity implements
 			break;
 		case 1:
 			transaction.replace(R.id.container, DataViewFragment.newInstance());
+			break;
+		case 2:
+			transaction.replace(R.id.container, StatsFragment.newInstance(StatsFragment.NONE, StatsFragment.NONE, StatsFragment.NONE));
 			break;
 		default:
 			break;

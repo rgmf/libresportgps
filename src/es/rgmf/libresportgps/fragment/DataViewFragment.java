@@ -122,6 +122,7 @@ public class DataViewFragment extends AbstractViewFragment /*
 				if (Session.isTracking()) {
 					Session.setTracking(false);
 					Session.setOpenTrkseg(true);
+					Session.setLastLocation(null); // Begin to compute from the user will be when play is click.
 					icPlayPause.setImageResource(R.drawable.ic_play);
 					// Otherwise it sets the button if the GPS is ready.
 				} else {

@@ -139,7 +139,7 @@ public class Utilities {
     		long seconds, minutes, hours;
     		seconds = (timeStamp / 1000) % 60;
     		minutes = (timeStamp / 1000 / 60) % 60;
-    		hours = (timeStamp / 1000 / 60 / 60) % 24;
+    		hours = (timeStamp / 1000 / 60 / 60);
     		return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     	}
     	else
