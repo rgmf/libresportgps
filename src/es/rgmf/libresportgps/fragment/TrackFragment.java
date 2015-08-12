@@ -115,9 +115,10 @@ public class TrackFragment extends Fragment {
         if (listTrackPoints.size() > 0)
         	fragments.add(AltimetryFragment.newInstance(listTrackPoints,
         			listTrackPoints.get(listTrackPoints.size() - 1).getDistance(),
+        			mTrack.getMinElevation(),
         			mTrack.getMaxElevation()));
         else
-        	fragments.add(AltimetryFragment.newInstance(listTrackPoints, 0f, 0f));
+        	fragments.add(AltimetryFragment.newInstance(listTrackPoints, 0f, 0f, 0f));
         
         // 2.- MapFragment.
         fragments.add(MapFragment.newInstance(mTrack.getId(), listTrackPoints));

@@ -24,6 +24,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Align;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -50,25 +51,83 @@ public class AltimetryFragment extends Fragment {
 	/**
 	 * Maximum's distance.
 	 */
-	private Float mMaxX = 0f;
+	private float mMaxX = 0f;
 	/**
-	 * Maximum's altitude.
+	 * Maximum's altitude approximate above to split y.
 	 */
-	private Float mMaxY = 0f;
+	private float mMaxY = 0;
+	/**
+	 * Minimum's altitude.
+	 */
+	private float mMinY = 0f;
+	/**
+	 * Split distance (x axe) in meters.
+	 */
+	private int mSplitX;
+	/**
+	 * Split altitude (y axe) in meters.
+	 */
+	private int mSplitY;
 	
 	/**
 	 * Create a new instance of this class.
 	 * 
-	 * @param map
-	 * @param maxX
-	 * @param maxY
+	 * @param list The list of track points.
+	 * @param maxX The maximum distance.
+	 * @param minY The minimum elevation.
+	 * @param maxY THe maximum elevation.
 	 * @return
 	 */
-	public static AltimetryFragment newInstance(List<TrackPoint> list, Float maxX, Float maxY) {
+	public static AltimetryFragment newInstance(List<TrackPoint> list, Float maxX, Float minY, Float maxY) {
 		AltimetryFragment f = new AltimetryFragment();
 		f.mList = list;
 		f.mMaxX = maxX;
-		f.mMaxY = maxY;
+		
+		// Calculate the distance split to the graphic.
+		if (f.mMaxX < 50000) {
+			f.mSplitX = Math.round(f.mMaxX / 10f);
+		}
+		else {
+			f.mSplitX = f.splitNumber(Math.round(f.mMaxX));
+		}
+		
+		// Calculate the altitude split to the graphic.
+		int diff = Math.round(maxY - minY);
+		if (diff <= 100) {
+			f.mSplitY = 10;
+		}
+		else if (diff <= 200) {
+			f.mSplitY = 20;
+		}
+		else if (diff <= 300) {
+			f.mSplitY = 50;
+		}
+		else if (diff <= 500) {
+			f.mSplitY = 100;
+		}
+		else if (diff <= 800) {
+			f.mSplitY = 150;
+		}
+		else if (diff <= 1500) {
+			f.mSplitY = 200;
+		}
+		else if (diff <= 2000) {
+			f.mSplitY = 250;
+		}
+		else if (diff <= 2500) {
+			f.mSplitY = 400;
+		}
+		else if (diff <= 4000) {
+			f.mSplitY = 500;
+		}
+		else {
+			f.mSplitY = 1000;
+		}
+		
+		// Corregimos la altitud máxima que será:
+		// El múltiplo más cercano por arriba a maxY
+		f.mMaxY = Float.valueOf((Math.round(Math.round(maxY) / f.mSplitY) + 1) * f.mSplitY);
+		
 		return f;
 	}
 	
@@ -88,6 +147,26 @@ public class AltimetryFragment extends Fragment {
 	    rl.addView(mDrawView);
 		
 		return rootView;
+	}
+	
+	/**
+	 * Algorithm:
+	 * a = number / 10
+	 * b = a / 5
+	 * return b * 5
+	 * 
+	 * @param number Distance in meters.
+	 * @return the split number of meters.
+	 */
+	private int splitNumber(int number) {
+		int a, b;
+		
+		number = number / 1000; // to km
+		
+		a = Math.round((float) number / 10f);
+		b = Math.round((float) a / 5f);
+		
+		return b * 5 * 1000; // in meters
 	}
 	
 	/**
@@ -111,13 +190,23 @@ public class AltimetryFragment extends Fragment {
 	
         private Paint axesPaint = new Paint();
         private Paint linePaint = new Paint();
+        private Paint splitPaint = new Paint();
+        private Paint xTextPaint = new Paint();
+        private Paint yTextPaint = new Paint();
 
         public DrawView(Context context, List<TrackPoint> list,
         		Float maxX, Float maxY,
-        		String xCoordinateText, String yCoordinateText) {
+        		String yCoordinateText, String xCoordinateText) {
             super(context);
             axesPaint.setColor(Color.BLUE);
             linePaint.setColor(Color.GREEN);
+            splitPaint.setColor(Color.LTGRAY);
+            
+            xTextPaint.setColor(Color.DKGRAY);
+            yTextPaint.setColor(Color.DKGRAY);
+            xTextPaint.setTextAlign(Align.CENTER);
+            yTextPaint.setTextAlign(Align.RIGHT);
+            
             this.mList = list;
             this.mMaxX = maxX;
             this.mMaxY = maxY;
@@ -136,8 +225,8 @@ public class AltimetryFragment extends Fragment {
         	Float prevY = null, y;
         	
         	// Draw texts coordinates.
-        	canvas.drawText(mXCoordinateText, PADDING_LEFT, PADDING_TOP - 5, axesPaint);
-        	canvas.drawText(mYCoordinateText, width - (PADDING_RIGHT * 2), height - (PADDING_BOTTOM - (PADDING_BOTTOM / 2)), axesPaint);
+        	canvas.drawText(mYCoordinateText, PADDING_LEFT, PADDING_TOP - 5, axesPaint);
+        	canvas.drawText(mXCoordinateText, width - (PADDING_RIGHT * 2), height - (PADDING_BOTTOM + 10), axesPaint);
         	
         	// Draw coordinate axes.
             canvas.drawLine(PADDING_LEFT, height - PADDING_BOTTOM,
@@ -148,26 +237,69 @@ public class AltimetryFragment extends Fragment {
             		axesPaint);
             
             // Draw references altitudes.
-            canvas.drawText("0", PADDING_LEFT / 2, height - PADDING_BOTTOM, axesPaint);
-            canvas.drawText(Float.toString(mMaxY), PADDING_LEFT / (Float.toString(mMaxY).length()), PADDING_TOP, axesPaint);
+            axesPaint.setTextAlign(Align.RIGHT);
+            canvas.drawText("0", PADDING_LEFT - 5, height - PADDING_BOTTOM, yTextPaint);
+            //canvas.drawText(Float.toString(mMaxY), PADDING_LEFT / (Float.toString(mMaxY).length()), PADDING_TOP, axesPaint);
+            
+            // Draw horizontal lines (altitudes split).
+            int maxDistance = (int) ((mMaxX * (width - PADDING_LEFT - PADDING_RIGHT)) / mMaxX);
+            for (int j = mSplitY; j <= mMaxY; j += mSplitY) {
+            	int splitY = (int) ((j * (height - PADDING_TOP - PADDING_BOTTOM) / mMaxY));
+            	canvas.drawLine(PADDING_LEFT, 
+            			height - PADDING_BOTTOM - splitY, 
+            			PADDING_LEFT + maxDistance, 
+            			height - PADDING_BOTTOM - splitY,
+            			splitPaint);
+            	
+            	canvas.drawText(String.valueOf(j), PADDING_LEFT - 5, height - splitY - PADDING_BOTTOM, yTextPaint);
+            }
             
             // Draw lines from tree map.
+            int i = 0;
             for (TrackPoint tp : mList) {
+            	// Get distance.
             	distance = (int) tp.getDistance();
+            	
+            	// x and y relative to the width and height of the graphic.
             	x = (int) ((distance * (width - PADDING_LEFT - PADDING_RIGHT)) / mMaxX);
             	y = (float) ((tp.getElevation() * ((float) (height - PADDING_TOP - PADDING_BOTTOM))) / mMaxY);
+            	
+            	// If there are previous points.
             	if(prevX != null && prevY != null) {
-            		canvas.drawLine(
-            				(float) (prevX + PADDING_LEFT),
-            				(float) (height - PADDING_TOP - prevY), // (height - PADDING_TOP - PADDING_BOTTOM) - prevY + PADDING_BOTTOM ==
-            				                                        // height - PADDING_TOP - prevY
-            				(float) (x + PADDING_LEFT),
-            				(float) (height - PADDING_TOP - y),     // (height - PADDING_TOP - PADDING_BOTTOM) - y + PADDING_BOTTOM ==
-            														// height - PADDING_TOP - y
-            				linePaint);
+            		// Draw split lines each mSplitX meters.
+            		if (i == 0 || i * mSplitX <= distance) {
+            			int splitX = (int) (((i * mSplitX) * (width - PADDING_LEFT - PADDING_RIGHT)) / mMaxX);
+            			if (i > 0) {
+	            			canvas.drawLine(PADDING_LEFT + splitX, height - PADDING_BOTTOM,
+	                        		PADDING_LEFT + splitX, PADDING_TOP,
+	                        		splitPaint);
+            			}
+            			
+            			// Draw km reference.
+                    	canvas.drawText(String.valueOf((mSplitX / 1000) * i), 
+                    			PADDING_LEFT + splitX, 
+                    			height - (PADDING_BOTTOM - 15), 
+                    			xTextPaint);
+
+                    	i++;
+            		}
+            		
+	            	// Draw a line joining track points (the graphic).
+	            	canvas.drawLine(
+	            			(float) (prevX + PADDING_LEFT),
+	            			(float) (height - PADDING_TOP - prevY), // (height - PADDING_TOP - PADDING_BOTTOM) - prevY + PADDING_BOTTOM ==
+	            			                                        // height - PADDING_TOP - prevY
+	            			(float) (x + PADDING_LEFT),
+	            			(float) (height - PADDING_TOP - y),     // (height - PADDING_TOP - PADDING_BOTTOM) - y + PADDING_BOTTOM ==
+	            													// height - PADDING_TOP - y
+	            			linePaint);
+	                prevX = x;
+	            	prevY = y;
             	}
-            	prevX = x;
-        		prevY = y;
+            	else {
+            		prevX = x;
+            		prevY = y;
+            	}
             }
         }
 	}
