@@ -40,6 +40,10 @@ import es.rgmf.libresportgps.db.orm.TrackPoint;
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
 public class AltimetryFragment extends Fragment {
+	private static final int SMALL_GAIN = 300;
+	private static final int MEDIUM_GAIN = 600;
+	private static final int LARGE_GAIN = 1000;
+	
 	/**
 	 * The draw view.
 	 */
@@ -68,6 +72,10 @@ public class AltimetryFragment extends Fragment {
 	 * Split altitude (y axe) in meters.
 	 */
 	private int mSplitY;
+	/**
+	 * If minimum altitude is great then we begin more up.
+	 */
+	private int mBeginY;
 	
 	/**
 	 * Create a new instance of this class.
@@ -93,13 +101,7 @@ public class AltimetryFragment extends Fragment {
 		
 		// Calculate the altitude split to the graphic.
 		int diff = Math.round(maxY - minY);
-		if (diff <= 100) {
-			f.mSplitY = 10;
-		}
-		else if (diff <= 200) {
-			f.mSplitY = 20;
-		}
-		else if (diff <= 300) {
+		if (diff <= 300) {
 			f.mSplitY = 50;
 		}
 		else if (diff <= 500) {
@@ -127,6 +129,19 @@ public class AltimetryFragment extends Fragment {
 		// Corregimos la altitud máxima que será:
 		// El múltiplo más cercano por arriba a maxY
 		f.mMaxY = Float.valueOf((Math.round(Math.round(maxY) / f.mSplitY) + 1) * f.mSplitY);
+		
+		// Además, si hay poca altura se añaden splits para que el gráfico no sea exagerado.
+		if (maxY - minY < SMALL_GAIN) {
+			f.mMaxY += (f.mSplitY * 5);
+		}
+		else if (maxY - minY < MEDIUM_GAIN) {
+			f.mMaxY += (f.mSplitY * 3);
+		}
+		else if (maxY - minY < LARGE_GAIN) {
+			f.mMaxY += (f.mSplitY);
+		}
+		
+		f.mBeginY = f.mSplitY * (Math.round(minY / f.mSplitY) - 1);
 		
 		return f;
 	}
@@ -176,7 +191,7 @@ public class AltimetryFragment extends Fragment {
 	 */
 	class DrawView extends View {
 		private static final int PADDING_LEFT = 50;
-		private static final int PADDING_RIGHT = 50;
+		private static final int PADDING_RIGHT = 10;
 		private static final int PADDING_TOP = 50;
 		private static final int PADDING_BOTTOM = 50;
 		
@@ -226,7 +241,8 @@ public class AltimetryFragment extends Fragment {
         	
         	// Draw texts coordinates.
         	canvas.drawText(mYCoordinateText, PADDING_LEFT, PADDING_TOP - 5, axesPaint);
-        	canvas.drawText(mXCoordinateText, width - (PADDING_RIGHT * 2), height - (PADDING_BOTTOM + 10), axesPaint);
+        	axesPaint.setTextAlign(Align.RIGHT);
+        	canvas.drawText(mXCoordinateText, width - PADDING_RIGHT, height - (PADDING_BOTTOM / 3), axesPaint);
         	
         	// Draw coordinate axes.
             canvas.drawLine(PADDING_LEFT, height - PADDING_BOTTOM,
@@ -293,6 +309,15 @@ public class AltimetryFragment extends Fragment {
 	            			(float) (height - PADDING_TOP - y),     // (height - PADDING_TOP - PADDING_BOTTOM) - y + PADDING_BOTTOM ==
 	            													// height - PADDING_TOP - y
 	            			linePaint);
+	            	
+	            	// Coloring the graphic area with a rectangle so when gps was lost the graphic is coloring any way.
+	            	canvas.drawRect(
+	            			prevX + PADDING_LEFT, 
+	            			height - PADDING_BOTTOM - y, 
+	            			x  + PADDING_LEFT, 
+	            			height - PADDING_BOTTOM,
+	            			linePaint);
+	            	
 	                prevX = x;
 	            	prevY = y;
             	}
