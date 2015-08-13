@@ -141,7 +141,9 @@ public class AltimetryFragment extends Fragment {
 			f.mMaxY += (f.mSplitY);
 		}
 		
+		// Si sobra mucho por arriba corregimos para que se aprecie la altitud hecha.
 		f.mBeginY = f.mSplitY * (Math.round(minY / f.mSplitY) - 1);
+		f.mMaxY -= f.mBeginY;
 		
 		return f;
 	}
@@ -254,8 +256,7 @@ public class AltimetryFragment extends Fragment {
             
             // Draw references altitudes.
             axesPaint.setTextAlign(Align.RIGHT);
-            canvas.drawText("0", PADDING_LEFT - 5, height - PADDING_BOTTOM, yTextPaint);
-            //canvas.drawText(Float.toString(mMaxY), PADDING_LEFT / (Float.toString(mMaxY).length()), PADDING_TOP, axesPaint);
+            canvas.drawText(String.valueOf(0 + mBeginY), PADDING_LEFT - 5, height - PADDING_BOTTOM, yTextPaint);
             
             // Draw horizontal lines (altitudes split).
             int maxDistance = (int) ((mMaxX * (width - PADDING_LEFT - PADDING_RIGHT)) / mMaxX);
@@ -267,7 +268,7 @@ public class AltimetryFragment extends Fragment {
             			height - PADDING_BOTTOM - splitY,
             			splitPaint);
             	
-            	canvas.drawText(String.valueOf(j), PADDING_LEFT - 5, height - splitY - PADDING_BOTTOM, yTextPaint);
+            	canvas.drawText(String.valueOf(j + mBeginY), PADDING_LEFT - 5, height - splitY - PADDING_BOTTOM, yTextPaint);
             }
             
             // Draw lines from tree map.
@@ -278,7 +279,8 @@ public class AltimetryFragment extends Fragment {
             	
             	// x and y relative to the width and height of the graphic.
             	x = (int) ((distance * (width - PADDING_LEFT - PADDING_RIGHT)) / mMaxX);
-            	y = (float) ((tp.getElevation() * ((float) (height - PADDING_TOP - PADDING_BOTTOM))) / mMaxY);
+            	y = (float) ((tp.getElevation() * ((float) (height - PADDING_TOP - PADDING_BOTTOM))) / mMaxY) - 
+            			((mBeginY * ((float) (height - PADDING_TOP - PADDING_BOTTOM))) / mMaxY);
             	
             	// If there are previous points.
             	if(prevX != null && prevY != null) {
