@@ -23,24 +23,33 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.ListView;
+import android.widget.Toast;
 import es.rgmf.libresportgps.R;
 import es.rgmf.libresportgps.adapter.TrackListAdapter;
+import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.data.TrackListHead;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.file.FileFactory;
+import es.rgmf.libresportgps.file.FileManager;
 import es.rgmf.libresportgps.file.reader.GpxReader;
 import es.rgmf.libresportgps.fragment.dialog.FileDialog;
 
@@ -95,6 +104,8 @@ public class TrackListFragment extends ListFragment {
 	private ArrayList<Track> mTracks;
 
 	private Context mContext;
+	
+	private TrackListAdapter mAdapter;
 	
 	private int mPosition = NONE_SELECTED;
 
@@ -151,7 +162,7 @@ public class TrackListFragment extends ListFragment {
 
 		// Create values to add to the adapter (headers and values).
 		mContext = inflater.getContext();
-		TrackListAdapter adapter = new TrackListAdapter(mContext);
+		mAdapter = new TrackListAdapter(mContext);
 		int year = -1; // To force the first time cal.get(Calendar.YEAR != year
 		int month = -1; // To force the first time cal.get(Calendar.MONTH != moth
 		for (Track track : mTracks) {
@@ -160,19 +171,126 @@ public class TrackListFragment extends ListFragment {
 			if (cal.get(Calendar.YEAR) != year) {
 				year = cal.get(Calendar.YEAR);
 				TrackListHead head = new TrackListHead(TrackListHead.TYPE_YEAR, cal);
-				adapter.add(head);
+				mAdapter.add(head);
 			}
 			if (cal.get(Calendar.MONTH) != month) {
 				month = cal.get(Calendar.MONTH);
 				TrackListHead head = new TrackListHead(TrackListHead.TYPE_MONTH, cal);
-				adapter.add(head);
+				mAdapter.add(head);
 			}
-			adapter.add(track);
+			mAdapter.add(track);
 		}
-		setListAdapter(adapter);
+		setListAdapter(mAdapter);
 		
 		//return super.onCreateView(inflater, container, savedInstanceState);
 		return inflater.inflate(R.layout.fragment_track_list, container, false);
+	}
+	
+	/**
+	 * When view is created.
+	 */
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		
+		// Enabling batch contextual actions in the ListView.
+		final ListView listView = getListView();
+		listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+		
+		// AbsListView.MultiChoiceModeListener interface.
+		listView.setMultiChoiceModeListener(new MultiChoiceModeListener() {
+			int checkedCount = 0;
+			
+		    @Override
+		    public void onItemCheckedStateChanged(ActionMode mode, int position,
+		                                          long id, boolean checked) {
+		        // Here you can do something when items are selected/de-selected,
+		        // such as update the title in the CAB.
+		    	if (mAdapter.getItem(position) instanceof Track) {
+			    	mAdapter.toggleSelection(position);
+			    	//final int checkedCount = listView.getCheckedItemCount();
+			    	checkedCount++;
+			    	mode.setTitle(checkedCount + " Selected");
+		    	}
+		    	else if (mAdapter.getSelectedIds().size() == 0) {
+		    		mode.finish();
+		    	}
+		    }
+
+		    @Override
+		    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+		        // Respond to clicks on the actions in the CAB
+		        switch (item.getItemId()) {
+		            case R.id.tracklist_delete:
+		            	new AlertDialog.Builder(getActivity())
+						.setTitle(R.string.delete_trackfile)
+						.setIcon(android.R.drawable.ic_dialog_alert)
+						.setMessage(getResources().getString(R.string.delete_tracksfile_selected_hint))
+						.setCancelable(true).setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								// Calls getSelectedIds method from ListViewAdapter Class
+								SparseBooleanArray selected = mAdapter.getSelectedIds();
+								// Captures all selected ids with a loop
+								Log.v("Fuera del for", "Fueroa del for");
+								for (int i = (selected.size() - 1); i >= 0; i--) {
+									Log.v("Dentro del for", "Dentro del for");
+									if (selected.valueAt(i)) {
+										Object selectedItem = mAdapter
+												.getItem(selected.keyAt(i));
+										Log.v("Primero", "Estamos en el bucle for");
+										if (selectedItem instanceof Track) {
+											Log.v("Segundo:", ((Track) selectedItem).getId() + "");
+											FileManager.delete(Session.getAppFolder() + "/" + ((Track) selectedItem).getId());
+											if (!DBModel.deleteTrack(getActivity(), ((Track) selectedItem).getId())) {
+												Toast.makeText(getActivity(), R.string.track_was_not_deleted + "(" + ((Track) selectedItem).getTitle() +")",
+														Toast.LENGTH_LONG).show();
+												Log.v("No borrado", "No borrado");
+											}
+											else {
+												Log.v("Borrado", "borrado");
+												mAdapter.remove(selectedItem);
+											}
+										}
+									}
+								}
+							}
+						}).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.cancel();
+							}
+						}).create().show();
+
+		                mode.finish(); // Action picked, so close the CAB
+		                return true;
+		            default:
+		                return false;
+		        }
+		    }
+
+		    @Override
+		    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+		        // Inflate the menu for the CAB
+		        MenuInflater inflater = mode.getMenuInflater();
+		        inflater.inflate(R.menu.track_list_context_menu, menu);
+		        return true;
+		    }
+
+		    @Override
+		    public void onDestroyActionMode(ActionMode mode) {
+		        // Here you can make any necessary updates to the activity when
+		        // the CAB is removed. By default, selected items are deselected/unchecked.
+		    	//mSelection.clearSelection();
+		    }
+
+		    @Override
+		    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+		        // Here you can perform updates to the CAB due to
+		        // an invalidate() request
+		        return false;
+		    }
+		});
 	}
 
 	/**

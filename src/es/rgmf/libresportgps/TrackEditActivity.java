@@ -21,7 +21,6 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Spinner;
@@ -89,10 +88,6 @@ public class TrackEditActivity extends Activity {
         tvTitle.setText(title);
         TextView tvDesc = (TextView) findViewById(R.id.track_edit_description);
         tvDesc.setText(description);
-
-        
-        Log.v("TrackEditActivity id:", mId + "");
-        Log.v("TrackEditActivity title:", title);
     }
 
     @Override

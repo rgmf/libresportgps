@@ -20,6 +20,7 @@ package es.rgmf.libresportgps.adapter;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +44,7 @@ import es.rgmf.libresportgps.db.orm.Track;
 public class TrackListAdapter extends ArrayAdapter<Object> {
 	private ArrayList<Object> values;
 	private Context mContext;
+	private SparseBooleanArray mSelectedItemsIds;
 
 	/**
 	 * Constructor with items.
@@ -54,6 +56,7 @@ public class TrackListAdapter extends ArrayAdapter<Object> {
 		super(context, R.layout.fragment_row_track_list, items);
 		this.mContext = context;
 		this.values = items;
+		this.mSelectedItemsIds = new SparseBooleanArray();
 	}
 	
 	/**
@@ -65,6 +68,7 @@ public class TrackListAdapter extends ArrayAdapter<Object> {
 		super(context, R.layout.fragment_row_track_list);
 		this.mContext = context;
 		this.values = new ArrayList<Object>();
+		this.mSelectedItemsIds = new SparseBooleanArray();
 	}
 	
 	/**
@@ -123,5 +127,27 @@ public class TrackListAdapter extends ArrayAdapter<Object> {
 		}
 	     
 	    return convertView;
+	}
+	
+	public void toggleSelection(int position) {
+		selectView(position, !mSelectedItemsIds.get(position));
+	}
+	
+	public void selectView(int position, boolean value) {
+		if (value)
+			mSelectedItemsIds.put(position, value);
+		else
+			mSelectedItemsIds.delete(position);
+		notifyDataSetChanged();
+	}
+	
+	public SparseBooleanArray getSelectedIds() {
+		return mSelectedItemsIds;
+	}
+	
+	@Override
+	public void remove(Object object) {
+		values.remove(object);
+		notifyDataSetChanged();
 	}
 }

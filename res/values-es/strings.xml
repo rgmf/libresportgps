@@ -82,6 +82,7 @@
     <string name="service_again_available">El servicio está de nuevo disponible. El tracking continua.</string>
 	<string name="delete_trackfile">Borrar Track</string>
 	<string name="delete_trackfile_hint">¿Quieres eliminar el track? Esta acción no se puede deshacer.</string>
+    <string name="delete_tracksfile_selected_hint">Seguro que quieres eliminar todos los tracks seleccionados? Esta acción no se puede deshacer.</string>
 	<string name="activity_finished">Actividad finalizada</string>
 	<string name="loading_data">Cargando datos...</string>
 	<string name="loading_file">Cargando fichero... Esto puede llevar un tiempo, sea paciente...</string>

@@ -81,6 +81,7 @@
     <string name="service_again_available">The service is again available. The tracking continue.</string>
     <string name="delete_trackfile">Delete Track</string>
     <string name="delete_trackfile_hint">Do you really like to delete the track? This action cannot be undo.</string>
+    <string name="delete_tracksfile_selected_hint">Do you really like to delete all the tracks selected? This action cannot be undo.</string>
     <string name="activity_finished">Activity finished</string>
     <string name="loading_data">Loading data...</string>
     <string name="loading_file">Loading file... Be patient, this can take too time...</string>

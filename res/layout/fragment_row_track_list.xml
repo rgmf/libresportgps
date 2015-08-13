@@ -21,13 +21,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#EDEDED"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="?android:attr/activatedBackgroundIndicator">
 
 	<RelativeLayout
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
-	    android:background="#ededed"
 	    android:paddingBottom="10dp"
 	    android:paddingLeft="20dp"
 	    android:paddingRight="20dp"
@@ -60,11 +59,13 @@
 	</RelativeLayout>
 	
 	<!-- With this ListView the app can listen clicks on each item of the list -->
+	<!-- 
 	<ListView
         android:id="@android:id/list"
         android:layout_width="fill_parent" 
         android:layout_height="fill_parent"
         android:drawSelectorOnTop="false"
         android:choiceMode="multipleChoice"/>
+    -->
 
 </LinearLayout>
