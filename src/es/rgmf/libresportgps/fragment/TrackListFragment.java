@@ -30,7 +30,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -199,7 +198,6 @@ public class TrackListFragment extends ListFragment {
 		
 		// AbsListView.MultiChoiceModeListener interface.
 		listView.setMultiChoiceModeListener(new MultiChoiceModeListener() {
-			int checkedCount = 0;
 			
 		    @Override
 		    public void onItemCheckedStateChanged(ActionMode mode, int position,
@@ -208,9 +206,7 @@ public class TrackListFragment extends ListFragment {
 		        // such as update the title in the CAB.
 		    	if (mAdapter.getItem(position) instanceof Track) {
 			    	mAdapter.toggleSelection(position);
-			    	//final int checkedCount = listView.getCheckedItemCount();
-			    	checkedCount++;
-			    	mode.setTitle(checkedCount + " Selected");
+			    	mode.setTitle(mAdapter.getSelectedIds().size() + " Selected");
 		    	}
 		    	else if (mAdapter.getSelectedIds().size() == 0) {
 		    		mode.finish();
@@ -222,45 +218,38 @@ public class TrackListFragment extends ListFragment {
 		        // Respond to clicks on the actions in the CAB
 		        switch (item.getItemId()) {
 		            case R.id.tracklist_delete:
-		            	new AlertDialog.Builder(getActivity())
+		            	/*new AlertDialog.Builder(getActivity())
 						.setTitle(R.string.delete_trackfile)
 						.setIcon(android.R.drawable.ic_dialog_alert)
 						.setMessage(getResources().getString(R.string.delete_tracksfile_selected_hint))
 						.setCancelable(true).setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 							@Override
-							public void onClick(DialogInterface dialog, int which) {
+							public void onClick(DialogInterface dialog, int which) {*/
 								// Calls getSelectedIds method from ListViewAdapter Class
 								SparseBooleanArray selected = mAdapter.getSelectedIds();
 								// Captures all selected ids with a loop
-								Log.v("Fuera del for", "Fueroa del for");
 								for (int i = (selected.size() - 1); i >= 0; i--) {
-									Log.v("Dentro del for", "Dentro del for");
 									if (selected.valueAt(i)) {
-										Object selectedItem = mAdapter
-												.getItem(selected.keyAt(i));
-										Log.v("Primero", "Estamos en el bucle for");
+										Object selectedItem = mAdapter.getItem(selected.keyAt(i));
 										if (selectedItem instanceof Track) {
-											Log.v("Segundo:", ((Track) selectedItem).getId() + "");
 											FileManager.delete(Session.getAppFolder() + "/" + ((Track) selectedItem).getId());
 											if (!DBModel.deleteTrack(getActivity(), ((Track) selectedItem).getId())) {
 												Toast.makeText(getActivity(), R.string.track_was_not_deleted + "(" + ((Track) selectedItem).getTitle() +")",
 														Toast.LENGTH_LONG).show();
-												Log.v("No borrado", "No borrado");
 											}
 											else {
-												Log.v("Borrado", "borrado");
 												mAdapter.remove(selectedItem);
 											}
 										}
 									}
 								}
-							}
+							/*}
 						}).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								dialog.cancel();
 							}
-						}).create().show();
+						}).create().show();*/
 
 		                mode.finish(); // Action picked, so close the CAB
 		                return true;
@@ -281,7 +270,7 @@ public class TrackListFragment extends ListFragment {
 		    public void onDestroyActionMode(ActionMode mode) {
 		        // Here you can make any necessary updates to the activity when
 		        // the CAB is removed. By default, selected items are deselected/unchecked.
-		    	//mSelection.clearSelection();
+		    	mAdapter.removeSelection();
 		    }
 
 		    @Override

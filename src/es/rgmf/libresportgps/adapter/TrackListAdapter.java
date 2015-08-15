@@ -18,6 +18,7 @@
 package es.rgmf.libresportgps.adapter;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import android.content.Context;
 import android.util.SparseBooleanArray;
@@ -86,45 +87,47 @@ public class TrackListAdapter extends ArrayAdapter<Object> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		// It is a track (activity).
-		if (values.get(position) instanceof Track) {
-		    LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		    convertView = inflater.inflate(R.layout.fragment_row_track_list, parent, false);
-		    
-	        // Now we can fill the layout with the right values
-		    ImageView ivLogo = (ImageView) convertView.findViewById(R.id.list_logo);
-	        TextView tvName = (TextView) convertView.findViewById(R.id.list_name);
-	        TextView tvDate = (TextView) convertView.findViewById(R.id.list_date);
-	        
-	        Track track = (Track) values.get(position);
-	        Sport sport = track.getSport();
-	        if(sport != null && sport.getLogo() != null && !sport.getLogo().isEmpty())
-	        	ivLogo.setImageResource(mContext.getResources().getIdentifier(sport.getLogo(), "drawable", mContext.getPackageName()));
-	        else
-	        	ivLogo.setImageResource(R.drawable.unknown);
-	        
-	        tvName.setText(track.getTitle());
-	        tvDate.setText(Utilities.timeStampCompleteFormatter(track.getFinishTime()));
-		}
-		// It is a header (year or month header).
-		else if (values.get(position) instanceof TrackListHead) {
-			TrackListHead head = (TrackListHead) values.get(position);
-			switch (head.getType()) {
-			case TrackListHead.TYPE_YEAR:
-			    LayoutInflater inflaterYear = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			    convertView = inflaterYear.inflate(R.layout.fragment_year_head_track_list, parent, false);
+		//if (position < values.size()) {
+			if (values.get(position) instanceof Track) {
+			    LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			    convertView = inflater.inflate(R.layout.fragment_row_track_list, parent, false);
 			    
-			    TextView tvYearHead = (TextView) convertView.findViewById(R.id.year_head_text);
-			    tvYearHead.setText(head.getValue());
-			    break;
-			case TrackListHead.TYPE_MONTH:
-			    LayoutInflater inflaterMonth = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			    convertView = inflaterMonth.inflate(R.layout.fragment_month_head_track_list, parent, false);
-			    
-			    TextView tvMonthHead = (TextView) convertView.findViewById(R.id.month_head_text);
-			    tvMonthHead.setText(head.getValue());
-			    break;
+		        // Now we can fill the layout with the right values
+			    ImageView ivLogo = (ImageView) convertView.findViewById(R.id.list_logo);
+		        TextView tvName = (TextView) convertView.findViewById(R.id.list_name);
+		        TextView tvDate = (TextView) convertView.findViewById(R.id.list_date);
+		        
+		        Track track = (Track) values.get(position);
+		        Sport sport = track.getSport();
+		        if(sport != null && sport.getLogo() != null && !sport.getLogo().isEmpty())
+		        	ivLogo.setImageResource(mContext.getResources().getIdentifier(sport.getLogo(), "drawable", mContext.getPackageName()));
+		        else
+		        	ivLogo.setImageResource(R.drawable.unknown);
+		        
+		        tvName.setText(track.getTitle());
+		        tvDate.setText(Utilities.timeStampCompleteFormatter(track.getFinishTime()));
 			}
-		}
+			// It is a header (year or month header).
+			else if (values.get(position) instanceof TrackListHead) {
+				TrackListHead head = (TrackListHead) values.get(position);
+				switch (head.getType()) {
+				case TrackListHead.TYPE_YEAR:
+				    LayoutInflater inflaterYear = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				    convertView = inflaterYear.inflate(R.layout.fragment_year_head_track_list, parent, false);
+				    
+				    TextView tvYearHead = (TextView) convertView.findViewById(R.id.year_head_text);
+				    tvYearHead.setText(head.getValue());
+				    break;
+				case TrackListHead.TYPE_MONTH:
+				    LayoutInflater inflaterMonth = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				    convertView = inflaterMonth.inflate(R.layout.fragment_month_head_track_list, parent, false);
+				    
+				    TextView tvMonthHead = (TextView) convertView.findViewById(R.id.month_head_text);
+				    tvMonthHead.setText(head.getValue());
+				    break;
+				}
+			}
+		//}
 	     
 	    return convertView;
 	}
@@ -145,9 +148,48 @@ public class TrackListAdapter extends ArrayAdapter<Object> {
 		return mSelectedItemsIds;
 	}
 	
+	public void removeSelection() {
+		mSelectedItemsIds = new SparseBooleanArray();
+		notifyDataSetChanged();
+	}
+	
 	@Override
 	public void remove(Object object) {
+		super.remove(object);
+		int index = values.indexOf(object);
+		
 		values.remove(object);
-		notifyDataSetChanged();
+		
+		if (index - 1 > 0) {
+			Object prev = values.get(index - 1);
+			Object prevprev = values.get(index - 2);
+			Object next;
+			
+			// If there is next we get it. Otherwise, create a TrackListHead year type.
+			if (index < values.size() - 1) {
+				next = values.get(index);
+			}
+			else {
+				next = new TrackListHead(TrackListHead.TYPE_YEAR, Calendar.getInstance());
+			}
+			
+			// Check if we need delete prev and prevprev.
+			if (prev instanceof TrackListHead && next instanceof TrackListHead &&
+					((TrackListHead) prev).getType() == TrackListHead.TYPE_MONTH) {
+				
+				super.remove(prev);
+				values.remove(prev);
+				
+				if (prevprev instanceof TrackListHead && 
+						((TrackListHead) prevprev).getType() == TrackListHead.TYPE_YEAR &&
+						((TrackListHead) next).getType() == TrackListHead.TYPE_YEAR) {
+					
+					super.remove(prevprev);
+					values.remove(prevprev);
+				}
+			}
+		}
+
+		this.notifyDataSetChanged();
 	}
 }
