@@ -218,13 +218,13 @@ public class TrackListFragment extends ListFragment {
 		        // Respond to clicks on the actions in the CAB
 		        switch (item.getItemId()) {
 		            case R.id.tracklist_delete:
-		            	/*new AlertDialog.Builder(getActivity())
+		            	new AlertDialog.Builder(getActivity())
 						.setTitle(R.string.delete_trackfile)
 						.setIcon(android.R.drawable.ic_dialog_alert)
 						.setMessage(getResources().getString(R.string.delete_tracksfile_selected_hint))
 						.setCancelable(true).setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 							@Override
-							public void onClick(DialogInterface dialog, int which) {*/
+							public void onClick(DialogInterface dialog, int which) {
 								// Calls getSelectedIds method from ListViewAdapter Class
 								SparseBooleanArray selected = mAdapter.getSelectedIds();
 								// Captures all selected ids with a loop
@@ -243,13 +243,15 @@ public class TrackListFragment extends ListFragment {
 										}
 									}
 								}
-							/*}
+								mAdapter.removeSelection();
+							}
 						}).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
+								mAdapter.removeSelection();
 								dialog.cancel();
 							}
-						}).create().show();*/
+						}).create().show();
 
 		                mode.finish(); // Action picked, so close the CAB
 		                return true;
@@ -270,7 +272,7 @@ public class TrackListFragment extends ListFragment {
 		    public void onDestroyActionMode(ActionMode mode) {
 		        // Here you can make any necessary updates to the activity when
 		        // the CAB is removed. By default, selected items are deselected/unchecked.
-		    	mAdapter.removeSelection();
+		    	//mAdapter.removeSelection();
 		    }
 
 		    @Override
