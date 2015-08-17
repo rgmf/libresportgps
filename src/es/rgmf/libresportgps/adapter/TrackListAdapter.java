@@ -105,16 +105,35 @@ public class TrackListAdapter extends ArrayAdapter<Object> {
 		    ImageView ivLogo = (ImageView) convertView.findViewById(R.id.list_logo);
 	        TextView tvName = (TextView) convertView.findViewById(R.id.list_name);
 	        TextView tvDate = (TextView) convertView.findViewById(R.id.list_date);
+	        TextView tvDistance = (TextView) convertView.findViewById(R.id.list_distance);
+	        TextView tvExtra = (TextView) convertView.findViewById(R.id.list_extra_info);
 	        
 	        Track track = (Track) values.get(position);
 	        Sport sport = track.getSport();
-	        if(sport != null && sport.getLogo() != null && !sport.getLogo().isEmpty())
+	        if(sport != null && sport.getLogo() != null && !sport.getLogo().isEmpty()) {
 	        	ivLogo.setImageResource(mContext.getResources().getIdentifier(sport.getLogo(), "drawable", mContext.getPackageName()));
-	        else
+	        	switch (sport.getId().intValue()) {
+		        	case Sport.CANICROSS:
+		        	case Sport.RUNNING:
+		        	case Sport.TRAIL:
+		        	case Sport.TREKKING:
+		        		tvExtra.setText(Utilities.tempoPerKm(track.getDistance(), track.getActivityTime()));
+		        		break;
+		        	case Sport.CYCLING:
+		        	case Sport.MTB:
+		        		tvExtra.setText(Utilities.elevation(track.getElevationGain()));
+		        		break;
+	        	}
+	        	
+	        }
+	        else {
 	        	ivLogo.setImageResource(R.drawable.unknown);
+	        	tvExtra.setText("");
+	        }
 	        
 	        tvName.setText(track.getTitle());
 	        tvDate.setText(Utilities.timeStampCompleteFormatter(track.getStartTime()));
+	        tvDistance.setText(Utilities.distance(track.getDistance()));
 		}
 		// It is a header (year or month header).
 		else if (values.get(position) instanceof TrackListHead) {

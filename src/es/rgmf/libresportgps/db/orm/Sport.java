@@ -23,6 +23,13 @@ package es.rgmf.libresportgps.db.orm;
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
 public class Sport {
+	public static final int CANICROSS = 1;
+	public static final int CYCLING = 2;
+	public static final int MTB = 3;
+	public static final int RUNNING = 4;
+	public static final int TRAIL = 5;
+	public static final int TREKKING = 6;
+	
 	private Long id;
 	private String name;
 	private String description;

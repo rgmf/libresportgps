@@ -288,6 +288,21 @@ public class Utilities {
 	}
 	
 	/**
+	 * Return the tempo per km.
+	 * 
+	 * @param distance Distance in meters.
+	 * @param activityTime Time in milliseconds.
+	 * @return
+	 */
+	public static String tempoPerKm(Float distance, Long activityTime) {
+		float km = distance / 1000;
+		float tempoMillis = ((float) activityTime) / km;
+		long seconds = (long) ((tempoMillis / 1000) % 60);
+		long minutes = (long) ((tempoMillis / 1000 / 60) % 60);
+		return String.format("%02d:%02d min/km", minutes, seconds);
+	}
+	
+	/**
 	 * 
 	 * @param options
 	 * @param reqWidth

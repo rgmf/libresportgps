@@ -293,7 +293,7 @@ public class DataViewFragment extends AbstractViewFragment {
 		// Activity time.
 		TextView activityTime = (TextView) rootView
 				.findViewById(R.id.activity_time);
-		activityTime.setText(Utilities.timeStampSecondsFormatter(Session
+		activityTime.setText(Utilities.totalTimeFormatter(Session
 				.getActivityTimeStamp()));
 
 		// GPS Status.
