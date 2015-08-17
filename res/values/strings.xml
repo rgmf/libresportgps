@@ -128,5 +128,8 @@
     <string name="max_gain">Max. Elevation Gain</string>
     <string name="total_time">Total Time</string>
     <string name="max_time">Max. Time</string>
+    <string name="export_gpx">GPX Export</string>
+    <string name="track_was_exported">Track was exported</string>
+    <string name="track_was_not_exported">ERROR: Track was not exported</string>
 
 </resources>

@@ -23,10 +23,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.List;
 
 import android.location.Location;
 import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.common.Utilities;
+import es.rgmf.libresportgps.db.orm.TrackPoint;
 
 /**
  * This class can be used to write GPX files.
@@ -34,6 +36,8 @@ import es.rgmf.libresportgps.common.Utilities;
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
 public class GpxWriter implements IWriter {
+	public static final int GPX_WRITER_OK = 0;
+	
 	/**
 	 * This is the file to write gpx data.
 	 */
@@ -61,6 +65,11 @@ public class GpxWriter implements IWriter {
 	 */
 	private long offsetTrack = 0;
 	/**
+	 * The offset int the file where we will write name information between name
+	 * tag.
+	 */
+	private long offsetName = 0;
+	/**
 	 * The offset in the file where we will write the bounds information in
 	 * GPX XML file.
 	 * 
@@ -79,24 +88,32 @@ public class GpxWriter implements IWriter {
 	 * all offsets ready to append contents to the file.
 	 * 
 	 * @param file The file already created.
+	 * @param date The track start date to write in the header of the gpx file.
 	 */
-	public GpxWriter(File file) {
+	public GpxWriter(File file, String date, String name) {
+		this.gpxFile = file;
+		this.writeHeader(date, name);
+	}
+	
+	/**
+	 * This method write the header of the file.
+	 */
+	@Override
+	public void writeHeader(String date, String name) {
 		try {
-			this.gpxFile = file;
-			String currentHour = Utilities.millisecondsToDateForGPX(System.currentTimeMillis());
 			FileOutputStream fos = new FileOutputStream(gpxFile);
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
 			StringBuilder sb = new StringBuilder();
 			
 			// The GPX XML file empty.
-			sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+			sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
             sb.append("<gpx version=\"1.0\" creator=\"LibreSportGPS - http://www.rgmf.es/\" ");
             sb.append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" ");
             sb.append("xmlns=\"http://www.topografix.com/GPX/1/0\" ");
             sb.append("xsi:schemaLocation=\"http://www.topografix.com/GPX/1/0 ");
-            sb.append("http://www.topografix.com/GPX/1/0/gpx.xsd\">");
-            sb.append("<time>").append(currentHour).append("</time>");
-            sb.append("<trk><trkseg></trkseg></trk></gpx>");
+            sb.append("http://www.topografix.com/GPX/1/0/gpx.xsd\">\n");
+            sb.append("<time>").append(date).append("</time>\n");
+            sb.append("<trk>\n <name>").append(name).append("</name>\n <trkseg></trkseg></trk></gpx>");
             
             // Write the StringBuilder in the file.
             bos.write(sb.toString().getBytes());
@@ -104,9 +121,10 @@ public class GpxWriter implements IWriter {
             bos.close();
             
             // Set the offset we will need.
-            this.offsetWaypoints = this.gpxFile.length() - 34;
+            this.offsetWaypoints = this.gpxFile.length() - (51 + name.length());
             this.offsetTrack = this.gpxFile.length() - 21;
-            this.offsetBounds = this.gpxFile.length() - (47 + currentHour.length());
+            this.offsetName = this.gpxFile.length() - 38;
+            this.offsetBounds = this.gpxFile.length() - (47 + date.length() + name.length());
             
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -212,5 +230,59 @@ public class GpxWriter implements IWriter {
 	@Override
 	public void writeWaypoint(Location loc) {
 				
+	}
+	
+	/**
+	 * This method export a set of track points to gpxFile.
+	 */
+	public boolean exportGpx(List<TrackPoint> trackPointList) {
+		try {
+			RandomAccessFile raf = new RandomAccessFile(this.gpxFile, "rw");
+			StringBuilder sb = new StringBuilder();
+			
+			// Write all track points.
+			for (TrackPoint tp : trackPointList) {
+				sb.append("\n <trkpt lat=\"")
+				  .append(String.valueOf(tp.getLat()))
+				  .append("\" lon=\"")
+				  .append(String.valueOf(tp.getLng()))
+				  .append("\">\n")
+				  
+				  .append("  <ele>")
+				  .append(String.valueOf(tp.getElevation()))
+				  .append("</ele>\n")
+				  
+				  .append("  <time>")
+				  .append(Utilities.millisecondsToDateForGPX(tp.getTime()))
+				  .append("</time>\n")
+				  
+				  .append("  <speed>")
+				  .append(String.valueOf(tp.getSpeed()))
+				  .append("</speed>")
+				
+				  .append("\n </trkpt>");
+			}
+			
+			// Close the trkpt tag.
+			sb.append("\n </trkseg>\n</trk>\n</gpx>");
+            
+            // Write the StringBuilder in the file.
+			raf.seek(offsetTrack);
+			raf.write(sb.toString().getBytes());
+			raf.close();
+            
+            // Update offset of the track we will need.
+            this.offsetTrack += sb.length() - 21;
+            
+            return true;
+            
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return false;
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 }

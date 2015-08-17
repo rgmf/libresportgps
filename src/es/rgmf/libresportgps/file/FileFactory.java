@@ -23,12 +23,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import es.rgmf.libresportgps.common.Session;
-import es.rgmf.libresportgps.file.writer.GpxWriter;
-import es.rgmf.libresportgps.file.writer.IWriter;
 
 /**
  * This class creates all files where tracks, waypoints and routes will be
@@ -37,24 +33,6 @@ import es.rgmf.libresportgps.file.writer.IWriter;
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
 public class FileFactory {
-	private static List<IWriter> files = null;
-	
-	public static List<IWriter> getFiles(String trackId) {
-		if(files == null) {
-			String folderName = createFolderIfNotExists(trackId);
-			
-			// Creates the file.
-			files = new ArrayList<IWriter>();
-			File file = new File(folderName, Session.getFileName() + ".gpx");
-			GpxWriter gpxFile = new GpxWriter(file);
-		
-			// Adds the file inside the list of files.
-			files.add(gpxFile);
-		}
-		
-		return files;
-	}
-	
 	/**
 	 * Create a folder if not exists called trackId inside the app folder.
 	 * 
@@ -91,9 +69,5 @@ public class FileFactory {
 	    }
 	    in.close();
 	    out.close();
-	}
-	
-	public static void reset() {
-		files = null;
 	}
 }

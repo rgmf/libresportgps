@@ -43,8 +43,18 @@ import es.rgmf.libresportgps.db.orm.Track;
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
 public class TrackListAdapter extends ArrayAdapter<Object> {
+	/**
+	 * Values of the adapter. They can be: Track or TrackListHead 
+	 * (month or year).
+	 */
 	private ArrayList<Object> values;
+	/**
+	 * The context.
+	 */
 	private Context mContext;
+	/**
+	 * Array with information on values selected.
+	 */
 	private SparseBooleanArray mSelectedItemsIds;
 
 	/**
@@ -87,47 +97,45 @@ public class TrackListAdapter extends ArrayAdapter<Object> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		// It is a track (activity).
-		//if (position < values.size()) {
-			if (values.get(position) instanceof Track) {
-			    LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			    convertView = inflater.inflate(R.layout.fragment_row_track_list, parent, false);
+		if (values.get(position) instanceof Track) {
+		    LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		    convertView = inflater.inflate(R.layout.fragment_row_track_list, parent, false);
+		    
+	        // Now we can fill the layout with the right values
+		    ImageView ivLogo = (ImageView) convertView.findViewById(R.id.list_logo);
+	        TextView tvName = (TextView) convertView.findViewById(R.id.list_name);
+	        TextView tvDate = (TextView) convertView.findViewById(R.id.list_date);
+	        
+	        Track track = (Track) values.get(position);
+	        Sport sport = track.getSport();
+	        if(sport != null && sport.getLogo() != null && !sport.getLogo().isEmpty())
+	        	ivLogo.setImageResource(mContext.getResources().getIdentifier(sport.getLogo(), "drawable", mContext.getPackageName()));
+	        else
+	        	ivLogo.setImageResource(R.drawable.unknown);
+	        
+	        tvName.setText(track.getTitle());
+	        tvDate.setText(Utilities.timeStampCompleteFormatter(track.getStartTime()));
+		}
+		// It is a header (year or month header).
+		else if (values.get(position) instanceof TrackListHead) {
+			TrackListHead head = (TrackListHead) values.get(position);
+			switch (head.getType()) {
+			case TrackListHead.TYPE_YEAR:
+			    LayoutInflater inflaterYear = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			    convertView = inflaterYear.inflate(R.layout.fragment_year_head_track_list, parent, false);
 			    
-		        // Now we can fill the layout with the right values
-			    ImageView ivLogo = (ImageView) convertView.findViewById(R.id.list_logo);
-		        TextView tvName = (TextView) convertView.findViewById(R.id.list_name);
-		        TextView tvDate = (TextView) convertView.findViewById(R.id.list_date);
-		        
-		        Track track = (Track) values.get(position);
-		        Sport sport = track.getSport();
-		        if(sport != null && sport.getLogo() != null && !sport.getLogo().isEmpty())
-		        	ivLogo.setImageResource(mContext.getResources().getIdentifier(sport.getLogo(), "drawable", mContext.getPackageName()));
-		        else
-		        	ivLogo.setImageResource(R.drawable.unknown);
-		        
-		        tvName.setText(track.getTitle());
-		        tvDate.setText(Utilities.timeStampCompleteFormatter(track.getFinishTime()));
+			    TextView tvYearHead = (TextView) convertView.findViewById(R.id.year_head_text);
+			    tvYearHead.setText(head.getValue());
+			    break;
+			case TrackListHead.TYPE_MONTH:
+			    LayoutInflater inflaterMonth = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			    convertView = inflaterMonth.inflate(R.layout.fragment_month_head_track_list, parent, false);
+			    
+			    TextView tvMonthHead = (TextView) convertView.findViewById(R.id.month_head_text);
+			    tvMonthHead.setText(head.getValue());
+			    break;
 			}
-			// It is a header (year or month header).
-			else if (values.get(position) instanceof TrackListHead) {
-				TrackListHead head = (TrackListHead) values.get(position);
-				switch (head.getType()) {
-				case TrackListHead.TYPE_YEAR:
-				    LayoutInflater inflaterYear = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				    convertView = inflaterYear.inflate(R.layout.fragment_year_head_track_list, parent, false);
-				    
-				    TextView tvYearHead = (TextView) convertView.findViewById(R.id.year_head_text);
-				    tvYearHead.setText(head.getValue());
-				    break;
-				case TrackListHead.TYPE_MONTH:
-				    LayoutInflater inflaterMonth = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				    convertView = inflaterMonth.inflate(R.layout.fragment_month_head_track_list, parent, false);
-				    
-				    TextView tvMonthHead = (TextView) convertView.findViewById(R.id.month_head_text);
-				    tvMonthHead.setText(head.getValue());
-				    break;
-				}
-			}
-		//}
+		}
 	     
 	    return convertView;
 	}

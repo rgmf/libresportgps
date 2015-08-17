@@ -20,9 +20,16 @@
  
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     
+    <item android:id="@+id/tracklist_export"
+        android:icon="@drawable/ic_action_import_export"
+        android:visible="true"
+        android:title="@string/export_gpx"
+        android:showAsAction="ifRoom|withText"/>
+    
     <item android:id="@+id/tracklist_delete"
-          android:visible="true"
-          android:title="Delete"
-          android:showAsAction="ifRoom|withText"/>
+        android:icon="@android:drawable/ic_menu_delete"
+        android:visible="true"
+        android:title="@string/button_delete"
+        android:showAsAction="ifRoom|withText"/>
     
 </menu>

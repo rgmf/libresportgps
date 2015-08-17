@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -44,12 +45,15 @@ import android.widget.Toast;
 import es.rgmf.libresportgps.R;
 import es.rgmf.libresportgps.adapter.TrackListAdapter;
 import es.rgmf.libresportgps.common.Session;
+import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.data.TrackListHead;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Track;
+import es.rgmf.libresportgps.db.orm.TrackPoint;
 import es.rgmf.libresportgps.file.FileFactory;
 import es.rgmf.libresportgps.file.FileManager;
 import es.rgmf.libresportgps.file.reader.GpxReader;
+import es.rgmf.libresportgps.file.writer.GpxWriter;
 import es.rgmf.libresportgps.fragment.dialog.FileDialog;
 
 /**
@@ -234,7 +238,7 @@ public class TrackListFragment extends ListFragment {
 										if (selectedItem instanceof Track) {
 											FileManager.delete(Session.getAppFolder() + "/" + ((Track) selectedItem).getId());
 											if (!DBModel.deleteTrack(getActivity(), ((Track) selectedItem).getId())) {
-												Toast.makeText(getActivity(), R.string.track_was_not_deleted + "(" + ((Track) selectedItem).getTitle() +")",
+												Toast.makeText(getActivity(), getString(R.string.track_was_not_deleted) + " (" + ((Track) selectedItem).getTitle() +")",
 														Toast.LENGTH_LONG).show();
 											}
 											else {
@@ -255,6 +259,34 @@ public class TrackListFragment extends ListFragment {
 
 		                mode.finish(); // Action picked, so close the CAB
 		                return true;
+		            case R.id.tracklist_export:
+		            	// Calls getSelectedIds method from ListViewAdapter Class
+						SparseBooleanArray selected = mAdapter.getSelectedIds();
+						// Captures all selected ids with a loop
+						for (int i = (selected.size() - 1); i >= 0; i--) {
+							if (selected.valueAt(i)) {
+								Object selectedItem = mAdapter.getItem(selected.keyAt(i));
+								if (selectedItem instanceof Track) {
+									String date = Utilities.millisecondsToDateForGPX(((Track) selectedItem).getStartTime());
+									File file = new File(Session.getAppFolder() + "/" + 
+														 Utilities.millisecondsToDate(((Track) selectedItem).getStartTime()) + "_" + 
+														 ((Track) selectedItem).getTitle() + ".gpx");
+									GpxWriter gpxWriter = new GpxWriter(file, date, ((Track) selectedItem).getTitle());
+									List<TrackPoint> trackPointList = DBModel.getTrackPoints(getActivity(), ((Track) selectedItem).getId());
+									if (gpxWriter.exportGpx(trackPointList)) {
+										Toast.makeText(getActivity(), getString(R.string.track_was_exported) + " (" + ((Track) selectedItem).getTitle() +")",
+												Toast.LENGTH_LONG).show();
+									}
+									else {
+										Toast.makeText(getActivity(), getString(R.string.track_was_not_exported) + " (" + ((Track) selectedItem).getTitle() +")",
+												Toast.LENGTH_LONG).show();
+									}
+								}
+							}
+						}
+						mAdapter.removeSelection();
+						mode.finish();
+		            	return true;
 		            default:
 		                return false;
 		        }
@@ -405,23 +437,10 @@ public class TrackListFragment extends ListFragment {
 			track.setActivityTime(gpxReader.getActivityTime());
 			track.setStartTime(gpxReader.getStartTime());
 			track.setFinishTime(gpxReader.getFinishTime());
-			/*
-			track.setStartTime(mFile.lastModified()
-					- gpxReader.getActivityTime());
-			track.setFinishTime(mFile.lastModified);
-			*/
 
 			long trackId = DBModel.createTrack(getActivity(), track);
 			DBModel.addTrackPoints(getActivity(), trackId,
 					gpxReader.getTrackPoints());
-			
-			// Save gpx file.
-			String folderName = FileFactory.createFolderIfNotExists(String.valueOf(trackId));
-			try {
-				FileFactory.copyFile(mFile, folderName);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 
 			return null;
 		}

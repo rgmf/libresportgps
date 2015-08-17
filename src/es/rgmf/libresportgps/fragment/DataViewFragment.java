@@ -36,7 +36,6 @@ import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.data.TrackFactory;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Track;
-import es.rgmf.libresportgps.file.FileFactory;
 
 /**
  * This View is created to show data from GPS (the basic information from GPS:
@@ -44,10 +43,7 @@ import es.rgmf.libresportgps.file.FileFactory;
  * 
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
-public class DataViewFragment extends AbstractViewFragment /*
-															 * implements
-															 * View.OnClickListener
-															 */{
+public class DataViewFragment extends AbstractViewFragment {
 	/**
 	 * The View. It can be used to access xml elements of this View.
 	 */
@@ -64,10 +60,6 @@ public class DataViewFragment extends AbstractViewFragment /*
 	 */
 	public static final DataViewFragment newInstance() {
 		DataViewFragment fragment = new DataViewFragment();
-		/*
-		 * Bundle bundle = new Bundle(1); bundle.putInt("a_number", 1);
-		 * fragment.setArguments(bundle);
-		 */
 		return fragment;
 	}
 
@@ -98,10 +90,10 @@ public class DataViewFragment extends AbstractViewFragment /*
 			((TextView) rootView.findViewById(R.id.distance)).setText(String
 					.format("%.2f", Session.getDistance() / 1000));
 			((TextView) rootView.findViewById(R.id.start_time))
-					.setText(Utilities.timeStampFormatter(Session
+					.setText(Utilities.timeStampSecondsFormatter(Session
 							.getStartTimeStamp()));
 			((TextView) rootView.findViewById(R.id.activity_time))
-					.setText(Utilities.timeStampFormatter(Session
+					.setText(Utilities.timeStampSecondsFormatter(Session
 							.getActivityTimeStamp()));
 		}
 
@@ -217,7 +209,6 @@ public class DataViewFragment extends AbstractViewFragment /*
 											// the TrackFactory to reload files
 											// from folder.
 											Session.reset();
-											FileFactory.reset();
 											TrackFactory.reset();
 											((TextView) rootView
 													.findViewById(R.id.current_speed))
@@ -233,10 +224,10 @@ public class DataViewFragment extends AbstractViewFragment /*
 													.setText("-");
 											((TextView) rootView
 													.findViewById(R.id.start_time))
-													.setText("--:--:--.--");
+													.setText("--:--:--");
 											((TextView) rootView
 													.findViewById(R.id.activity_time))
-													.setText("--:--:--.--");
+													.setText("--:--:--");
 											((ImageView) rootView
 													.findViewById(R.id.ic_play_pause))
 													.setImageResource(R.drawable.ic_play);
@@ -296,13 +287,13 @@ public class DataViewFragment extends AbstractViewFragment /*
 
 		// Start time.
 		TextView startTime = (TextView) rootView.findViewById(R.id.start_time);
-		startTime.setText(Utilities.timeStampFormatter(Session
+		startTime.setText(Utilities.timeStampSecondsFormatter(Session
 				.getStartTimeStamp()));
 
 		// Activity time.
 		TextView activityTime = (TextView) rootView
 				.findViewById(R.id.activity_time);
-		activityTime.setText(Utilities.timeStampFormatter(Session
+		activityTime.setText(Utilities.timeStampSecondsFormatter(Session
 				.getActivityTimeStamp()));
 
 		// GPS Status.

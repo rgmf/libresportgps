@@ -108,6 +108,20 @@ public class Utilities {
 			return 0L;
 		}
 	}
+	
+	/**
+     * Return a yyyy-MM-dd date format.
+     * 
+     * @param milliseconds
+     * @return The string representation date or "0000-00-00" if error.
+     */
+    public static String millisecondsToDate(long milliseconds) {
+    	DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+    	Calendar calendar = Calendar.getInstance();
+    	calendar.setTimeInMillis(milliseconds);
+    	
+    	return formatter.format(calendar.getTime());
+    }
     
     /**
      * Convert the timeStamp in the String HH:mm:ss:SS
@@ -117,12 +131,8 @@ public class Utilities {
      */
     public static String timeStampFormatter(long timeStamp) {
     	if(timeStamp > 0) {
-    		long milliseconds, seconds, minutes, hours;
-    		milliseconds = timeStamp % 1000;
-    		seconds = (timeStamp / 1000) % 60;
-    		minutes = (timeStamp / 1000 / 60) % 60;
-    		hours = (timeStamp / 1000 / 60 / 60) % 24;
-    		return String.format("%02d:%02d:%02d.%04d", hours, minutes, seconds, milliseconds);
+    		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss.SS");
+    		return formatter.format(timeStamp);
     	}
     	else
     		return "00:00:00.00";
@@ -135,6 +145,24 @@ public class Utilities {
      * @return
      */
     public static String timeStampSecondsFormatter(long timeStamp) {
+    	if(timeStamp > 0) {
+    		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+    		return formatter.format(timeStamp);
+    	}
+    	else
+    		return "00:00:00";
+    }
+    
+    /**
+     * Convert the timeStamp to the String HH:mm:ss
+     * 
+     * This method calculate the total time so this can be more than 24 hours so is not 
+     * a time but a number of hours, minutes and seconds.
+     * 
+     * @param timeStamp
+     * @return
+     */
+    public static String totalTimeFormatter(long timeStamp) {
     	if(timeStamp > 0) {
     		long seconds, minutes, hours;
     		seconds = (timeStamp / 1000) % 60;

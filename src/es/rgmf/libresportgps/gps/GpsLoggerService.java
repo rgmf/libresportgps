@@ -102,11 +102,6 @@ public class GpsLoggerService extends Service implements LocationListener {
 				// Save information in database.
 				if (Session.getTrackId() != -1)
 					DBModel.saveLocation(this, Session.getTrackId(), loc);
-	
-				// Save information in files.
-				for (IWriter file : FileFactory.getFiles(String.valueOf(Session.getTrackId()))) {
-					file.writeTrack(loc);
-				}
 			}
 		}
 	}

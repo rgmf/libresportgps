@@ -140,8 +140,8 @@ public class StatsListAdapter extends ArrayAdapter<Stats> {
 	    mHolder.tvGain.setText(Utilities.gain(stats.getGain()));
 	    mHolder.tvMaxGain.setText(Utilities.gain(stats.getMaxGain()));
         
-	    mHolder.tvTime.setText(Utilities.timeStampSecondsFormatter(stats.getTime()));
-	    mHolder.tvMaxTime.setText(Utilities.timeStampSecondsFormatter(stats.getMaxTime()));
+	    mHolder.tvTime.setText(Utilities.totalTimeFormatter(stats.getTime()));
+	    mHolder.tvMaxTime.setText(Utilities.totalTimeFormatter(stats.getMaxTime()));
 	     
 	    return convertView;
 	}

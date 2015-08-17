@@ -20,6 +20,7 @@ package es.rgmf.libresportgps.file.writer;
 import android.location.Location;
 
 public interface IWriter {
+	public void writeHeader(String date, String name);
 	public void writeTrack(Location loc);
 	public void writeWaypoint(Location loc);
 }

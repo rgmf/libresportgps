@@ -60,11 +60,6 @@ public class TrackDetailFragment extends Fragment {
 	public static TrackDetailFragment newInstance(Track track) {
 		TrackDetailFragment fragment = new TrackDetailFragment();
 		fragment.mTrack = track;
-		/*
-		Bundle bundle = new Bundle(1);
-		bundle.putInt("a_number", 1);
-		fragment.setArguments(bundle);
-		*/
 		return fragment;
 	}
 	
@@ -105,9 +100,9 @@ public class TrackDetailFragment extends Fragment {
 			this.mName = mTrack.getTitle();
 			tvName.setText(mTrack.getTitle());
 			tvDesc.setText(mTrack.getDescription());
-			tvDate.setText(Utilities.timeStampCompleteFormatter(mTrack.getFinishTime()));
+			tvDate.setText(Utilities.timeStampCompleteFormatter(mTrack.getStartTime()));
 			tvDistance.setText(Utilities.distance(mTrack.getDistance()));
-			tvActivityTime.setText(Utilities.timeStampFormatter(mTrack.getActivityTime()));
+			tvActivityTime.setText(Utilities.totalTimeFormatter(mTrack.getActivityTime()));
 			tvMaxEle.setText(Utilities.elevation(mTrack.getMaxElevation()));
 			tvMinEle.setText(Utilities.elevation(mTrack.getMinElevation()));
 			tvGainEle.setText(Utilities.elevation(mTrack.getElevationGain()));

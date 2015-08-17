@@ -17,6 +17,8 @@
 
 package es.rgmf.libresportgps.db.orm;
 
+import java.util.List;
+
 /**
  * Track Object Relational Mapping.
  * 
