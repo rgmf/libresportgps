@@ -76,6 +76,14 @@ public class AltimetryFragment extends Fragment {
 	 * If minimum altitude is great then we begin more up.
 	 */
 	private int mBeginY;
+	/**
+	 * X axe unit.
+	 */
+	private String mXUnit;
+	/**
+	 * Y axe unit.
+	 */
+	private String mYUnit;
 	
 	/**
 	 * Create a new instance of this class.
@@ -90,13 +98,28 @@ public class AltimetryFragment extends Fragment {
 		AltimetryFragment f = new AltimetryFragment();
 		f.mList = list;
 		f.mMaxX = maxX;
+		f.mYUnit = "(m)";
 		
 		// Calculate the distance split to the graphic.
-		if (f.mMaxX < 50000) {
-			f.mSplitX = Math.round(f.mMaxX / 10f);
+		if (f.mMaxX < 100) {
+			f.mSplitX = ((Math.round(f.mMaxX) - (Math.round(f.mMaxX) % 10)) / 10) * 1000;
+			f.mXUnit = "(m)";
+		}
+		else if (f.mMaxX < 1000) {
+			f.mSplitX = ((Math.round(f.mMaxX) - (Math.round(f.mMaxX) % 100)) / 10) * 1000;
+			f.mXUnit = "(m)";
+		}
+		else if (f.mMaxX < 10000) {
+			f.mSplitX = (Math.round(f.mMaxX) - (Math.round(f.mMaxX) % 1000)) / 10;
+			f.mXUnit = "(km)";
+		}
+		else if (f.mMaxX <= 40000) {
+			f.mSplitX = (Math.round(f.mMaxX) - (Math.round(f.mMaxX) % 10000)) / 10;
+			f.mXUnit = "(km)"; 
 		}
 		else {
 			f.mSplitX = f.splitNumber(Math.round(f.mMaxX));
+			f.mXUnit = "(km)";
 		}
 		
 		// Calculate the altitude split to the graphic.
@@ -142,7 +165,11 @@ public class AltimetryFragment extends Fragment {
 		}
 		
 		// Si sobra mucho por arriba corregimos para que se aprecie la altitud hecha.
-		f.mBeginY = f.mSplitY * (Math.round(minY / f.mSplitY) - 1);
+		int round = Math.round(minY / f.mSplitY);
+		if (round > 0)
+			f.mBeginY = f.mSplitY * (Math.round(minY / f.mSplitY) - 1);
+		else
+			f.mBeginY = 0;
 		f.mMaxY -= f.mBeginY;
 		
 		return f;
@@ -156,8 +183,8 @@ public class AltimetryFragment extends Fragment {
         // Draw with ordered map.
 	    mDrawView = new DrawView(getActivity(), mList,
 	    		mMaxX, mMaxY,
-	    		getString(R.string.elevation), 
-	    		getString(R.string.distance));
+	    		getString(R.string.elevation) + " " + mYUnit, 
+	    		getString(R.string.distance) + " " + mXUnit);
 	    mDrawView.setBackgroundColor(Color.WHITE);
 	    
 	    RelativeLayout rl = (RelativeLayout) rootView.findViewById(R.id.rl_drawing_parent);
@@ -171,6 +198,10 @@ public class AltimetryFragment extends Fragment {
 	 * a = number / 10
 	 * b = a / 5
 	 * return b * 5
+	 * 
+	 * The number must be greater or equal than 40000 meters or the
+	 * result will be zero. So only works with distances greater or
+	 * equal than 40000 meters.
 	 * 
 	 * @param number Distance in meters.
 	 * @return the split number of meters.
@@ -207,6 +238,7 @@ public class AltimetryFragment extends Fragment {
 	
         private Paint axesPaint = new Paint();
         private Paint linePaint = new Paint();
+        private Paint pointsPaint = new Paint();
         private Paint splitPaint = new Paint();
         private Paint xTextPaint = new Paint();
         private Paint yTextPaint = new Paint();
@@ -215,8 +247,9 @@ public class AltimetryFragment extends Fragment {
         		Float maxX, Float maxY,
         		String yCoordinateText, String xCoordinateText) {
             super(context);
-            axesPaint.setColor(Color.BLUE);
-            linePaint.setColor(Color.GREEN);
+            axesPaint.setColor(context.getResources().getColor(R.color.actionbar_background));
+            linePaint.setColor(context.getResources().getColor(R.color.selected_item));
+            pointsPaint.setColor(context.getResources().getColor(R.color.accent_color));
             splitPaint.setColor(Color.LTGRAY);
             
             xTextPaint.setColor(Color.DKGRAY);
@@ -240,23 +273,6 @@ public class AltimetryFragment extends Fragment {
         	
         	Integer prevX = null, x, distance;
         	Float prevY = null, y;
-        	
-        	// Draw texts coordinates.
-        	canvas.drawText(mYCoordinateText, PADDING_LEFT, PADDING_TOP - 5, axesPaint);
-        	axesPaint.setTextAlign(Align.RIGHT);
-        	canvas.drawText(mXCoordinateText, width - PADDING_RIGHT, height - (PADDING_BOTTOM / 3), axesPaint);
-        	
-        	// Draw coordinate axes.
-            canvas.drawLine(PADDING_LEFT, height - PADDING_BOTTOM,
-            		PADDING_LEFT, PADDING_TOP,
-            		axesPaint);
-            canvas.drawLine(PADDING_LEFT, height - PADDING_BOTTOM,
-            		width - PADDING_RIGHT, height - PADDING_BOTTOM,
-            		axesPaint);
-            
-            // Draw references altitudes.
-            axesPaint.setTextAlign(Align.RIGHT);
-            canvas.drawText(String.valueOf(0 + mBeginY), PADDING_LEFT - 5, height - PADDING_BOTTOM, yTextPaint);
             
             // Draw horizontal lines (altitudes split).
             int maxDistance = (int) ((mMaxX * (width - PADDING_LEFT - PADDING_RIGHT)) / mMaxX);
@@ -273,6 +289,7 @@ public class AltimetryFragment extends Fragment {
             
             // Draw lines from tree map.
             int i = 0;
+            int count = 0;
             for (TrackPoint tp : mList) {
             	// Get distance.
             	distance = (int) tp.getDistance();
@@ -310,7 +327,7 @@ public class AltimetryFragment extends Fragment {
 	            			(float) (x + PADDING_LEFT),
 	            			(float) (height - PADDING_TOP - y),     // (height - PADDING_TOP - PADDING_BOTTOM) - y + PADDING_BOTTOM ==
 	            													// height - PADDING_TOP - y
-	            			linePaint);
+	            			pointsPaint);
 	            	
 	            	// Coloring the graphic area with a rectangle so when gps was lost the graphic is coloring any way.
 	            	canvas.drawRect(
@@ -328,6 +345,23 @@ public class AltimetryFragment extends Fragment {
             		prevY = y;
             	}
             }
+            
+            // Draw texts coordinates.
+        	canvas.drawText(mYCoordinateText, PADDING_LEFT, PADDING_TOP - 5, axesPaint);
+        	axesPaint.setTextAlign(Align.RIGHT);
+        	canvas.drawText(mXCoordinateText, width - PADDING_RIGHT, height - (PADDING_BOTTOM / 3), axesPaint);
+        	
+        	// Draw coordinate axes.
+            canvas.drawLine(PADDING_LEFT, height - PADDING_BOTTOM,
+            		PADDING_LEFT, PADDING_TOP,
+            		axesPaint);
+            canvas.drawLine(PADDING_LEFT, height - PADDING_BOTTOM,
+            		width - PADDING_RIGHT, height - PADDING_BOTTOM,
+            		axesPaint);
+            
+            // Draw references altitudes.
+            axesPaint.setTextAlign(Align.RIGHT);
+            canvas.drawText(String.valueOf(0 + mBeginY), PADDING_LEFT - 5, height - PADDING_BOTTOM, yTextPaint);
         }
 	}
 }

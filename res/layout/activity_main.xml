@@ -26,6 +26,8 @@
     android:layout_height="match_parent"
     tools:context="es.rgmf.libresportgps.MainActivity"
     android:orientation="vertical" >
+    
+    
     <!--
     <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="fill_parent"
@@ -70,7 +72,7 @@
 	        android:layout_gravity="start"
 	        android:choiceMode="singleChoice"       
 	        android:listSelector="@drawable/drawer_shadow"
-	        android:background="#ccc" />
+	        android:background="@color/drawer_background" />
 	    
 	    <LinearLayout
 	        android:id="@+id/settings_layout"
@@ -78,7 +80,7 @@
 	        android:layout_height="48dp"
 	        android:orientation="horizontal"
 	        android:layout_alignParentBottom="true"
-	        android:background="#000000">
+	        android:background="@color/primary_background">
 	        
 	        <ImageView
 		        android:id="@+id/ic_settings"
@@ -97,7 +99,7 @@
 		        android:layout_toRightOf="@id/ic_settings"
 		        android:minHeight="?android:attr/listPreferredItemHeightSmall"
 		        android:textAppearance="?android:attr/textAppearanceListItemSmall"
-		        android:textColor="@android:color/primary_text_dark"
+		        android:textColor="@color/primary_textcolor"
 		        android:gravity="center_vertical"
 		        android:paddingRight="40dp"
 		        android:text="@string/action_settings"/>

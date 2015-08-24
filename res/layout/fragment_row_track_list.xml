@@ -44,8 +44,8 @@
 	        android:layout_width="wrap_content"  
 	        android:layout_height="wrap_content"
 	        android:layout_toRightOf="@id/list_logo"
+	    	android:paddingLeft="10dp"
 	        android:textColor="#454545"
-	        android:textStyle="bold"
 	        android:textSize="@dimen/text_medium" />
 	    
 	    <TextView
@@ -54,23 +54,23 @@
 	        android:layout_height="wrap_content"
 	        android:layout_below="@id/list_name"
 	        android:layout_toRightOf="@id/list_logo"
+	    	android:paddingLeft="10dp"
 	        android:textColor="#858585"
 	        android:textSize="@dimen/text_mini" />
 	    
 	    <TextView
 	        android:id="@+id/list_distance"
-	        android:text="245 km"
 	        android:layout_width="wrap_content"  
 	        android:layout_height="wrap_content"
 	        android:layout_below="@id/list_date"
 	        android:layout_toRightOf="@id/list_logo"
 	        android:paddingTop="5dp"
+	    	android:paddingLeft="10dp"
 	        android:textColor="#454545"
 	        android:textSize="@dimen/text_small" />
 	    
 	    <TextView
 	        android:id="@+id/list_extra_info"
-	        android:text="1040 m"
 	        android:layout_width="wrap_content"  
 	        android:layout_height="wrap_content"
 	        android:layout_below="@id/list_date"

@@ -19,23 +19,18 @@
  -->
  
 <resources>
-
-    <!--
-        Base application theme, dependent on API level. This theme is replaced
-        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
-    -->
-    <style name="AppBaseTheme" parent="android:Theme.Light">
-        <!--
-            Theme customizations available in newer API levels can go in
-            res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
-        -->
-    </style>
-
-    <!-- Application theme. -->
-    <style name="AppTheme" parent="AppBaseTheme">
-        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
-        
-    </style>
-
+    
+    <!-- ActionBar colors -->
+    <color name="actionbar_background">#3f51b5</color>
+    <color name="actionbar_title">#ffffff</color>
+    
+    <!-- Navigation drawer colors -->
+    <color name="drawer_background">#ffffff</color>
+    
+    <!-- General colors -->
+    <color name="selected_item">#e9e9e9</color>
+    <color name="accent_color">#ff4081</color>
+    <color name="primary_background">#3f51b5</color>
+    <color name="primary_textcolor">#ffffff</color>
+    
 </resources>

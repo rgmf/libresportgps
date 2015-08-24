@@ -225,7 +225,7 @@ public class Utilities {
      */
 	public static String distance(double distance) {
 		if (distance < 1000)
-			return String.format("%d m", distance);
+			return String.format("%d m", (int) distance);
 		else
 			return String.format("%.2f km", distance / 1000d);
 	}

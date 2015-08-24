@@ -375,9 +375,6 @@ public class MainActivity extends FragmentActivity implements
 					.getAltitudeGain());
 			track.setElevationLoss((float) Session
 					.getAltitudeLoss());
-
-			DBModel.endRecordingTrack(this,
-					Session.getTrackId(), Track.OPEN_TRACK, track);
 		}
 		
 		super.onDestroy();

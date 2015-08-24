@@ -18,7 +18,7 @@
  */
  -->
  
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
         Base application theme for API 14+. This theme completely replaces
@@ -27,6 +27,22 @@
     -->
     <style name="AppBaseTheme" parent="android:Theme.Holo.Light.DarkActionBar">
         <!-- API 14 theme customizations can go here. -->
+        
+        <!-- Action bar style -->
+        <item name="android:actionBarStyle">@style/MyActionBar</item>
+        
     </style>
+    
+    <!-- ActionBar styles -->
+    <style name="MyActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/actionbar_background</item>
+        <item name="android:titleTextStyle">@style/TitleColor</item>
+    </style>
+    
+    <!-- ActioBar title color -->
+    <style name="TitleColor" parent="android:TextAppearance.Holo.Widget.ActionBar.Title">
+    	<item name="android:textColor">@color/actionbar_title</item>
+    	<item name="android:textStyle">bold</item>
+	</style>
 
 </resources>
