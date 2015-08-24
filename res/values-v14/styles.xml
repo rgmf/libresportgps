@@ -31,18 +31,28 @@
         <!-- Action bar style -->
         <item name="android:actionBarStyle">@style/MyActionBar</item>
         
+        <!-- Edit text style -->
+        <item name="android:editTextStyle">@style/MyEditText</item>
+        
     </style>
     
-    <!-- ActionBar styles -->
+    <!-- ActionBar custom style -->
     <style name="MyActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
         <item name="android:background">@color/actionbar_background</item>
+        <item name="android:backgroundStacked">@color/actionbar_background</item>
+        <item name="android:backgroundSplit">@color/actionbar_background</item>
         <item name="android:titleTextStyle">@style/TitleColor</item>
     </style>
     
-    <!-- ActioBar title color -->
+    <!-- ActioBar custom title color -->
     <style name="TitleColor" parent="android:TextAppearance.Holo.Widget.ActionBar.Title">
     	<item name="android:textColor">@color/actionbar_title</item>
     	<item name="android:textStyle">bold</item>
 	</style>
+    
+    <!-- EditText Custom style -->
+    <style name="MyEditText" parent="android:style/Widget.EditText">
+        <item name="android:background">@drawable/edit_text_style</item>
+    </style>
 
 </resources>
