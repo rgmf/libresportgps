@@ -19,6 +19,10 @@
  -->
  
 <resources>
+
+    <!-- Text colors -->
+    <color name="text_primary">#000000</color>
+    <color name="text_secondary">#999999</color>
     
     <!-- ActionBar colors -->
     <color name="actionbar_background">#3f51b5</color>
@@ -29,6 +33,7 @@
     
     <!-- General colors -->
     <color name="selected_item">#e9e9e9</color>
+    <color name="selected_item_shadow">#e9e9e9e9</color>
     <color name="accent_color">#ff4081</color>
     <color name="primary_background">#3f51b5</color>
     <color name="primary_textcolor">#ffffff</color>

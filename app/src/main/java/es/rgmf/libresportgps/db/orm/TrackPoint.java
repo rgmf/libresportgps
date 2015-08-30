@@ -17,12 +17,17 @@
 
 package es.rgmf.libresportgps.db.orm;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.io.Serializable;
+
 /**
  * TrackPoint Object Relational Mapping.
  * 
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
-public class TrackPoint {
+public class TrackPoint implements Parcelable {
 	private long id;
 	private double lat = 0;
 	private double lng = 0;
@@ -32,6 +37,21 @@ public class TrackPoint {
 	private double elevation = 0;
 	private float speed = 0;
 	private Track track;
+
+	public TrackPoint() {
+	}
+
+	private TrackPoint(Parcel in) {
+		id = in.readLong();
+		lat = in.readDouble();
+		lng = in.readDouble();
+		time = in.readLong();
+		distance = in.readFloat();
+		accuracy = in.readFloat();
+		elevation = in.readDouble();
+		speed = in.readFloat();
+	}
+
 	public long getId() {
 		return id;
 	}
@@ -86,5 +106,31 @@ public class TrackPoint {
 	public void setTrack(Track track) {
 		this.track = track;
 	}
-	
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel parcel, int i) {
+		parcel.writeLong(id);
+		parcel.writeDouble(lat);
+		parcel.writeDouble(lng);
+		parcel.writeLong(time);
+		parcel.writeFloat(distance);
+		parcel.writeFloat(accuracy);
+		parcel.writeDouble(elevation);
+		parcel.writeFloat(speed);
+	}
+
+	public static final Parcelable.Creator<TrackPoint> CREATOR = new Parcelable.Creator<TrackPoint>() {
+		public TrackPoint createFromParcel(Parcel in) {
+			return new TrackPoint(in);
+		}
+
+		public TrackPoint[] newArray(int size) {
+			return new TrackPoint[size];
+		}
+	};
 }

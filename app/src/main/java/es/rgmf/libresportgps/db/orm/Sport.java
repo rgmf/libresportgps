@@ -17,12 +17,14 @@
 
 package es.rgmf.libresportgps.db.orm;
 
+import java.io.Serializable;
+
 /**
  * Sport Object Relational Mapping.
  * 
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
-public class Sport {
+public class Sport implements Serializable {
 	public static final int CANICROSS = 1;
 	public static final int CYCLING = 2;
 	public static final int MTB = 3;

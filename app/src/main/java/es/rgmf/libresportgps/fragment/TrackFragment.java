@@ -106,23 +106,23 @@ public class TrackFragment extends Fragment {
         Log.v("Finish", "Finish");
         
         // Create list of fragments and add them to the list.
-        List<Fragment> fragments = new Vector<Fragment>();
-        
+        Vector fragments = new Vector<Fragment>();
+
         // 0.- TrackDetailFragment.
-        fragments.add(TrackDetailFragment.newInstance(mTrack));
-        
+        fragments.add(TrackDetailFragment.newInstance(mTrack, listTrackPoints));
+
         // 1.- AltimetryFragment.
         if (listTrackPoints.size() > 0)
-        	fragments.add(AltimetryFragment.newInstance(listTrackPoints,
-        			listTrackPoints.get(listTrackPoints.size() - 1).getDistance(),
-        			mTrack.getMinElevation(),
-        			mTrack.getMaxElevation()));
+            fragments.add(AltimetryFragment.newInstance(listTrackPoints,
+                    listTrackPoints.get(listTrackPoints.size() - 1).getDistance(),
+                    mTrack.getMinElevation(),
+                    mTrack.getMaxElevation()));
         else
-        	fragments.add(AltimetryFragment.newInstance(listTrackPoints, 0f, 0f, 0f));
-        
+            fragments.add(AltimetryFragment.newInstance(listTrackPoints, 0f, 0f, 0f));
+
         // 2.- MapFragment.
-        fragments.add(MapFragment.newInstance(mTrack.getId(), listTrackPoints));
-        
+        //fragments.add(MapFragment.newInstance(mTrack.getId(), listTrackPoints));
+
         TrackPagerAdapter pagerAdapter = new TrackPagerAdapter(getFragmentManager(), getResources(), fragments);
         mPager.setAdapter(pagerAdapter);
         
@@ -245,7 +245,7 @@ public class TrackFragment extends Fragment {
 
         @Override
         public int getCount() {
-            return 3;
+            return 2;
         }
 
         @Override

@@ -19,9 +19,14 @@ package es.rgmf.libresportgps.view;
 
 import org.osmdroid.util.BoundingBoxE6;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.util.TileSystem;
+import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.util.constants.MapViewConstants;
 
 import android.content.Context;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 
 /**
@@ -43,32 +48,25 @@ public class RouteMapView extends MapView {
 	public RouteMapView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
-	
-	@Override
-	protected void onLayout(boolean arg0, int arg1, int arg2, int arg3, int arg4) {
-	    super.onLayout(arg0, arg1, arg2, arg3, arg4);
 
-	    // Now that we have laid out the map view,
-	    // zoom to any bounding box and center to 
-	    // GeoPoint.
-	    // This action have only done one time.
-	    if (!wasCentered) {
-		    if (this.mCenterPoint != null) {
-		    	this.getController().setCenter(this.mCenterPoint);
-		    }
-		    
-		    if (this.mBoundingBox != null) {
-		        this.zoomToBoundingBox(this.mBoundingBox);
-		    }
-		    wasCentered = true;
-	    }
+	@Override
+	protected void onLayout(boolean changed, int l, int t, int r, int b) {
+		super.onLayout(changed, l, t, r, b);
+
+		if (mCenterPoint != null) {
+			this.getController().setCenter(mCenterPoint);
+		}
+		if (mBoundingBox != null) {
+			this.zoomToBoundingBox(mBoundingBox);
+		}
 	}
-	
+
 	public void setBoundingBoxE6(BoundingBoxE6 bb) {
 		mBoundingBox = bb;
 	}
-	
+
 	public void setCenterPoint(GeoPoint cp) {
+
 		mCenterPoint = cp;
 	}
 }

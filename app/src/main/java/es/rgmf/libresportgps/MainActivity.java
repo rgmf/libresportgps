@@ -54,7 +54,6 @@ import android.widget.Toast;
 import es.rgmf.libresportgps.adapter.NavDrawerListAdapter;
 import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.data.NavDrawerItem;
-import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.db.orm.TrackPoint;
 import es.rgmf.libresportgps.fragment.AbstractViewFragment;
@@ -206,7 +205,7 @@ public class MainActivity extends FragmentActivity implements
         // Enabling action bar app icon and behaving it as toggle button.
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setHomeButtonEnabled(true);
-        
+
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.drawable.ic_drawer, //nav menu toggle icon
                 R.string.app_name, // nav drawer open - description for accessibility

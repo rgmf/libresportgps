@@ -17,14 +17,14 @@
 
 package es.rgmf.libresportgps.db.orm;
 
-import java.util.List;
+import java.io.Serializable;
 
 /**
  * Track Object Relational Mapping.
  * 
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
-public class Track {
+public class Track implements Serializable {
 	public static int ENDED_TRACK = 0;
 	public static int OPEN_TRACK = 1;
 	
