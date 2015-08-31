@@ -18,6 +18,7 @@
 package es.rgmf.libresportgps;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
@@ -30,11 +31,9 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -54,6 +53,7 @@ import android.widget.Toast;
 import es.rgmf.libresportgps.adapter.NavDrawerListAdapter;
 import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.data.NavDrawerItem;
+import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.db.orm.TrackPoint;
 import es.rgmf.libresportgps.fragment.AbstractViewFragment;
@@ -148,6 +148,8 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	private CharSequence mTitle;
 
+	private Context mContext;
+
 	/**
 	 * This method is called when this activity is created.
 	 */
@@ -179,6 +181,8 @@ public class MainActivity extends FragmentActivity implements
 		if (mFragmentManager == null) {
 			mFragmentManager = getSupportFragmentManager();
 		}
+
+		mContext = this;
 
 		setContentView(R.layout.activity_main);
 
@@ -259,8 +263,7 @@ public class MainActivity extends FragmentActivity implements
 		//libresportgpsView.setKeepScreenOn(true);
 		mDrawerLayout.setKeepScreenOn(true);
 
-		// Check GPS status provider to show a message if GPS is disabled.
-		this.checkGpsProvider();
+		checkRecoveryTracks();
 	}
 
 	/**
@@ -360,6 +363,17 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	@Override
 	public void onDestroy() {
+		super.onDestroy();
+		stopAndUnbindToService();
+		/*
+		 * if(mProgressDialog != null) { Log.v("MainActivity::onDestroy",
+		 * "mProgressDialog.dismiss"); mProgressDialog.dismiss(); }
+		 */
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
 		if (Session.isTrackingStarted()) {
 			Track track = new Track();
 			track.setId(Session.getTrackId());
@@ -384,14 +398,11 @@ public class MainActivity extends FragmentActivity implements
 					.getAltitudeGain());
 			track.setElevationLoss((float) Session
 					.getAltitudeLoss());
+
+			// End recording track with open track status.
+			DBModel.endRecordingTrack(this,
+					Session.getTrackId(), Track.OPEN_TRACK, track);
 		}
-		
-		super.onDestroy();
-		stopAndUnbindToService();
-		/*
-		 * if(mProgressDialog != null) { Log.v("MainActivity::onDestroy",
-		 * "mProgressDialog.dismiss"); mProgressDialog.dismiss(); }
-		 */
 	}
 
 	/**
@@ -451,42 +462,6 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	/**
-	 * Check if GPS is enabled. If GPS is not enabled then It shows an Dialog
-	 * through the user can enabled it.
-	 */
-	private void checkGpsProvider() {
-		LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
-		if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
-				&& !Session.isAlertDialogGPSShowed()) {
-			Session.setAlertDialogGPSShowed(true);
-			new AlertDialog.Builder(this)
-					.setTitle(R.string.gps_disabled)
-					.setIcon(android.R.drawable.ic_dialog_alert)
-					.setMessage(
-							getResources()
-									.getString(R.string.gps_disabled_hint))
-					.setCancelable(true)
-					.setPositiveButton(android.R.string.yes,
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									startActivity(new Intent(
-											Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-								}
-							})
-					.setNegativeButton(android.R.string.no,
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									dialog.cancel();
-								}
-							}).create().show();
-		}
-	}
-
-	/**
 	 * Check if external storage is available. If SD is not available then it
 	 * shows a message.
 	 */
@@ -496,6 +471,53 @@ public class MainActivity extends FragmentActivity implements
 				|| Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
 			Toast.makeText(this, R.string.external_storage_not_available,
 					Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	/**
+	 * Check if there are tracks to recover because crash or something like that.
+	 *
+	 * Only the last track can be recovered.
+	 */
+	private void checkRecoveryTracks() {
+		List<Track> trackList = DBModel.getOpenTracks(this);
+		if (trackList.size() > 0) {
+			final Track track = trackList.get(trackList.size() - 1);
+
+			new AlertDialog.Builder(this)
+					.setTitle(R.string.recovery_track)
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setMessage(
+							getResources()
+									.getString(R.string.recovery_track_hint))
+					.setCancelable(true)
+					.setPositiveButton(android.R.string.yes,
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog,
+													int which) {
+									Session.setTrackingStarted(true);
+									Session.setTrackId(track.getId());
+									Session.setTracking(true);
+									Session.setTrackingStarted(true);
+									Session.setDistance(track.getDistance());
+									Session.setMaxSpeed(track.getMaxSpeed());
+									Session.setStartTimeStamp(track.getStartTime());
+									Session.setLastTimeStamp(track.getFinishTime());
+									Session.setActivityTimeStamp(track.getActivityTime());
+									Session.setFileName(track.getTitle());
+									onNavigationDrawerItemSelected(DrawerMenu.DATAVIEW.ordinal());
+								}
+							})
+					.setNegativeButton(android.R.string.no,
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog,
+													int which) {
+									DBModel.deleteTrack(mContext, track.getId());
+									dialog.cancel();
+								}
+							}).create().show();
 		}
 	}
 

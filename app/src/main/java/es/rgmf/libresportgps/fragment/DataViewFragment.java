@@ -23,8 +23,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -272,6 +270,8 @@ public class DataViewFragment extends AbstractViewFragment {
 				}
 			}
 		});
+
+		checkGpsProvider();
 
 		return rootView;
 	}

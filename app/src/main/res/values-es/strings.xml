@@ -130,4 +130,7 @@
     <string name="export_gpx">Exportar GPX</string>
     <string name="track_was_exported">El track ha sido exportado</string>
     <string name="track_was_not_exported">ERROR: el track no ha sido exportado</string>
+    <string name="recovery_track">Recuperar Actividad</string>
+    <string name="recovery_track_hint">Hay una actividad a medias. ¿Quieres continuarla?</string>
+
 </resources>

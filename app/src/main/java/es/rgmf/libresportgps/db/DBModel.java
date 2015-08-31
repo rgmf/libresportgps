@@ -25,6 +25,8 @@ import java.util.TreeMap;
 import android.content.Context;
 import android.location.Location;
 import android.util.Log;
+
+import es.rgmf.libresportgps.MainActivity;
 import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.data.Stats;
 import es.rgmf.libresportgps.db.orm.Segment;
@@ -155,6 +157,21 @@ public class DBModel {
         dbAdapter.close();
         return track;
     }
+
+	/**
+	 * Return a list of open tracks (track that are recording).
+	 *
+	 * @param context The context.
+	 * @return
+	 */
+	public static List<Track> getOpenTracks(Context context) {
+		List<Track> tracks;
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		tracks = dbAdapter.getTracks(Track.OPEN_TRACK);
+		dbAdapter.close();
+		return tracks;
+	}
 
 	/**
 	 * Get all tracks.

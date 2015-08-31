@@ -131,5 +131,7 @@
     <string name="export_gpx">GPX Export</string>
     <string name="track_was_exported">Track was exported</string>
     <string name="track_was_not_exported">ERROR: Track was not exported</string>
+    <string name="recovery_track">Recovery Track</string>
+    <string name="recovery_track_hint">There is an activity started. Do you like to continue?</string>
 
 </resources>

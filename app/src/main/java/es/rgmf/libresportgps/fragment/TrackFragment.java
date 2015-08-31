@@ -17,6 +17,7 @@
 
 package es.rgmf.libresportgps.fragment;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -25,11 +26,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -52,7 +53,8 @@ import es.rgmf.libresportgps.file.FileManager;
  */
 public class TrackFragment extends Fragment {
     public static final String ARG_SELECTED_TAB = "selected_tab";
-    public static final String ARG_TRACK_ID = "track_id";
+    public static final String ARG_TRACK = "track";
+    public static final String ARG_TRACK_POINT_LIST = "track_point_list";
     
     /**
 	 * Key to know where come back from.
@@ -70,6 +72,11 @@ public class TrackFragment extends Fragment {
      * The track.
      */
     private Track mTrack;
+
+    /**
+     * The list of track points.
+     */
+    private List<TrackPoint> mTrackPointList;
 
     /**
      * Where "tabs" will be loaded.
@@ -92,33 +99,32 @@ public class TrackFragment extends Fragment {
     	super.onCreateView(inflater, container, savedInstanceState);
         View root = inflater.inflate(R.layout.fragment_pager, container, false);
         mPager = (ViewPager) root.findViewById(R.id.pager);
-        
+
         setHasOptionsMenu(true);
         
         if (savedInstanceState != null) {
-        	long trackId = savedInstanceState.getLong(ARG_TRACK_ID);
-        	mTrack = DBModel.getTrack(getActivity(), trackId);
+            mTrack = (Track) savedInstanceState.getSerializable(ARG_TRACK);
+            mTrackPointList = savedInstanceState.getParcelableArrayList(ARG_TRACK_POINT_LIST);
         }
-        
-        // Get list of track points needed to the profile and the map.
-        Log.v("Init", "Init");
-        List<TrackPoint> listTrackPoints = DBModel.getTrackPoints(getActivity(), mTrack.getId());
-        Log.v("Finish", "Finish");
+        else {
+            // Get list of track points needed to the profile and the map.
+            mTrackPointList = DBModel.getTrackPoints(getActivity(), mTrack.getId());
+        }
         
         // Create list of fragments and add them to the list.
         Vector fragments = new Vector<Fragment>();
 
         // 0.- TrackDetailFragment.
-        fragments.add(TrackDetailFragment.newInstance(mTrack, listTrackPoints));
+        fragments.add(TrackDetailFragment.newInstance(mTrack, mTrackPointList));
 
         // 1.- AltimetryFragment.
-        if (listTrackPoints.size() > 0)
-            fragments.add(AltimetryFragment.newInstance(listTrackPoints,
-                    listTrackPoints.get(listTrackPoints.size() - 1).getDistance(),
+        if (mTrackPointList.size() > 0)
+            fragments.add(AltimetryFragment.newInstance(mTrackPointList,
+                    mTrackPointList.get(mTrackPointList.size() - 1).getDistance(),
                     mTrack.getMinElevation(),
                     mTrack.getMaxElevation()));
         else
-            fragments.add(AltimetryFragment.newInstance(listTrackPoints, 0f, 0f, 0f));
+            fragments.add(AltimetryFragment.newInstance(mTrackPointList, 0f, 0f, 0f));
 
         // 2.- MapFragment.
         //fragments.add(MapFragment.newInstance(mTrack.getId(), listTrackPoints));
@@ -141,9 +147,10 @@ public class TrackFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
     	super.onSaveInstanceState(outState);
-    	outState.putLong(ARG_TRACK_ID, mTrack.getId());
+    	outState.putSerializable(ARG_TRACK, mTrack);
+        outState.putParcelableArrayList(ARG_TRACK_POINT_LIST, (ArrayList<? extends Parcelable>) mTrackPointList);
     }
-    
+
     /**
 	 * This method modifies the options in the bar menu adapting it to this
 	 * fragment.
@@ -154,7 +161,7 @@ public class TrackFragment extends Fragment {
 	    menu.clear();
 	    inflater.inflate(R.menu.track_detail, menu);
 	}
-	
+
 	/**
 	 * Handle the clicked options in this fragment.
 	 */
@@ -186,7 +193,7 @@ public class TrackFragment extends Fragment {
 					}
 				}).create().show();
 	            return true;
-	            
+
 
 			/* THE USER CLICK ON EDIT BUTTON ON BUTTON BAR */
 			case R.id.track_detail_edit:
@@ -194,17 +201,17 @@ public class TrackFragment extends Fragment {
 				intent.putExtra("id", mTrack.getId());
                 intent.putExtra("title", mTrack.getTitle());
                 intent.putExtra("description", mTrack.getDescription());
-                if (mTrack.getSport() != null && mTrack.getSport().getLogo() != null && 
+                if (mTrack.getSport() != null && mTrack.getSport().getLogo() != null &&
                 		!mTrack.getSport().getLogo().isEmpty()) {
                 	intent.putExtra("logo", mTrack.getSport().getLogo());
                 }
 	        	startActivityForResult(intent, TRACK_EDIT_ACTIVITY_BACK);
 				return true;
 		}
-		
+
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 	/**
 	 * This method is called when activity called (TrackEditActivity) finish and come back here.
 	 */

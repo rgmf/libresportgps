@@ -28,6 +28,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
 import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.data.Stats;
 import es.rgmf.libresportgps.db.orm.Segment;
@@ -282,6 +284,7 @@ public class DBAdapter {
 	 * @param track The Object Relational Mapping with data to update.
 	 */
 	public void updateRecordingTrack(long trackId, int status, Track track) {
+		Log.v("go to update", trackId + " - " + status + " - " + track.getStartTime());
 		ContentValues values = new ContentValues();
 		values.put(DBHelper.TITLE_FIELD_NAME, track.getTitle());
     	values.put(DBHelper.RECORDING_FIELD_NAME, status);
@@ -359,7 +362,7 @@ public class DBAdapter {
 	public void updateTrackDescription(long trackId, String desc) {
 		ContentValues values = new ContentValues();
 		values.put(DBHelper.DESC_FIELD_NAME, desc);
-    	db.update(DBHelper.TRACK_TBL_NAME, values, 
+    	db.update(DBHelper.TRACK_TBL_NAME, values,
 				DBHelper.ID_FIELD_NAME + "=" + trackId, null);
 	}
 
@@ -434,7 +437,7 @@ public class DBAdapter {
 	 * 
 	 * @return an ArrayList with all tracks in database.
 	 */
-	public ArrayList<Track> getTracks() {		
+	public ArrayList<Track> getTracks(Integer recording) {
 		String query = "SELECT " +
 				DBHelper.TRACK_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " +				    // 0
 				DBHelper.TRACK_TBL_NAME + "." + DBHelper.TITLE_FIELD_NAME + ", " +				// 1
@@ -455,12 +458,17 @@ public class DBAdapter {
 				DBHelper.SPORT_TBL_NAME + "." + DBHelper.DESC_FIELD_NAME + ", " +               // 15
 				DBHelper.SPORT_TBL_NAME + "." + DBHelper.LOGO_FIELD_NAME +                      // 16
 				
-				" FROM " + 
+				" FROM " +
 				DBHelper.TRACK_TBL_NAME + " LEFT OUTER JOIN " + DBHelper.SPORT_TBL_NAME + " ON " +
 				DBHelper.TRACK_TBL_NAME + "." + DBHelper.SPORT_FIELD_NAME + "=" + 
-				DBHelper.SPORT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + 
+				DBHelper.SPORT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME;
+
+				if (recording != null) {
+					query += " WHERE " + DBHelper.TRACK_TBL_NAME + "." + DBHelper.RECORDING_FIELD_NAME + "=" +
+							recording;
+				}
 				
-				" ORDER BY " +
+				query += " ORDER BY " +
 				DBHelper.TRACK_TBL_NAME + "." + DBHelper.FINISH_TIME_FIELD_NAME + " DESC";
     	
 		Cursor cursor = db.rawQuery(query, null);
@@ -497,6 +505,10 @@ public class DBAdapter {
     	cursor.close();
     	
     	return tracks;
+	}
+
+	public ArrayList<Track> getTracks() {
+		return getTracks(null);
 	}
 
     /**
