@@ -1,0 +1,29 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 20
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        applicationId "es.rgmf.libresportgps"
+        minSdkVersion 14
+        targetSdkVersion 19
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_7
+            targetCompatibility JavaVersion.VERSION_1_7
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+dependencies {
+    compile 'com.android.support:support-v4:20.0.0'
+    compile files('libs/osmdroid-android-4.2.jar')
+    compile files('libs/slf4j-android-1.6.1-RC1.jar')
+}
