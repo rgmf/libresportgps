@@ -172,9 +172,6 @@ public class TrackDetailFragment extends Fragment {
 		// Get and configure the map view.
 		mMapView = (RouteMapView) mRootView.findViewById(R.id.openmapview);
 
-		//mMapView.setBuiltInZoomControls(true);
-		//mMapView.setMultiTouchControls(true);
-
 		// Get and configure map controller.
 		MapController mMapController = (MapController) mMapView.getController();
 

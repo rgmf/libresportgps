@@ -88,6 +88,15 @@ public class MainActivity extends FragmentActivity implements
 			this);
 
 	/**
+	 * Enum with all drawer menu items identifier.
+	 */
+	public enum DrawerMenu {
+		TRACKS,
+		DATAVIEW,
+		SETTINGS;
+	}
+
+	/**
 	 * Fragment manager.
 	 */
 	private FragmentManager mFragmentManager;
@@ -323,20 +332,21 @@ public class MainActivity extends FragmentActivity implements
 	public void onNavigationDrawerItemSelected(int position) {
 		// update the main content by replacing fragments
 		FragmentTransaction transaction = mFragmentManager.beginTransaction(); 
-		
-		switch (position) {
-		case 0: 
-			transaction
-					.replace(R.id.container, TrackListFragment.newInstance());
-			break;
-		case 1:
-			transaction.replace(R.id.container, DataViewFragment.newInstance());
-			break;
-		case 2:
-			transaction.replace(R.id.container, StatsFragment.newInstance(StatsFragment.NONE, StatsFragment.NONE, StatsFragment.NONE));
-			break;
-		default:
-			break;
+
+		DrawerMenu item = DrawerMenu.values()[position];
+		switch (item) {
+			case TRACKS:
+				transaction
+						.replace(R.id.container, TrackListFragment.newInstance());
+				break;
+			case DATAVIEW:
+				transaction.replace(R.id.container, DataViewFragment.newInstance());
+				break;
+			case SETTINGS:
+				transaction.replace(R.id.container, StatsFragment.newInstance(StatsFragment.NONE, StatsFragment.NONE, StatsFragment.NONE));
+				break;
+			default:
+				break;
 		}
 		mFragmentManager.popBackStack();
 		transaction.commitAllowingStateLoss();

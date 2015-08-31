@@ -107,13 +107,8 @@ public class AltimetryFragment extends Fragment {
 		f.mMaxX = maxX;
 		
 		// Calculate the distance split to the graphic.
-		if (f.mMaxX < 100) {
-			f.mSplitX = ((Math.round(f.mMaxX) - (Math.round(f.mMaxX) % 10)) / 10) * 1000;
-			f.mXUnit = GraphicView.Unit.METER;
-		}
-		else if (f.mMaxX < 1000) {
+		if (f.mMaxX < 1000) {
 			f.mSplitX = (int) f.mMaxX;
-			//f.mSplitX = ((Math.round(f.mMaxX) - (Math.round(f.mMaxX) % 100)) / 10) * 1000;
 			f.mXUnit = GraphicView.Unit.METER;
 		}
 		else if (f.mMaxX < 10000) {

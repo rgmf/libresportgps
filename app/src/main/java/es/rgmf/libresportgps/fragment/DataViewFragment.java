@@ -20,8 +20,11 @@ package es.rgmf.libresportgps.fragment;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,7 +33,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import es.rgmf.libresportgps.MainActivity;
 import es.rgmf.libresportgps.R;
+import es.rgmf.libresportgps.TrackEditActivity;
 import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.data.TrackFactory;
@@ -44,6 +50,11 @@ import es.rgmf.libresportgps.db.orm.Track;
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
 public class DataViewFragment extends AbstractViewFragment {
+
+	/**
+	 * Key to know where come back from.
+	 */
+	private static final int TRACK_EDIT_ACTIVITY_BACK = 1;
 	/**
 	 * The View. It can be used to access xml elements of this View.
 	 */
@@ -234,6 +245,16 @@ public class DataViewFragment extends AbstractViewFragment {
 											Toast.makeText(context,
 													R.string.activity_finished,
 													Toast.LENGTH_SHORT).show();
+
+											Intent intent = new Intent(getActivity(), TrackEditActivity.class);
+											intent.putExtra("id", track.getId());
+											intent.putExtra("title", track.getTitle());
+											intent.putExtra("description", track.getDescription());
+											if (track.getSport() != null && track.getSport().getLogo() != null &&
+													!track.getSport().getLogo().isEmpty()) {
+												intent.putExtra("logo", track.getSport().getLogo());
+											}
+											startActivityForResult(intent, TRACK_EDIT_ACTIVITY_BACK);
 										}
 									})
 							.setNegativeButton(android.R.string.no,
@@ -253,6 +274,19 @@ public class DataViewFragment extends AbstractViewFragment {
 		});
 
 		return rootView;
+	}
+
+	/**
+	 * This method is called when activity called (TrackEditActivity) finish and come back here.
+	 */
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// See which child activity is calling us back.
+		switch (requestCode) {
+			case TRACK_EDIT_ACTIVITY_BACK:
+				((MainActivity) getActivity()).onNavigationDrawerItemSelected(MainActivity.DrawerMenu.TRACKS.ordinal());
+			default:
+				break;
+		}
 	}
 
 	/**
