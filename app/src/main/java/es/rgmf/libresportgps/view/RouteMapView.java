@@ -53,11 +53,14 @@ public class RouteMapView extends MapView {
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		super.onLayout(changed, l, t, r, b);
 
-		if (mCenterPoint != null) {
-			this.getController().setCenter(mCenterPoint);
-		}
-		if (mBoundingBox != null) {
-			this.zoomToBoundingBox(mBoundingBox);
+		if (!wasCentered) {
+			if (mCenterPoint != null) {
+				this.getController().setCenter(mCenterPoint);
+			}
+			if (mBoundingBox != null) {
+				this.zoomToBoundingBox(mBoundingBox);
+				wasCentered = true;
+			}
 		}
 	}
 
@@ -66,7 +69,6 @@ public class RouteMapView extends MapView {
 	}
 
 	public void setCenterPoint(GeoPoint cp) {
-
 		mCenterPoint = cp;
 	}
 }

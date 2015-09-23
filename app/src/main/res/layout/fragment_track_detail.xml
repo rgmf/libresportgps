@@ -31,6 +31,12 @@
             android:layout_width="fill_parent"
             android:layout_height="200dp" />
 
+        <Button
+            android:id="@+id/button_over_map"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:background="@drawable/click_on_view" />
+
         <LinearLayout
             android:id="@+id/logo_title"
             android:layout_width="match_parent"

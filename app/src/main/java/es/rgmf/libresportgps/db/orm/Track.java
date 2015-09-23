@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2014 Román Ginés Martínez Ferrández <rgmf@riseup.net>
- *
- * This program (LibreSportGPS) is free software: you can 
- * redistribute it and/or modify it under the terms of the GNU General 
+ * <p/>
+ * This program (LibreSportGPS) is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU General
  * Public License as published by the Free Software Foundation, either
  * version 3 of the License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p/>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -18,32 +18,36 @@
 package es.rgmf.libresportgps.db.orm;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Track Object Relational Mapping.
- * 
+ *
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
 public class Track implements Serializable {
-	public static int ENDED_TRACK = 0;
-	public static int OPEN_TRACK = 1;
-	
-	private Long id;
-	private String title;
-	private Integer recording = 0;
-	private String description;
-	private Float distance = 0f;
-	private Long startTime = 0L;
-	private Long activityTime = 0L;
-	private Long finishTime = 0L;
-	private Float maxSpeed = 0f;
-	private Float maxElevation = 0f;
-	private Float minElevation = 0f;
-	private Float elevationGain = 0f;
-	private Float elevationLoss = 0f;
-	private Sport sport = null;
+    public static int ENDED_TRACK = 0;
+    public static int OPEN_TRACK = 1;
 
-    public Track() {}
+    private Long id;
+    private String title;
+    private Integer recording = 0;
+    private String description;
+    private Float distance = 0f;
+    private Long startTime = 0L;
+    private Long activityTime = 0L;
+    private Long finishTime = 0L;
+    private Float maxSpeed = 0f;
+    private Float maxElevation = 0f;
+    private Float minElevation = 0f;
+    private Float elevationGain = 0f;
+    private Float elevationLoss = 0f;
+    private Sport sport = null;
+    private List<TrackPoint> tpList = new ArrayList<TrackPoint>();
+
+    public Track() {
+    }
 
     public Track(Long id, String title, String description, Integer recording, Float distance,
                  Long startTime, Long activityTime, Long finishTime, Float maxSpeed,
@@ -175,5 +179,13 @@ public class Track implements Serializable {
 
     public void setSport(Sport sport) {
         this.sport = sport;
+    }
+
+    public List<TrackPoint> getTrackPointList() {
+        return tpList;
+    }
+
+    public void setTrackPointList(List<TrackPoint> tpList) {
+        this.tpList = tpList;
     }
 }

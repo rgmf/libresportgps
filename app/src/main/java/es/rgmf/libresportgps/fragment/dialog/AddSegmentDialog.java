@@ -20,8 +20,9 @@ package es.rgmf.libresportgps.fragment.dialog;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.FragmentManager;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
+import android.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -39,42 +40,16 @@ public class AddSegmentDialog extends DialogFragment {
 	 * The value the user have to insert in this dialog.
 	 */
 	private String mSegmentName;
-	/**
-	 * The id of the track belongs segment.
-	 */
-	private Long mTrackId;
-	/**
-	 * The first point of the segmente.
-	 */
-	private TrackPoint mBeginPoint;
-	/**
-	 * The las point of the segment.
-	 */
-	private TrackPoint mEndPoint;
-	
+
 	/* The activity/fragment that creates an instance of this dialog fragment must
      * implement this interface in order to receive event callbacks.
      * Each method passes the DialogFragment in case the host needs to query it. */
     public interface AddSegmentDialogListener {
-        public void onDialogPositiveClick(String segmentName,
-        		Long trackId, TrackPoint begin, TrackPoint end);
+        public void onDialogPositiveClick(String segmentName);
     }
     
     // Use this instance of the interface to deliver action events
     AddSegmentDialogListener mListener;
-    
-    /**
-     * Constructor.
-     * 
-     * @param trackId The id of the track where points belong.
-     * @param begin The first track point of the segment.
-     * @param end The last track point of the segment.
-     */
-    public AddSegmentDialog(Long trackId, TrackPoint begin, TrackPoint end) {
-    	mTrackId = trackId;
-    	mBeginPoint = begin;
-    	mEndPoint = end;
-	}
 
 	// Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
     @Override
@@ -129,15 +104,17 @@ public class AddSegmentDialog extends DialogFragment {
            		   
            		   // With this code line we call to the callback in the Fragment that called this
            		   // dialog (getTargetFragment).
+				   /*
            		   AddSegmentDialogListener callback = (AddSegmentDialogListener) getTargetFragment();
-           		   callback.onDialogPositiveClick(mSegmentName, mTrackId, mBeginPoint, mEndPoint);
-           		   getDialog().dismiss();
-           		   
-           		   /*
-           		   AddSegmentDialogListener activity = (AddSegmentDialogListener) getActivity();
-           		   activity.onDialogPositiveClick(mSegmentName, mTrackId, mBeginPoint, mEndPoint);
+           		   callback.onDialogPositiveClick(mSegmentName);
            		   getDialog().dismiss();
            		   */
+           		   
+
+           		   AddSegmentDialogListener activity = (AddSegmentDialogListener) getActivity();
+           		   activity.onDialogPositiveClick(mSegmentName);
+           		   getDialog().dismiss();
+
            	   }
 	        }
 	    });

@@ -25,6 +25,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 import android.util.Log;
 
+import java.io.File;
+
+import es.rgmf.libresportgps.common.Session;
+
 /**
  * Database helper.
  * 
@@ -34,7 +38,7 @@ import android.util.Log;
  *
  */
 class DBHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 17;
     private static final String DATABASE_NAME = "libresportgps.db";
     
     /*************************** Table names *********************************/
@@ -151,11 +155,9 @@ class DBHelper extends SQLiteOpenHelper {
     
     private static final String SEGMENT_POINT_TBL = "create table if not exists " + SEGMENT_POINT_TBL_NAME + "( " +
     		ID_FIELD_NAME + " integer primary key autoincrement, " +
-    		BEGIN_LAT_FIELD_NAME + " integer not null, " +
-    		BEGIN_LONG_FIELD_NAME + " integer not null, " +
-    		END_LAT_FIELD_NAME + " integer not null, " +
-    		END_LONG_FIELD_NAME + " integer not null, " +
-    		DISTANCE_FIELD_NAME + " real not null, " +
+    		LAT_FIELD_NAME + " integer not null, " +
+    		LONG_FIELD_NAME + " integer not null, " +
+			ELEVATION_FIELD_NAME + " real not null, " +
     		SEGMENT_FIELD_NAME + " integer not null references " + SEGMENT_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade);";
     
     private static final String SEGMENT_TRACK_TBL = "create table if not exists " + SEGMENT_TRACK_TBL_NAME + "( " +
@@ -164,7 +166,7 @@ class DBHelper extends SQLiteOpenHelper {
     		MAX_SPEED_FIELD_NAME + " real, " +
     		AVG_SPEED_FIELD_NAME + " real, " +
     		TRACK_FIELD_NAME + " integer not null references " + TRACK_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade, " +
-    		SEGMENT_POINT_FIELD_NAME + " integer not null references " + SEGMENT_POINT_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade);";
+    		SEGMENT_FIELD_NAME + " integer not null references " + SEGMENT_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade);";
     		
     /*************************************************************************/
     
@@ -174,8 +176,12 @@ class DBHelper extends SQLiteOpenHelper {
      * @param context
      */
     public DBHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
-    }
+		super(context,
+				Session.getDbFolder() + "/" +  DATABASE_NAME,
+				null,
+				DATABASE_VERSION);
+
+	}
 
     /**
      * Method that is called the once time.
@@ -296,7 +302,10 @@ class DBHelper extends SQLiteOpenHelper {
         	//db.execSQL("ALTER TABLE " + SEGMENT_TRACK_TBL_NAME + 
         	//		" DROP date_");
         	break;
-        case 14:
+		case 14:
+        case 15:
+		case 16:
+		case 17:
         	db.execSQL("DROP TABLE IF EXISTS " + SEGMENT_TRACK_TBL_NAME);
         	db.execSQL("DROP TABLE IF EXISTS " + SEGMENT_POINT_TBL_NAME);
         	db.execSQL("DROP TABLE IF EXISTS " + SEGMENT_TBL_NAME);

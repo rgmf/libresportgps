@@ -25,7 +25,7 @@ package es.rgmf.libresportgps.db.orm;
 public class Segment {
 	private Long id;
 	private String name;
-	private Float distance;
+	private Double distance;
 	private Double elevationGain;
 	public Long getId() {
 		return id;
@@ -39,10 +39,10 @@ public class Segment {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public Float getDistance() {
+	public Double getDistance() {
 		return distance;
 	}
-	public void setDistance(Float distance) {
+	public void setDistance(Double distance) {
 		this.distance = distance;
 	}
 	public Double getElevationGain() {

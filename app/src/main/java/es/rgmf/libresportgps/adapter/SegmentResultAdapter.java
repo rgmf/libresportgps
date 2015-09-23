@@ -57,7 +57,8 @@ public class SegmentResultAdapter extends ArrayAdapter<SegmentTrack> {
 	    TextView tvTime = (TextView) convertView.findViewById(R.id.time_text);
         TextView tvAvgSpeed = (TextView) convertView.findViewById(R.id.avg_speed_text);
         TextView tvDate = (TextView) convertView.findViewById(R.id.date_text);
-        
+
+		/*
         SegmentTrack segmentTrack = mValues.get(position);
         if (segmentTrack != null) {
         	tvTime.setText(Utilities.timeStampSecondsFormatter(segmentTrack.getTime()));
@@ -66,6 +67,7 @@ public class SegmentResultAdapter extends ArrayAdapter<SegmentTrack> {
         	if (segmentTrack.getTrack() != null)
         		tvDate.setText(Utilities.timeStampCompleteFormatter(segmentTrack.getTrack().getStartTime()));
         }
+        */
 	     
 	    return convertView;
 	}

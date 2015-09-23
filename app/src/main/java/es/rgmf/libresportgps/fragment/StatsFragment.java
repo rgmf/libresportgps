@@ -62,17 +62,17 @@ public class StatsFragment extends Fragment {
     /**
      * The number of the year according to Calendar.
      */
-    public int mYear;
+    public int mYear = NONE;
     
     /**
      * The number of the month according to Calendar.
      */
-    public int mMonth;
+    public int mMonth = NONE;
     
     /**
      * The id of the sport.
      */
-    public int mSport;
+    public int mSport = NONE;
 
     /**
      * Where "tabs" will be loaded.
@@ -104,9 +104,9 @@ public class StatsFragment extends Fragment {
         setHasOptionsMenu(true);
         
         if (savedInstanceState != null) {
-        	int mYear = savedInstanceState.getInt(ARG_YEAR);
-        	int mMonth = savedInstanceState.getInt(ARG_MONTH);
-        	int mSport = savedInstanceState.getInt(ARG_SPORT);
+        	mYear = savedInstanceState.getInt(ARG_YEAR);
+        	mMonth = savedInstanceState.getInt(ARG_MONTH);
+        	mSport = savedInstanceState.getInt(ARG_SPORT);
         }
         
         Integer y = null;

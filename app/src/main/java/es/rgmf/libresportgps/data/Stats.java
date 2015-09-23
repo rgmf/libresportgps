@@ -17,6 +17,8 @@
 
 package es.rgmf.libresportgps.data;
 
+import java.io.Serializable;
+
 import es.rgmf.libresportgps.db.orm.Sport;
 
 /**
@@ -24,7 +26,7 @@ import es.rgmf.libresportgps.db.orm.Sport;
  * 
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
-public class Stats {
+public class Stats implements Serializable {
 	Sport sport;		// sport object.
 	int mWorkouts; 		// total training days.
 	int mDistance; 		// total distance in meters.

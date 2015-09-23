@@ -18,8 +18,10 @@
 package es.rgmf.libresportgps.db;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import android.content.Context;
@@ -28,6 +30,7 @@ import android.util.Log;
 
 import es.rgmf.libresportgps.MainActivity;
 import es.rgmf.libresportgps.common.Session;
+import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.data.Stats;
 import es.rgmf.libresportgps.db.orm.Segment;
 import es.rgmf.libresportgps.db.orm.SegmentPoint;
@@ -297,6 +300,7 @@ public class DBModel {
 	 * @param end The end track point id.
 	 * @return A track point list.
 	 */
+	/*
 	public static List<TrackPoint> getTrackPointsFromTo(Context context, Long begin, Long end) {
 		DBAdapter dbAdapter = new DBAdapter(context);
 		dbAdapter.open();
@@ -304,6 +308,7 @@ public class DBModel {
 		dbAdapter.close();
 		return list;
 	}
+	*/
 	
 	/**
 	 * Return all segment tracks or null.
@@ -312,6 +317,7 @@ public class DBModel {
 	 * @param trackId The id of the track.
 	 * @return The list of segment tracks or null.
 	 */
+	/*
 	public static List<SegmentTrack> getAllSegmentTrack(Context context, Long trackId) {
 		DBAdapter dbAdapter = new DBAdapter(context);
 		dbAdapter.open();
@@ -319,6 +325,7 @@ public class DBModel {
 		dbAdapter.close();
 		return list;
 	}
+	*/
 	
 	/**
 	 * Return all segment tracks or null.
@@ -328,6 +335,7 @@ public class DBModel {
 	 * @param segmentId the id of the segment.
 	 * @return The list of segment tracks or null.
 	 */
+	/*
 	public static List<SegmentTrack> getAllSegmentTrack(Context context, Long trackId, Long segmentId) {
 		DBAdapter dbAdapter = new DBAdapter(context);
 		dbAdapter.open();
@@ -335,6 +343,7 @@ public class DBModel {
 		dbAdapter.close();
 		return list;
 	}
+	*/
 	
 	/**
 	 * Return the first segment point from all segments from the track. 
@@ -343,6 +352,7 @@ public class DBModel {
 	 * @param trackId The track id.
 	 * @return a list or null.
 	 */
+	/*
 	public static List<SegmentPoint> getAllSegmentPointFromTrack(Context context, Long trackId) {
 		DBAdapter dbAdapter = new DBAdapter(context);
 		dbAdapter.open();
@@ -350,6 +360,7 @@ public class DBModel {
 		dbAdapter.close();
 		return list;
 	}
+	*/
 	
 	/**
 	 * Get stats by sport filtering by paramethers. if they are not null.
@@ -373,11 +384,10 @@ public class DBModel {
 	 * 
 	 * @param context
 	 * @param trackId
-	 * @param segment
 	 * @param segmentTrack
-	 * @param segmentPointList
 	 * @return true if ok.
 	 */
+	/*
 	public static boolean newSegment(Context context, Long trackId, SegmentTrack segmentTrack) {
 		DBAdapter dbAdapter = new DBAdapter(context);
 		dbAdapter.open();
@@ -385,20 +395,26 @@ public class DBModel {
 		dbAdapter.close();
 		return result;
 	}
+	*/
 
 	/**
 	 * Add a new segment.
 	 * 
 	 * @param context Context object.
-	 * @param segment Segment object.
+	 * @param segment The segment object.
+	 * @param spList The list of the segment points.
 	 * @return The identifier of the segment inserted.
 	 */
-	public static Long addSegment(Context context, Segment segment) {
+	public static Long addSegment(Context context, Segment segment, List<SegmentPoint> spList) {
 		DBAdapter dbAdapter = new DBAdapter(context);
 		dbAdapter.open();
-		Long id;
+		Long id = null;
 		try {
-			id = dbAdapter.addSegment(segment);
+			if (spList.size() > 0) {
+				id = dbAdapter.addSegment(segment);
+				for (SegmentPoint sp : spList)
+					dbAdapter.addSegmentPoint(id, sp);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -439,6 +455,7 @@ public class DBModel {
 	 * @param segmentPoint A segment point.
 	 * @return The identifier of the segment point inserted.
 	 */
+	/*
 	public static Long addSegmentPoint(Context context, Long segmentId,
 			SegmentPoint segmentPoint) {
 		DBAdapter dbAdapter = new DBAdapter(context);
@@ -453,6 +470,128 @@ public class DBModel {
 		dbAdapter.close();
 		return id;
 	}
+	*/
+
+	/**
+	 * Find the segment in all tracks from database.
+	 *
+	 * 1.- Get all tracks that have initial segment point.
+	 * 2.- Get all tracks that have finish segment point.
+	 * 3.- Join maps got in 1 and 2.
+	 *
+	 * @param context
+	 * @param segmentId
+	 * @return A map with all tracks with track points.
+	 */
+	public static Map<Long, Track> findSegmentInTracks(Context context, Long segmentId) {
+		Map<Long, Track> result = new HashMap<Long, Track>();
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		List<SegmentPoint> spList = dbAdapter.getSegmentPoints(segmentId);
+		if (spList != null && spList.size() > 0) {
+			SegmentPoint sp = spList.get(0);
+
+			// GET INITIAL POINTS.
+			// Rectangle definition.
+			// From: http://janmatuschek.de/LatitudeLongitudeBoundingCoordinates
+			double distance = 5.0d; // In km
+			double earthRadius = 6371.0d; // in meters
+			double radius = distance / earthRadius; // radius from rectangle
+
+			double lat1 = sp.getLat() - radius;
+			double lat2 = sp.getLat() + radius;
+
+			double latT = Math.asin(Math.sin(sp.getLat()) / Math.cos(radius));
+			double Alon = Math.acos((Math.cos(radius) - Math.sin(latT) * Math.sin(sp.getLat())) / (Math.cos(latT) * Math.cos(sp.getLat())));
+
+			double lon1 = sp.getLng() - Alon;
+			double lon2 = sp.getLng() + Alon;
+
+			Map<Long, Track> begin = dbAdapter.findPointInTracks(sp.getLat(), sp.getLng(), lat1, lon1, lat2, lon2);
+
+			// GET FINISH ONE POINTS AND ADD THEM TO THE RESULT.
+			if (begin != null && begin.size() > 0) {
+				sp = spList.get(spList.size() - 1);
+
+				// Rectangle definition.
+				// From: http://janmatuschek.de/LatitudeLongitudeBoundingCoordinates
+				lat1 = sp.getLat() - radius;
+				lat2 = sp.getLat() + radius;
+
+				latT = Math.asin(Math.sin(sp.getLat()) / Math.cos(radius));
+				Alon = Math.acos((Math.cos(radius) - Math.sin(latT) * Math.sin(sp.getLat())) / (Math.cos(latT) * Math.cos(sp.getLat())));
+
+				lon1 = sp.getLng() - Alon;
+				lon2 = sp.getLng() + Alon;
+
+				Map<Long, Track> finish = dbAdapter.findPointInTracks(sp.getLat(), sp.getLng(), lat1, lon1, lat2, lon2);
+				List<Long> idsBegin = new ArrayList<Long>(begin.keySet());
+				if (finish != null && finish.size() > 0) {
+					for (Long id : idsBegin) {
+						if (finish.containsKey(id)) {
+							begin.get(id).getTrackPointList().addAll(finish.get(id).getTrackPointList());
+						}
+						else {
+							begin.remove(id);
+						}
+					}
+				}
+
+				// COMPLETE THE INTERMEDIATE TRACK POINTS AND CREATE THE RESULT TO RETURN.
+				// LATER, CHECK IF THESE TRACK POINTS ARE THE SEGMENT.
+				for (Track track : begin.values()) {
+					if (track.getTrackPointList() != null && track.getTrackPointList().size() == 2) {
+						List<TrackPoint> aux = dbAdapter.getPointsInTrackFromBeginToEnd(
+								track.getId(),
+								track.getTrackPointList().get(0).getId(),
+								track.getTrackPointList().get(track.getTrackPointList().size() - 1).getId());
+						if (aux.size() > 1) {
+							int count = 0, countPointsBetween = 0;
+							double distanceBetween;
+							for (SegmentPoint segmentPoint : spList) {
+								//Log.v("SegmentPoint", segmentPoint.getLat() + " / " + segmentPoint.getLng());
+								do {
+									//Log.v("Count", count + "");
+									//Log.v("Lat1/Lng1 - Lat2/Lng2", segmentPoint.getLat() + "/" + segmentPoint.getLng() + " - " +  aux.get(count).getLat() + "/" + aux.get(count).getLng());
+									distanceBetween = Utilities.CalculateDistance(
+											segmentPoint.getLat(),
+											segmentPoint.getLng(),
+											aux.get(count).getLat(),
+											aux.get(count).getLng()
+									);
+									//Log.v("DistanceBetween", distanceBetween + "");
+									count++;
+								} while (distanceBetween > 20 && count < aux.size());
+								if (distanceBetween <= 100) {
+									countPointsBetween++;
+								}
+							}
+
+							Log.v("Track:", track.getTitle());
+							Log.v("Puntos coincidentes", countPointsBetween + "");
+							if (countPointsBetween == spList.size()) {
+								Log.v("Para adentro", "Para adentro");
+								track.setTrackPointList(aux);
+								result.put(track.getId(), track);
+							}
+						}
+					}
+				}
+
+				/*
+				for (Track t : result.values()) {
+					Log.v("Track:", t.getId() + " - " + t.getTitle());
+					for (TrackPoint tp : t.getTrackPointList())
+						Log.v("TrackPoint:", tp.getLat() + " - " + tp.getLng());
+					Log.v("---------", "-------------");
+				}
+				*/
+			}
+		}
+		dbAdapter.close();
+
+		return result;
+	}
 
 	/**
 	 * This method finds and creates segment tracks in other 
@@ -463,6 +602,7 @@ public class DBModel {
 	 * @param pointPrecision
 	 * @param distancePrecision
 	 */
+	/*
 	public static void findAndAddSegmentTracks(Context context, Long trackId,
 			SegmentPoint segmentPoint, Double pointPrecision, Double distancePrecision) {
 		DBAdapter dbAdapter = new DBAdapter(context);
@@ -494,6 +634,7 @@ public class DBModel {
 		}
 		dbAdapter.close();
 	}
+	*/
 
 	
 	

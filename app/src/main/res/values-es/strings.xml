@@ -24,6 +24,7 @@
     <string-array name="nav_drawer_items">
         <item >Tracks</item>
         <item >Vista Actividad</item>
+        <item>Segmentos</item>
         <item>Estadísticas</item>
     </string-array>
      
@@ -32,6 +33,7 @@
     <array name="nav_drawer_icons">
         <item>@drawable/ic_action_storage</item>
         <item>@drawable/ic_action_play</item>
+        <item>@drawable/ic_action_edit</item>
         <item>@drawable/ic_stats</item>
     </array>
     
@@ -46,7 +48,7 @@
     <string name="time_before_logging_hint">Segundos</string>
     
     <!-- Hints -->
-    <string name="add_segment_hint">Para crear un segmento, primero tienes que marcar dos puntos sobre el track que ves en el mapa: el punto inicial y el punto final del segmento. Después, pulsa sobre le botón crear segmento.</string>
+    <string name="add_segment_hint">Para crear un segmento, primero tienes que marcar al menos dos puntos sobre el mapa. Después, pulsa sobre le botón crear segmento.</string>
     <string name="required_value">Inserta un valor</string>
     <string name="segment_created">Segmento creado correctamente</string>
     <string name="fail_segment_created">No se ha podido crear el segmento</string>
@@ -132,5 +134,9 @@
     <string name="track_was_not_exported">ERROR: el track no ha sido exportado</string>
     <string name="recovery_track">Recuperar Actividad</string>
     <string name="recovery_track_hint">Hay una actividad a medias. ¿Quieres continuarla?</string>
+    <string name="add_segment_internet_needed_hint">Necesitas acceso a Internet para consultar altitudes al crear un segmento.</string>
+    <string name="please_wait">Espera, por favor...</string>
+    <string name="add_segment_ok">Segmento creado correctamente.</string>
+    <string name="add_segment_fail">Se ha producido un error. Prueba a intentarlo de nuevo.</string>
 
 </resources>

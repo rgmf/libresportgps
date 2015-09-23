@@ -67,7 +67,7 @@ public class SegmentActivity extends Activity {
 		
 		// Get all information from database (in a track the user can do 
 		// a segment several times.
-		mSegmentTrackList = DBModel.getAllSegmentTrack(this, trackId, segmentId);
+		//mSegmentTrackList = DBModel.getAllSegmentTrack(this, trackId, segmentId);
 	}
 
 	@Override
@@ -111,7 +111,8 @@ public class SegmentActivity extends Activity {
 				TextView gradientText = (TextView) rootView.findViewById(R.id.gradient_text);
 				//TextView timeText = (TextView) rootView.findViewById(R.id.time_text);
 				//TextView dateText = (TextView) rootView.findViewById(R.id.date_text);
-				
+
+				/*
 				SegmentTrack segmentTrack = mSegmentTrackList.get(0);
 				SegmentPoint segmentPoint = segmentTrack.getSegmentPoint();
 				if (segmentPoint != null) {
@@ -123,6 +124,7 @@ public class SegmentActivity extends Activity {
 						gradientText.setText(Utilities.gradient(segment.getElevationGain(), segment.getDistance()));
 					}
 				}
+				*/
 			}
 			
 			return rootView;

@@ -74,8 +74,7 @@ import es.rgmf.libresportgps.gps.IGpsLoggerServiceClient;
  */
 public class MainActivity extends FragmentActivity implements
 		IGpsLoggerServiceClient, TrackListFragment.OnTrackListSelectedListener,
-		TrackListFragment.ProgressCallbacks,
-		AddSegmentDialogListener {
+		TrackListFragment.ProgressCallbacks {
 
 	private ProgressDialog mProgressDialog = null;
 
@@ -93,6 +92,7 @@ public class MainActivity extends FragmentActivity implements
 	public enum DrawerMenu {
 		TRACKS,
 		DATAVIEW,
+		SEGMENTS,
 		SETTINGS;
 	}
 
@@ -206,6 +206,7 @@ public class MainActivity extends FragmentActivity implements
         mNavDrawerItems.add(new NavDrawerItem(mNavMenuTitles[0], mNavMenuIcons.getResourceId(0, -1)));
         mNavDrawerItems.add(new NavDrawerItem(mNavMenuTitles[1], mNavMenuIcons.getResourceId(1, -1)));
         mNavDrawerItems.add(new NavDrawerItem(mNavMenuTitles[2], mNavMenuIcons.getResourceId(2, -1)));
+		mNavDrawerItems.add(new NavDrawerItem(mNavMenuTitles[3], mNavMenuIcons.getResourceId(3, -1)));
         
         // Recycle the typed array.
         mNavMenuIcons.recycle();
@@ -333,29 +334,36 @@ public class MainActivity extends FragmentActivity implements
 	 * This method is called when you chose an option in Navigation Drawer.
 	 */
 	public void onNavigationDrawerItemSelected(int position) {
-		// update the main content by replacing fragments
-		FragmentTransaction transaction = mFragmentManager.beginTransaction(); 
 
 		DrawerMenu item = DrawerMenu.values()[position];
-		switch (item) {
-			case TRACKS:
-				transaction
-						.replace(R.id.container, TrackListFragment.newInstance());
-				break;
-			case DATAVIEW:
-				transaction.replace(R.id.container, DataViewFragment.newInstance());
-				break;
-			case SETTINGS:
-				transaction.replace(R.id.container, StatsFragment.newInstance(StatsFragment.NONE, StatsFragment.NONE, StatsFragment.NONE));
-				break;
-			default:
-				break;
+		if (item == DrawerMenu.SEGMENTS) {
+			Intent intent = new Intent(mContext, OSMActivity.class);
+			startActivity(intent);
 		}
-		mFragmentManager.popBackStack();
-		transaction.commitAllowingStateLoss();
-		mDrawerLayout.closeDrawer(mRelativeLayout);
-		mDrawerList.setItemChecked(position, true);
-		mDrawerList.setSelection(position);
+		else {
+			// update the main content by replacing fragments
+			FragmentTransaction transaction = mFragmentManager.beginTransaction();
+
+			switch (item) {
+				case TRACKS:
+					transaction
+							.replace(R.id.container, TrackListFragment.newInstance());
+					break;
+				case DATAVIEW:
+					transaction.replace(R.id.container, DataViewFragment.newInstance());
+					break;
+				case SETTINGS:
+					transaction.replace(R.id.container, StatsFragment.newInstance(StatsFragment.NONE, StatsFragment.NONE, StatsFragment.NONE));
+					break;
+				default:
+					break;
+			}
+			mFragmentManager.popBackStack();
+			transaction.commitAllowingStateLoss();
+			mDrawerLayout.closeDrawer(mRelativeLayout);
+			mDrawerList.setItemChecked(position, true);
+			mDrawerList.setSelection(position);
+		}
 	}
 
 	/**
@@ -724,14 +732,6 @@ public class MainActivity extends FragmentActivity implements
 	public void onWaitingForLocation(boolean inProgress) {
 		// TODO Auto-generated method stub
 
-	}
-	
-	/**
-	 * When user create a new segment and click ok this method will be called.
-	 */
-	@Override
-	public void onDialogPositiveClick(String segmentName,
-    		Long trackId, TrackPoint begin, TrackPoint end) {
 	}
 
 	/***** Implement the interface TrackListFragment.ProgressCallbacks *****/

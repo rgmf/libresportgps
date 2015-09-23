@@ -29,7 +29,7 @@ public class SegmentTrack {
 	private Float maxSpeed;
 	private Float avgSpeed;
 	private Track track;
-	private SegmentPoint segmentPoint;
+	private Segment segment;
 	public Long getId() {
 		return id;
 	}
@@ -60,10 +60,10 @@ public class SegmentTrack {
 	public void setTrack(Track track) {
 		this.track = track;
 	}
-	public SegmentPoint getSegmentPoint() {
-		return segmentPoint;
+	public Segment getSegmentPoint() {
+		return segment;
 	}
-	public void setSegmentPoint(SegmentPoint segmentPoint) {
-		this.segmentPoint = segmentPoint;
+	public void setSegmentPoint(Segment segment) {
+		this.segment = segment;
 	}
 }

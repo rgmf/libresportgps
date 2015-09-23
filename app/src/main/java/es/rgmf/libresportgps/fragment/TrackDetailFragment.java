@@ -18,6 +18,7 @@
 package es.rgmf.libresportgps.fragment;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -28,11 +29,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -46,12 +49,15 @@ import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.PathOverlay;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import es.rgmf.libresportgps.MapActivity;
 import es.rgmf.libresportgps.R;
+import es.rgmf.libresportgps.TrackEditActivity;
 import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.db.orm.TrackPoint;
@@ -121,6 +127,16 @@ public class TrackDetailFragment extends Fragment {
 		setDataView();
 
 		setMapView();
+
+		mRootView.findViewById(R.id.button_over_map).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Intent intent = new Intent(mContext, MapActivity.class);
+				intent.putExtra("trackId", mTrack.getId());
+				intent.putParcelableArrayListExtra("trackPointList", (ArrayList<? extends Parcelable>) mTrackPointList);
+				startActivity(intent);
+			}
+		});
 		
 		return mRootView;
 	}
@@ -260,14 +276,10 @@ public class TrackDetailFragment extends Fragment {
 	 */
 	ItemizedIconOverlay.OnItemGestureListener<OverlayItem> myOnItemGestureListener = new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
 		@Override
-		public boolean onItemLongPress(int arg0, OverlayItem arg1) {
-			return false;
-		}
+		public boolean onItemLongPress(int arg0, OverlayItem arg1) { return false; }
 
 		@Override
-		public boolean onItemSingleTapUp(int index, OverlayItem item) {
-			return false;
-		}
+		public boolean onItemSingleTapUp(int index, OverlayItem item) { return false; }
 	};
 
 	/**
@@ -307,7 +319,7 @@ public class TrackDetailFragment extends Fragment {
 
 			if (this.size() > 0) {
 				for (int i = 0; i < this.size(); i++) {
-					GeoPoint in = getItem(i).getPoint();
+					GeoPoint in = (GeoPoint) getItem(i).getPoint();
 
 					Point out = new Point();
 					mapview.getProjection().toPixels(in, out);

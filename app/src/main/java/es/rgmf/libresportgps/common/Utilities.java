@@ -17,6 +17,8 @@
 
 package es.rgmf.libresportgps.common;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -24,6 +26,15 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import android.graphics.BitmapFactory;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 
 /**
  * Several utilities that can be used in all the application.
@@ -61,6 +72,16 @@ public class Utilities {
 
         return 6371 * c * 1000;
     }
+
+	/**
+	 * @return The yyyy-MM-dd string today date.
+	 */
+	public static String todayString() {
+		Calendar calendar = Calendar.getInstance();
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+		return formatter.format(calendar.getTime());
+	}
     
     /**
      * ISO 8601 format.

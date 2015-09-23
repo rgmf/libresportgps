@@ -17,6 +17,7 @@
 
 package es.rgmf.libresportgps.fragment;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import android.content.Context;
@@ -35,6 +36,9 @@ import es.rgmf.libresportgps.data.Stats;
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
 public class StatsSummaryFragment extends ListFragment {
+
+	private static final String ARG_STATS = "stats";
+
 	/**
 	 * The context.
 	 */
@@ -74,8 +78,21 @@ public class StatsSummaryFragment extends ListFragment {
 				adapter.add(s.getValue());
 			}
 		}
+		else {
+			mStats = (Map<Long, Stats>) savedInstanceState.getSerializable(ARG_STATS);
+			for (Map.Entry<Long, Stats> s : mStats.entrySet()) {
+				adapter.add(s.getValue());
+			}
+		}
 		setListAdapter(adapter);
 		
 		return inflater.inflate(R.layout.fragment_stats_list, container, false);
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+
+		outState.putSerializable(ARG_STATS, (Serializable) mStats);
 	}
 }

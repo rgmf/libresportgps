@@ -21,6 +21,8 @@ import android.app.Application;
 import android.location.Location;
 import android.os.Environment;
 
+import java.io.File;
+
 /**
  * This class represent the current session. It has all information needed
  * about GPS data and all data needed by the application.
@@ -57,10 +59,21 @@ public class Session extends Application {
 	private static String fileName = Utilities.timeStampFormatterForFilename(System.currentTimeMillis());
 	private static boolean openTrkseg = false; // If it attribute is true then it will open a new trkseg tag in GPX file.
 	private static String appFolder = Environment.getExternalStorageDirectory() + "/libresportgps";
+	private static String dbFolder = appFolder + "/db";
 	
 	// Session data to calculate elevation gain.
 	private static Double minElevationGain = 8d;
 	private static Double currentElevation = 0d;
+
+	public Session() {
+		// If folder does not exist then creates it.
+		File folder = new File(appFolder);
+		if(!folder.exists())
+			folder.mkdirs();
+		folder = new File(dbFolder);
+		if(!folder.exists())
+			folder.mkdirs();
+	}
 	
 	public static void reset() {
 		trackId = -1;
@@ -204,6 +217,10 @@ public class Session extends Application {
 
 	public static String getAppFolder() {
 		return appFolder;
+	}
+
+	public static String getDbFolder() {
+		return dbFolder;
 	}
 
 	public static void setAppFolder(String appFolder) {
