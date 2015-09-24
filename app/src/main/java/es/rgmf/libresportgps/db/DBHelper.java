@@ -38,7 +38,7 @@ import es.rgmf.libresportgps.common.Session;
  *
  */
 class DBHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 17;
+    private static final int DATABASE_VERSION = 23;
     private static final String DATABASE_NAME = "libresportgps.db";
     
     /*************************** Table names *********************************/
@@ -83,11 +83,9 @@ class DBHelper extends SQLiteOpenHelper {
     public static final String SEGMENT_FIELD_NAME = "segment";
     public static final String AVG_SPEED_FIELD_NAME = "avg_speed";
     public static final String TRACK_FIELD_NAME = "track";
-    public static final String BEGIN_LAT_FIELD_NAME = "begin_lat";
-    public static final String END_LAT_FIELD_NAME = "end_lat";
-    public static final String BEGIN_LONG_FIELD_NAME = "begin_long";
-    public static final String END_LONG_FIELD_NAME = "end_long";
     public static final String SEGMENT_POINT_FIELD_NAME = "segment_point";
+	public static final String TRACK_FIRST_POINT_NAME = "first_point";
+	public static final String TRACK_LAST_POINT_NAME = "last_point";
     /*************************************************************************/
     
     /************************* SQL create table if not exists ******************************/
@@ -163,9 +161,10 @@ class DBHelper extends SQLiteOpenHelper {
     private static final String SEGMENT_TRACK_TBL = "create table if not exists " + SEGMENT_TRACK_TBL_NAME + "( " +
     		ID_FIELD_NAME + " integer primary key autoincrement, " +
     		TIME_FIELD_NAME + " integer not null, " +
-    		MAX_SPEED_FIELD_NAME + " real, " +
     		AVG_SPEED_FIELD_NAME + " real, " +
     		TRACK_FIELD_NAME + " integer not null references " + TRACK_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade, " +
+			TRACK_FIRST_POINT_NAME + " integer not null references " + TRACK_POINT_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade, " +
+			TRACK_LAST_POINT_NAME + " integer not null references " + TRACK_POINT_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade, " +
     		SEGMENT_FIELD_NAME + " integer not null references " + SEGMENT_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade);";
     		
     /*************************************************************************/
@@ -306,6 +305,13 @@ class DBHelper extends SQLiteOpenHelper {
         case 15:
 		case 16:
 		case 17:
+		case 18:
+		case 19:
+		case 20:
+		case 21:
+		case 22:
+		case 23:
+		case 24:
         	db.execSQL("DROP TABLE IF EXISTS " + SEGMENT_TRACK_TBL_NAME);
         	db.execSQL("DROP TABLE IF EXISTS " + SEGMENT_POINT_TBL_NAME);
         	db.execSQL("DROP TABLE IF EXISTS " + SEGMENT_TBL_NAME);

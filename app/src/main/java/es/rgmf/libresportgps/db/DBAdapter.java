@@ -229,20 +229,22 @@ public class DBAdapter {
 	 * Add a segment track.
 	 * 
 	 * @param trackId Track identifier.
-	 * @param segmentPointId Segment point identifier.
+	 * @param segmentId Segment identifier.
+	 * @param firstPointId the first track point of the segment.
+	 * @param lastPointId the last track point of the segment.
 	 * @param segmentTrack Segment track object.
 	 * @return The identifier of the segment track inserted.
 	 * @throws Exception 
 	 */
-	public long addSegmentTrack(Long trackId, Long segmentPointId, SegmentTrack segmentTrack) throws Exception {
+	public long addSegmentTrack(Long trackId, Long firstPointId, Long lastPointId, Long segmentId, SegmentTrack segmentTrack) throws Exception {
 		ContentValues values = new ContentValues();
 		Long id;
-		
 		values.put(DBHelper.TIME_FIELD_NAME, segmentTrack.getTime());
-		values.put(DBHelper.MAX_SPEED_FIELD_NAME, segmentTrack.getMaxSpeed());
 		values.put(DBHelper.AVG_SPEED_FIELD_NAME, segmentTrack.getAvgSpeed());
 		values.put(DBHelper.TRACK_FIELD_NAME, trackId);
-		values.put(DBHelper.SEGMENT_POINT_FIELD_NAME, segmentPointId);
+		values.put(DBHelper.TRACK_FIRST_POINT_NAME, firstPointId);
+		values.put(DBHelper.TRACK_LAST_POINT_NAME, lastPointId);
+		values.put(DBHelper.SEGMENT_FIELD_NAME, segmentId);
 		try {
 			id = db.insertOrThrow(DBHelper.SEGMENT_TRACK_TBL_NAME, null, values);
 			return id;
@@ -1086,8 +1088,9 @@ public class DBAdapter {
 	/**
 	 * Find geopoint in all tracks with a precision.
 	 *
-	 * @param beginId
-	 * @param endId
+	 * @param trackId The track identifier.
+	 * @param beginId The begin track point identifier.
+	 * @param endId The end track ponit identifier.
 	 * @return A list of track with all points from beginId to endId.
 	 */
 	public List<TrackPoint> getPointsInTrackFromBeginToEnd(Long trackId, Long beginId, Long endId) {

@@ -60,6 +60,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import es.rgmf.libresportgps.common.MsgDialog;
 import es.rgmf.libresportgps.common.Services;
@@ -67,6 +68,7 @@ import es.rgmf.libresportgps.common.Utilities;
 import es.rgmf.libresportgps.db.DBModel;
 import es.rgmf.libresportgps.db.orm.Segment;
 import es.rgmf.libresportgps.db.orm.SegmentPoint;
+import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.fragment.dialog.AddSegmentDialog;
 import es.rgmf.libresportgps.fragment.dialog.AddSegmentDialog.AddSegmentDialogListener;
 import es.rgmf.libresportgps.view.RouteMapView;
@@ -148,7 +150,7 @@ public class OSMActivity extends Activity implements AddSegmentDialogListener {
 
 
 		/******************************* PROBANDO *********************************/
-		new FindSegmentTask().execute("");
+		//new FindSegmentTask().execute("");
 		//DBModel.findSegmentInTracks(mContext, 2L);
 	}
 
@@ -326,7 +328,8 @@ public class OSMActivity extends Activity implements AddSegmentDialogListener {
 				segment.setElevationGain(mEndElevation - mStartElevation);
 				Long segmentId = DBModel.addSegment(mContext, segment, mSegmentPointList);
 				if (segmentId != null) {
-					MsgDialog.alert(mContext, R.string.add_segment, getString(R.string.add_segment_ok));
+					new FindSegmentTask().execute(segmentId);
+					//MsgDialog.alert(mContext, R.string.add_segment, getString(R.string.add_segment_ok));
 				}
 				else {
 					MsgDialog.alert(mContext, R.string.add_segment, getString(R.string.add_segment_fail));
@@ -444,7 +447,7 @@ public class OSMActivity extends Activity implements AddSegmentDialogListener {
 	 *
 	 * We need an AsyncTask because http connection, so user need Internet connection.
 	 */
-	class FindSegmentTask extends AsyncTask<String, Integer, Boolean> {
+	class FindSegmentTask extends AsyncTask<Long, Integer, Boolean> {
 		private ProgressDialog dialog = new ProgressDialog(OSMActivity.this);
 		private List<SegmentPoint> mSegmentPointList = new ArrayList<SegmentPoint>();
 		private String mSegmentName = "";
@@ -474,6 +477,11 @@ public class OSMActivity extends Activity implements AddSegmentDialogListener {
 			if (dialog.isShowing()) {
 				dialog.dismiss();
 			}
+
+			if (isOk)
+				MsgDialog.alert(mContext, R.string.add_segment, getString(R.string.add_segment_ok));
+			else
+				MsgDialog.alert(mContext, R.string.add_segment, getString(R.string.add_segment_fail));
 		}
 
 		/**
@@ -483,9 +491,14 @@ public class OSMActivity extends Activity implements AddSegmentDialogListener {
 		 * @return The segment name or null if any error.
 		 */
 		@Override
-		protected Boolean doInBackground(String... params) {
-			DBModel.findSegmentInTracks(mContext, 2L);
-			return true;
+		protected Boolean doInBackground(Long... params) {
+			if (params.length > 0) {
+				Map<Long, Track> result = DBModel.findSegmentInTracks(mContext, params[0]);
+				if (result != null && result.size() > 0)
+					return true;
+			}
+
+			return false;
 		}
 	}
 }

@@ -424,30 +424,6 @@ public class DBModel {
 	}
 
 	/**
-	 * Add a segment track.
-	 * 
-	 * @param context Context object.
-	 * @param trackId Track identifier.
-	 * @param segmentId Segment identifier.
-	 * @param segmentTrack Segment track object.
-	 * @return The identifier of the segment track inserted.
-	 */
-	public static Long addSegmentTrack(Context context, Long trackId,
-			Long segmentId, SegmentTrack segmentTrack) {
-		DBAdapter dbAdapter = new DBAdapter(context);
-		dbAdapter.open();
-		Long id;
-		try {
-			id = dbAdapter.addSegmentTrack(trackId, segmentId, segmentTrack);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-		dbAdapter.close();
-		return id;
-	}
-
-	/**
 	 * Add a segment point.
 	 * 
 	 * @param context Context object.
@@ -477,11 +453,12 @@ public class DBModel {
 	 *
 	 * 1.- Get all tracks that have initial segment point.
 	 * 2.- Get all tracks that have finish segment point.
-	 * 3.- Join maps got in 1 and 2.
+	 * 3.- Get in the middle points from tracks that have the initial and finish points.
+	 * 4.- Check and find the tracks that have all segment points from init to finish.
 	 *
-	 * @param context
-	 * @param segmentId
-	 * @return A map with all tracks with track points.
+	 * @param context The context.
+	 * @param segmentId The segment identifier.
+	 * @return A map with all tracks with track points that belong to the segment.
 	 */
 	public static Map<Long, Track> findSegmentInTracks(Context context, Long segmentId) {
 		Map<Long, Track> result = new HashMap<Long, Track>();
@@ -537,8 +514,9 @@ public class DBModel {
 					}
 				}
 
-				// COMPLETE THE INTERMEDIATE TRACK POINTS AND CREATE THE RESULT TO RETURN.
-				// LATER, CHECK IF THESE TRACK POINTS ARE THE SEGMENT.
+				// COMPLETE THE INTERMEDIATE TRACK POINTS.
+				// LATER, CHECK IF THESE TRACK POINTS ARE THE SEGMENT AND CREATE THE RESULT TO RETURN.
+				// ONLY ADD TO RESULT IF ALL SEGMENT POINTS ARE INSIDE TRACK POINTS.
 				for (Track track : begin.values()) {
 					if (track.getTrackPointList() != null && track.getTrackPointList().size() == 2) {
 						List<TrackPoint> aux = dbAdapter.getPointsInTrackFromBeginToEnd(
@@ -547,10 +525,10 @@ public class DBModel {
 								track.getTrackPointList().get(track.getTrackPointList().size() - 1).getId());
 						if (aux.size() > 1) {
 							int count = 0, countPointsBetween = 0;
-							double distanceBetween;
+							double distanceBetween = Double.MAX_VALUE;
 							for (SegmentPoint segmentPoint : spList) {
 								//Log.v("SegmentPoint", segmentPoint.getLat() + " / " + segmentPoint.getLng());
-								do {
+								while (distanceBetween > 20 && count < aux.size()) {
 									//Log.v("Count", count + "");
 									//Log.v("Lat1/Lng1 - Lat2/Lng2", segmentPoint.getLat() + "/" + segmentPoint.getLng() + " - " +  aux.get(count).getLat() + "/" + aux.get(count).getLng());
 									distanceBetween = Utilities.CalculateDistance(
@@ -561,7 +539,7 @@ public class DBModel {
 									);
 									//Log.v("DistanceBetween", distanceBetween + "");
 									count++;
-								} while (distanceBetween > 20 && count < aux.size());
+								}
 								if (distanceBetween <= 100) {
 									countPointsBetween++;
 								}
@@ -574,6 +552,24 @@ public class DBModel {
 								track.setTrackPointList(aux);
 								result.put(track.getId(), track);
 							}
+						}
+					}
+
+					// Add segmnt track information.
+					TrackPoint firstPoint = track.getTrackPointList().get(0);
+					TrackPoint lastPoint = track.getTrackPointList().get(track.getTrackPointList().size() - 1);
+					if (firstPoint.getTime() < lastPoint.getTime()) {
+						long timeSegmentTrack = lastPoint.getTime() - firstPoint.getTime();
+						float distanceSegmentTrack = lastPoint.getDistance() - firstPoint.getDistance();
+						float avgSpeedSegmentTrack = (((float) timeSegmentTrack) / (float) 1000.0) / distanceSegmentTrack;
+
+						SegmentTrack segmentTrack = new SegmentTrack();
+						segmentTrack.setTime(timeSegmentTrack);
+						segmentTrack.setAvgSpeed(avgSpeedSegmentTrack);
+						try {
+							dbAdapter.addSegmentTrack(track.getId(), firstPoint.getId(), lastPoint.getId(), segmentId, segmentTrack);
+						} catch (Exception e) {
+							e.printStackTrace();
 						}
 					}
 				}
