@@ -54,10 +54,12 @@ import es.rgmf.libresportgps.adapter.NavDrawerListAdapter;
 import es.rgmf.libresportgps.common.Session;
 import es.rgmf.libresportgps.data.NavDrawerItem;
 import es.rgmf.libresportgps.db.DBModel;
+import es.rgmf.libresportgps.db.orm.Segment;
 import es.rgmf.libresportgps.db.orm.Track;
 import es.rgmf.libresportgps.db.orm.TrackPoint;
 import es.rgmf.libresportgps.fragment.AbstractViewFragment;
 import es.rgmf.libresportgps.fragment.DataViewFragment;
+import es.rgmf.libresportgps.fragment.SegmentListFragment;
 import es.rgmf.libresportgps.fragment.SettingsFragment;
 import es.rgmf.libresportgps.fragment.StatsFragment;
 import es.rgmf.libresportgps.fragment.TrackFragment;
@@ -74,7 +76,7 @@ import es.rgmf.libresportgps.gps.IGpsLoggerServiceClient;
  */
 public class MainActivity extends FragmentActivity implements
 		IGpsLoggerServiceClient, TrackListFragment.OnTrackListSelectedListener,
-		TrackListFragment.ProgressCallbacks {
+		TrackListFragment.ProgressCallbacks, SegmentListFragment.OnSegmentListSelectedListener {
 
 	private ProgressDialog mProgressDialog = null;
 
@@ -336,11 +338,12 @@ public class MainActivity extends FragmentActivity implements
 	public void onNavigationDrawerItemSelected(int position) {
 
 		DrawerMenu item = DrawerMenu.values()[position];
+		/*
 		if (item == DrawerMenu.SEGMENTS) {
 			Intent intent = new Intent(mContext, OSMActivity.class);
 			startActivity(intent);
 		}
-		else {
+		else {*/
 			// update the main content by replacing fragments
 			FragmentTransaction transaction = mFragmentManager.beginTransaction();
 
@@ -351,6 +354,9 @@ public class MainActivity extends FragmentActivity implements
 					break;
 				case DATAVIEW:
 					transaction.replace(R.id.container, DataViewFragment.newInstance());
+					break;
+				case SEGMENTS:
+					transaction.replace(R.id.container, SegmentListFragment.newInstance());
 					break;
 				case SETTINGS:
 					transaction.replace(R.id.container, StatsFragment.newInstance(StatsFragment.NONE, StatsFragment.NONE, StatsFragment.NONE));
@@ -363,7 +369,7 @@ public class MainActivity extends FragmentActivity implements
 			mDrawerLayout.closeDrawer(mRelativeLayout);
 			mDrawerList.setItemChecked(position, true);
 			mDrawerList.setSelection(position);
-		}
+		//}
 	}
 
 	/**
@@ -645,6 +651,30 @@ public class MainActivity extends FragmentActivity implements
         //fragmentManager.popBackStack();
         t.addToBackStack(null);
         t.commit();
+	}
+
+	/**
+	 * This method is called when user click on segment list item in the
+	 * SegmentListFragment fragment.
+	 *
+	 * @param segment
+	 *            The segment selected.
+	 */
+	@Override
+	public void onSegmentSelected(Segment segment) {
+		/*
+		TrackFragment fragment = TrackFragment.newInstance(track);
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		// clear back stack
+		//for (int i = 0; i < fragmentManager.getBackStackEntryCount(); i++) {
+		//    fragmentManager.popBackStack();
+		//}
+		FragmentTransaction t = fragmentManager.beginTransaction();
+		t.replace(R.id.container, fragment);
+		//fragmentManager.popBackStack();
+		t.addToBackStack(null);
+		t.commit();
+		*/
 	}
 
 	/**

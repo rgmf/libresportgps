@@ -240,6 +240,7 @@ public class DBAdapter {
 		ContentValues values = new ContentValues();
 		Long id;
 		values.put(DBHelper.TIME_FIELD_NAME, segmentTrack.getTime());
+		values.put(DBHelper.MAX_SPEED_FIELD_NAME, segmentTrack.getMaxSpeed());
 		values.put(DBHelper.AVG_SPEED_FIELD_NAME, segmentTrack.getAvgSpeed());
 		values.put(DBHelper.TRACK_FIELD_NAME, trackId);
 		values.put(DBHelper.TRACK_FIRST_POINT_NAME, firstPointId);
@@ -299,7 +300,7 @@ public class DBAdapter {
     	values.put(DBHelper.MIN_ELEVATION_FIELD_NAME, track.getMinElevation());
     	values.put(DBHelper.ELEVATION_GAIN_FIELD_NAME, track.getElevationGain());
     	values.put(DBHelper.ELEVATION_LOSS_FIELD_NAME, track.getElevationLoss());
-    	db.update(DBHelper.TRACK_TBL_NAME, values, 
+    	db.update(DBHelper.TRACK_TBL_NAME, values,
 				DBHelper.ID_FIELD_NAME + "=" + trackId, null);
 	}
 
@@ -544,6 +545,40 @@ public class DBAdapter {
 
         return sports;
     }
+
+	/**
+	 * @return All segments..
+	 */
+	public List<Segment> getSegments() {
+		String query = "SELECT " +
+				DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.ID_FIELD_NAME + ", " +           // 0
+				DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.NAME_FIELD_NAME + ", " +         // 1
+				DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.DISTANCE_FIELD_NAME + ", " +     // 2
+				DBHelper.SEGMENT_TBL_NAME + "." + DBHelper.ELEVATION_GAIN_FIELD_NAME +		// 3
+
+				" FROM " +
+				DBHelper.SEGMENT_TBL_NAME;
+
+		Cursor cursor = db.rawQuery(query, null);
+
+		List<Segment> segments = new ArrayList<Segment>(cursor.getCount());
+		Segment segment;
+
+		if(cursor.moveToFirst()) {
+			do {
+				segment = new Segment();
+				segment.setId(cursor.getLong(0));
+				segment.setName(cursor.getString(1));
+				segment.setDistance(cursor.getDouble(2));
+				segment.setElevationGain(cursor.getDouble(3));
+
+				segments.add(segment);
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+
+		return segments;
+	}
     
     /**
      * Get all distance / elevation from track points of the track id.
@@ -967,6 +1002,18 @@ public class DBAdapter {
 	public boolean deleteTrack(long trackId) {
 		return db.delete(DBHelper.TRACK_TBL_NAME, 
 				DBHelper.ID_FIELD_NAME + "=" + trackId,
+				null) > 0;
+	}
+
+	/**
+	 * Delete the segment identifier by segmentId.
+	 *
+	 * @param segmentId The identifier of the segment to delete.
+	 * @return true if segment could be deleted.
+	 */
+	public boolean deleteSegment(long segmentId) {
+		return db.delete(DBHelper.SEGMENT_TBL_NAME,
+				DBHelper.ID_FIELD_NAME + "=" + segmentId,
 				null) > 0;
 	}
 

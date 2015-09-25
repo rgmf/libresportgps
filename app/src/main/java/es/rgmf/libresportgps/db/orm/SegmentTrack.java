@@ -26,6 +26,7 @@ package es.rgmf.libresportgps.db.orm;
 public class SegmentTrack {
 	private Long id;
 	private Long time;
+	private Float maxSpeed;
 	private Float avgSpeed;
 	private Track track;
 	private Segment segment;
@@ -40,6 +41,12 @@ public class SegmentTrack {
 	}
 	public void setTime(Long time) {
 		this.time = time;
+	}
+	public Float getMaxSpeed() {
+		return maxSpeed;
+	}
+	public void setMaxSpeed(Float maxSpeed) {
+		this.maxSpeed = maxSpeed;
 	}
 	public Float getAvgSpeed() {
 		return avgSpeed;

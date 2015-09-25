@@ -39,7 +39,8 @@
 
     <!-- Error messages. -->
     <string name="db_error_to_create_track">The track cannot be created in the database.</string>
-    <string name="track_was_not_deleted">The track was not deleted.</string>
+    <string name="track_was_not_deleted">The activity was not deleted.</string>
+    <string name="segment_was_not_deleted">The segment was not deleted.</string>
 
     <!-- Preferences strings -->
     <string name="time_before_logging_title">Time between registers</string>
@@ -114,7 +115,8 @@
     <string name="route_profile">Profile</string>
     <string name="track_on_map">Track on map</string>
     <string name="gps_update">GPS improvement</string>
-    <string name="no_tracks_to_display">No tracks to display</string>
+    <string name="no_tracks_to_display">No activities to display</string>
+    <string name="no_segments_to_display">No segments to display</string>
     <string name="detail">Detail</string>
     <string name="altimetry">Altimetry</string>
     <string name="segment">Segment</string>
@@ -138,6 +140,8 @@
     <string name="title_activity_main2">Main2Activity</string>
     <string name="add_segment_internet_needed_hint">You need Internet to get elevation information to add segments.</string>
     <string name="please_wait">Please wait...</string>
+    <string name="adding_segment">Creating segment.</string>
+    <string name="finding_segment_track">Searching the segment in your activities.</string>
     <string name="add_segment_ok">Segment added.</string>
     <string name="add_segment_fail">Add segment failed. Try again.</string>
 

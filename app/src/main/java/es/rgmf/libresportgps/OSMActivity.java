@@ -301,7 +301,7 @@ public class OSMActivity extends Activity implements AddSegmentDialogListener {
 		 */
 		@Override
 		protected void onPreExecute() {
-			this.dialog.setMessage(getString(R.string.please_wait));
+			this.dialog.setMessage(getString(R.string.adding_segment) + " " + getString(R.string.please_wait));
 			this.dialog.show();
 		}
 
@@ -421,31 +421,8 @@ public class OSMActivity extends Activity implements AddSegmentDialogListener {
 		}
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	/**
-	 * This AsyncTask get elevation from all geo points and then add the segmento to the
-	 * database.
-	 *
-	 * We need an AsyncTask because http connection, so user need Internet connection.
+	 * This AsyncTask find tracks that have the segment indicated.
 	 */
 	class FindSegmentTask extends AsyncTask<Long, Integer, Boolean> {
 		private ProgressDialog dialog = new ProgressDialog(OSMActivity.this);
@@ -462,7 +439,7 @@ public class OSMActivity extends Activity implements AddSegmentDialogListener {
 		 */
 		@Override
 		protected void onPreExecute() {
-			this.dialog.setMessage(getString(R.string.please_wait));
+			this.dialog.setMessage(getString(R.string.finding_segment_track) + " " + getString(R.string.please_wait));
 			this.dialog.show();
 		}
 

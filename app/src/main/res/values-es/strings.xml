@@ -39,7 +39,8 @@
     
     <!-- Error messages. -->
     <string name="db_error_to_create_track">El track no puede ser creado en la base de datos.</string>
-    <string name="track_was_not_deleted">El track no fue eliminado.</string>
+    <string name="track_was_not_deleted">La actividad no fue eliminada.</string>
+    <string name="segment_was_not_deleted">El segmento no fue eliminado.</string>
     
     <!-- Preferences strings -->
     <string name="time_before_logging_title">Tiempo entre cada registro</string>
@@ -115,7 +116,8 @@
     <string name="route_profile">Perfil</string>
     <string name="track_on_map">Ver en mapa</string>
     <string name="gps_update">Rendimiento GPS</string>
-    <string name="no_tracks_to_display">No hay tracks que mostrar</string>
+    <string name="no_tracks_to_display">No hay actividades que mostrar</string>
+    <string name="no_segments_to_display">No hay segmentos que mostrar</string>
     <string name="detail">Detalle</string>
     <string name="altimetry">Altimetría</string>
     <string name="segment">Segment</string>
@@ -136,6 +138,8 @@
     <string name="recovery_track_hint">Hay una actividad a medias. ¿Quieres continuarla?</string>
     <string name="add_segment_internet_needed_hint">Necesitas acceso a Internet para consultar altitudes al crear un segmento.</string>
     <string name="please_wait">Espera, por favor...</string>
+    <string name="adding_segment">Creando segmento.</string>
+    <string name="finding_segment_track">Buscando el segmento en tus actividades.</string>
     <string name="add_segment_ok">Segmento creado correctamente.</string>
     <string name="add_segment_fail">Se ha producido un error. Prueba a intentarlo de nuevo.</string>
 

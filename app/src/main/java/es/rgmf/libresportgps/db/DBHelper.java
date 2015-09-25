@@ -38,7 +38,7 @@ import es.rgmf.libresportgps.common.Session;
  *
  */
 class DBHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 23;
+    private static final int DATABASE_VERSION = 24;
     private static final String DATABASE_NAME = "libresportgps.db";
     
     /*************************** Table names *********************************/
@@ -161,6 +161,7 @@ class DBHelper extends SQLiteOpenHelper {
     private static final String SEGMENT_TRACK_TBL = "create table if not exists " + SEGMENT_TRACK_TBL_NAME + "( " +
     		ID_FIELD_NAME + " integer primary key autoincrement, " +
     		TIME_FIELD_NAME + " integer not null, " +
+			MAX_SPEED_FIELD_NAME + " real, " +
     		AVG_SPEED_FIELD_NAME + " real, " +
     		TRACK_FIELD_NAME + " integer not null references " + TRACK_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade, " +
 			TRACK_FIRST_POINT_NAME + " integer not null references " + TRACK_POINT_TBL_NAME + " (" + ID_FIELD_NAME + ") on delete cascade on update cascade, " +

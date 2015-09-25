@@ -262,6 +262,21 @@ public class DBModel {
 	}
 
 	/**
+	 * Delete the segment.
+	 *
+	 * @param context
+	 * @param segmentId
+	 * @return true if segment was deleted.
+	 */
+	public static boolean deleteSegment(Context context, long segmentId) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		boolean res = dbAdapter.deleteSegment(segmentId);
+		dbAdapter.close();
+		return res;
+	}
+
+	/**
 	 * Get all distance / elevation from track points of the track id.
 	 * 
 	 * @param context The context.
@@ -361,6 +376,20 @@ public class DBModel {
 		return list;
 	}
 	*/
+
+	/**
+	 * Return all segment tracks or null.
+	 *
+	 * @param context The context.
+	 * @return The list of segments.
+	 */
+	public static List<Segment> getSegments(Context context) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		List<Segment> list = dbAdapter.getSegments();
+		dbAdapter.close();
+		return list;
+	}
 	
 	/**
 	 * Get stats by sport filtering by paramethers. if they are not null.
@@ -517,8 +546,10 @@ public class DBModel {
 				// COMPLETE THE INTERMEDIATE TRACK POINTS.
 				// LATER, CHECK IF THESE TRACK POINTS ARE THE SEGMENT AND CREATE THE RESULT TO RETURN.
 				// ONLY ADD TO RESULT IF ALL SEGMENT POINTS ARE INSIDE TRACK POINTS.
+				float maxSpeedSegmentTrack;
 				for (Track track : begin.values()) {
 					if (track.getTrackPointList() != null && track.getTrackPointList().size() == 2) {
+						maxSpeedSegmentTrack = 0f;
 						List<TrackPoint> aux = dbAdapter.getPointsInTrackFromBeginToEnd(
 								track.getId(),
 								track.getTrackPointList().get(0).getId(),
@@ -537,6 +568,10 @@ public class DBModel {
 											aux.get(count).getLat(),
 											aux.get(count).getLng()
 									);
+
+									if (aux.get(count).getSpeed() > maxSpeedSegmentTrack)
+										maxSpeedSegmentTrack = aux.get(count).getSpeed();
+
 									//Log.v("DistanceBetween", distanceBetween + "");
 									count++;
 								}
@@ -545,92 +580,41 @@ public class DBModel {
 								}
 							}
 
-							Log.v("Track:", track.getTitle());
-							Log.v("Puntos coincidentes", countPointsBetween + "");
+							//Log.v("Track:", track.getTitle());
+							//Log.v("Puntos coincidentes", countPointsBetween + "");
 							if (countPointsBetween == spList.size()) {
-								Log.v("Para adentro", "Para adentro");
+								//Log.v("Para adentro", "Para adentro");
 								track.setTrackPointList(aux);
 								result.put(track.getId(), track);
 							}
 						}
-					}
 
-					// Add segmnt track information.
-					TrackPoint firstPoint = track.getTrackPointList().get(0);
-					TrackPoint lastPoint = track.getTrackPointList().get(track.getTrackPointList().size() - 1);
-					if (firstPoint.getTime() < lastPoint.getTime()) {
-						long timeSegmentTrack = lastPoint.getTime() - firstPoint.getTime();
-						float distanceSegmentTrack = lastPoint.getDistance() - firstPoint.getDistance();
-						float avgSpeedSegmentTrack = (((float) timeSegmentTrack) / (float) 1000.0) / distanceSegmentTrack;
+						// Add segment track information.
+						TrackPoint firstPoint = track.getTrackPointList().get(0);
+						TrackPoint lastPoint = track.getTrackPointList().get(track.getTrackPointList().size() - 1);
+						if (firstPoint.getTime() < lastPoint.getTime()) {
+							long timeSegmentTrack = lastPoint.getTime() - firstPoint.getTime();
+							float distanceSegmentTrack = lastPoint.getDistance() - firstPoint.getDistance();
+							float avgSpeedSegmentTrack = (((float) timeSegmentTrack) / (float) 1000.0) / distanceSegmentTrack;
 
-						SegmentTrack segmentTrack = new SegmentTrack();
-						segmentTrack.setTime(timeSegmentTrack);
-						segmentTrack.setAvgSpeed(avgSpeedSegmentTrack);
-						try {
-							dbAdapter.addSegmentTrack(track.getId(), firstPoint.getId(), lastPoint.getId(), segmentId, segmentTrack);
-						} catch (Exception e) {
-							e.printStackTrace();
+							SegmentTrack segmentTrack = new SegmentTrack();
+							segmentTrack.setTime(timeSegmentTrack);
+							segmentTrack.setMaxSpeed(maxSpeedSegmentTrack);
+							segmentTrack.setAvgSpeed(avgSpeedSegmentTrack);
+							try {
+								dbAdapter.addSegmentTrack(track.getId(), firstPoint.getId(), lastPoint.getId(), segmentId, segmentTrack);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
 						}
 					}
 				}
-
-				/*
-				for (Track t : result.values()) {
-					Log.v("Track:", t.getId() + " - " + t.getTitle());
-					for (TrackPoint tp : t.getTrackPointList())
-						Log.v("TrackPoint:", tp.getLat() + " - " + tp.getLng());
-					Log.v("---------", "-------------");
-				}
-				*/
 			}
 		}
 		dbAdapter.close();
 
 		return result;
 	}
-
-	/**
-	 * This method finds and creates segment tracks in other 
-	 * tracks than track identify by trackId.
-	 * 
-	 * @param trackId
-	 * @param segmentPoint
-	 * @param pointPrecision
-	 * @param distancePrecision
-	 */
-	/*
-	public static void findAndAddSegmentTracks(Context context, Long trackId,
-			SegmentPoint segmentPoint, Double pointPrecision, Double distancePrecision) {
-		DBAdapter dbAdapter = new DBAdapter(context);
-		dbAdapter.open();
-		List<TrackPoint> trackBeginPointList = dbAdapter.findSegmentOtherTracks(trackId, segmentPoint.getBeginLat(), segmentPoint.getBeginLng(), pointPrecision);
-		List<TrackPoint> trackEndPointList = dbAdapter.findSegmentOtherTracks(trackId, segmentPoint.getEndLat(), segmentPoint.getEndLng(), pointPrecision);
-		
-		Log.v("BEGIN TRACK POINTS", "BEGIN TRACK POINTS");
-		for (TrackPoint tbp : trackBeginPointList) {
-			Log.v("Track title - Distance", tbp.getTrack().getTitle() + " - " + tbp.getDistance());
-		}
-		
-
-		Log.v("END TRACK POINTS", "END TRACK POINTS");
-		for (TrackPoint tep : trackEndPointList) {
-			Log.v("Track title - Distance", tep.getTrack().getTitle() + " - " + tep.getDistance());
-		}
-		
-		
-		for (TrackPoint tbp : trackBeginPointList) {
-			for (TrackPoint tep : trackEndPointList) {
-				if (tbp.getTrack().getId().equals(tep.getTrack().getId()) && tbp.getDistance() < tep.getDistance() &&
-						Math.abs((tep.getDistance() - tbp.getDistance()) - segmentPoint.getSegment().getDistance()) < distancePrecision) {
-					Log.v("Título del track", tep.getTrack().getTitle());
-					Log.v("Distancia del segmento en el track (candidato)", (tep.getDistance() - tbp.getDistance()) + "");
-					Log.v("Distancia del segmento: ", segmentPoint.getSegment().getDistance() + "");
-				}
-			}
-		}
-		dbAdapter.close();
-	}
-	*/
 
 	
 	
