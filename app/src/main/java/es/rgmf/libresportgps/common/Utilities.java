@@ -189,7 +189,10 @@ public class Utilities {
     		seconds = (timeStamp / 1000) % 60;
     		minutes = (timeStamp / 1000 / 60) % 60;
     		hours = (timeStamp / 1000 / 60 / 60);
-    		return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+			if (hours > 0)
+    			return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+			else
+				return String.format("%02d:%02d", minutes, seconds);
     	}
     	else
     		return "00:00:00";

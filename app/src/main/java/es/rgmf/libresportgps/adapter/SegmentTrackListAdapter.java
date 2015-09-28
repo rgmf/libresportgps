@@ -18,26 +18,21 @@
 package es.rgmf.libresportgps.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.slf4j.helpers.Util;
-
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import es.rgmf.libresportgps.R;
 import es.rgmf.libresportgps.common.Utilities;
-import es.rgmf.libresportgps.data.TrackListHead;
 import es.rgmf.libresportgps.db.orm.Segment;
-import es.rgmf.libresportgps.db.orm.Sport;
-import es.rgmf.libresportgps.db.orm.Track;
+import es.rgmf.libresportgps.db.orm.SegmentTrack;
 
 /**
  * This adapter is used to load the list of user tracks (activities).
@@ -47,11 +42,11 @@ import es.rgmf.libresportgps.db.orm.Track;
  * 
  * @author Román Ginés Martínez Ferrández <rgmf@riseup.net>
  */
-public class SegmentListAdapter extends ArrayAdapter<Segment> {
+public class SegmentTrackListAdapter extends ArrayAdapter<SegmentTrack> {
 	/**
 	 * Values of the adapter.
 	 */
-	private List<Segment> mValues = new ArrayList<>();
+	private List<SegmentTrack> mValues = new ArrayList<>();
 	/**
 	 * The context.
 	 */
@@ -68,9 +63,10 @@ public class SegmentListAdapter extends ArrayAdapter<Segment> {
 	 */
 	private class ViewHolder {
 		TextView tvName;
-		TextView tvDistance;
-		TextView tvElevationGain;
-		TextView tvGradient;
+		TextView tvTime;
+		TextView tvAvgSpeed;
+		TextView tvMaxSpeed;
+		TextView tvDate;
 	}
 
 	/**
@@ -79,8 +75,8 @@ public class SegmentListAdapter extends ArrayAdapter<Segment> {
 	 * @param context The context.
 	 * @param items The values (activities and headers).
 	 */
-	public SegmentListAdapter(Context context, List<Segment> items) {
-		super(context, R.layout.fragment_row_segment_list);
+	public SegmentTrackListAdapter(Context context, List<SegmentTrack> items) {
+		super(context, R.layout.fragment_row_segment_track_list);
 		this.mContext = context;
 		this.mValues = items;
 		this.mSelectedItemsIds = new SparseBooleanArray();
@@ -98,7 +94,7 @@ public class SegmentListAdapter extends ArrayAdapter<Segment> {
 
 		// First let's verify the convertView is not null
 		if (convertView == null) {
-			convertView = inflater.inflate(R.layout.fragment_row_segment_list, parent, false);
+			convertView = inflater.inflate(R.layout.fragment_row_segment_track_list, parent, false);
 			holder = new ViewHolder();
 		}
 		else {
@@ -108,17 +104,19 @@ public class SegmentListAdapter extends ArrayAdapter<Segment> {
 		}
 
 		// Create the holder.
-		holder.tvName = (TextView) convertView.findViewById(R.id.segment_name);
-		holder.tvDistance = (TextView) convertView.findViewById(R.id.segment_distance);
-		holder.tvElevationGain = (TextView) convertView.findViewById(R.id.segment_elevation_gain);
-		holder.tvGradient = (TextView) convertView.findViewById(R.id.segment_gradient);
+		holder.tvName = (TextView) convertView.findViewById(R.id.segment_track_name);
+		holder.tvTime = (TextView) convertView.findViewById(R.id.segment_track_time);
+		holder.tvAvgSpeed = (TextView) convertView.findViewById(R.id.segment_track_avg_speed);
+		holder.tvMaxSpeed = (TextView) convertView.findViewById(R.id.segment_track_max_speed);
+		holder.tvDate = (TextView) convertView.findViewById(R.id.track_date);
 
 		// Now we can fill the layout with the right values.
-		Segment segment = mValues.get(position);
-		holder.tvName.setText(segment.getName());
-		holder.tvDistance.setText(Utilities.distance(segment.getDistance()));
-		holder.tvElevationGain.setText(Utilities.elevation(segment.getElevationGain()));
-		holder.tvGradient.setText(Utilities.gradient(segment.getElevationGain(), segment.getDistance()));
+		SegmentTrack segmentTrack = mValues.get(position);
+		holder.tvName.setText(segmentTrack.getTrack().getTitle());
+		holder.tvTime.setText(Utilities.totalTimeFormatter(segmentTrack.getTime()));
+		holder.tvAvgSpeed.setText(Utilities.speed(segmentTrack.getAvgSpeed() * 3.6));
+		holder.tvMaxSpeed.setText(Utilities.speed(segmentTrack.getMaxSpeed() * 3.6));
+		holder.tvDate.setText(Utilities.millisecondsToDate(segmentTrack.getTrack().getStartTime()));
 	     
 	    return convertView;
 	}
@@ -133,7 +131,7 @@ public class SegmentListAdapter extends ArrayAdapter<Segment> {
 	}
 
 	@Override
-	public Segment getItem(int i) {
+	public SegmentTrack getItem(int i) {
 		return mValues.get(i);
 	}
 
@@ -164,7 +162,7 @@ public class SegmentListAdapter extends ArrayAdapter<Segment> {
 	}
 	
 	@Override
-	public void remove(Segment object) {
+	public void remove(SegmentTrack object) {
 		super.remove(object);
 		mValues.remove(object);
 		this.notifyDataSetChanged();

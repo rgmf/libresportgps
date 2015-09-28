@@ -33,7 +33,7 @@
     <array name="nav_drawer_icons">
         <item>@drawable/ic_action_storage</item>
         <item>@drawable/ic_action_play</item>
-        <item>@drawable/ic_action_edit</item>
+        <item>@drawable/ic_segments</item>
         <item>@drawable/ic_stats</item>
     </array>
     
@@ -110,7 +110,7 @@
 	<string name="delete">Borrar</string>
 	<string name="edit">Editar</string>
     <string name="unknown_sport">Desporte desconocido</string>
-    <string name="import_file">Importar</string>
+    <string name="import_file">Añadir</string>
     <string name="elevation">Altitud</string>
     <string name="distance">Distancia</string>
     <string name="route_profile">Perfil</string>
@@ -142,5 +142,7 @@
     <string name="finding_segment_track">Buscando el segmento en tus actividades.</string>
     <string name="add_segment_ok">Segmento creado correctamente.</string>
     <string name="add_segment_fail">Se ha producido un error. Prueba a intentarlo de nuevo.</string>
+    <string name="delete_segment">Eliminar segmento</string>
+    <string name="delete_segment_selected_hint">¿Seguro que quieres eliminar todos los segmentos seleccionados? Esta acción no se puede deshacer.</string>
 
 </resources>

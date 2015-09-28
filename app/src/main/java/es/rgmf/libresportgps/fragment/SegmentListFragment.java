@@ -143,11 +143,13 @@ public class SegmentListFragment extends ListFragment {
 
 		// Get all tracks information.
 		mSegments = DBModel.getSegments(getActivity());
+		/*
 		if (mSegments != null && mSegments.size() > 0) {
 			for (Segment s : mSegments) {
 				Log.v("Segmento:", s.getName());
 			}
 		}
+		*/
 
 		// Create values to add to the adapter (headers and values).
 		mContext = inflater.getContext();
@@ -190,9 +192,9 @@ public class SegmentListFragment extends ListFragment {
 				switch (item.getItemId()) {
 					case R.id.tracklist_delete:
 						new AlertDialog.Builder(getActivity())
-								.setTitle(R.string.delete_trackfile)
+								.setTitle(R.string.delete_segment)
 								.setIcon(android.R.drawable.ic_dialog_alert)
-								.setMessage(getResources().getString(R.string.delete_tracksfile_selected_hint))
+								.setMessage(getResources().getString(R.string.delete_segment_selected_hint))
 								.setCancelable(true).setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {

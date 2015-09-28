@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Copyright (C) 2014 Román Ginés Martínez Ferrández <rgmf@riseup.net>
+ *
+ * This program (LibreSportGPS) is free software: you can 
+ * redistribute it and/or modify it under the terms of the GNU General 
+ * Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+ -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="?android:attr/activatedBackgroundIndicator">
+
+	<RelativeLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:paddingBottom="10dp"
+	    android:paddingLeft="20dp"
+	    android:paddingRight="20dp"
+	    android:paddingTop="10dp" >
+	        
+	    <TextView
+	        android:id="@+id/segment_track_name"
+	        android:layout_width="wrap_content"  
+	        android:layout_height="wrap_content"
+	    	android:paddingLeft="10dp"
+	        android:textColor="#454545"
+	        android:textSize="@dimen/text_medium" />
+	    
+	    <TextView
+	        android:id="@+id/segment_track_time"
+	        android:layout_width="wrap_content"  
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/segment_track_name"
+	    	android:paddingLeft="10dp"
+	        android:textColor="#858585"
+	        android:textSize="@dimen/text_medium" />
+	    
+	    <TextView
+	        android:id="@+id/segment_track_avg_speed"
+	        android:layout_width="wrap_content"  
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/segment_track_name"
+			android:layout_toRightOf="@id/segment_track_time"
+	    	android:paddingLeft="20dp"
+	        android:textColor="#454545"
+	        android:textSize="@dimen/text_medium" />
+	    
+	    <TextView
+	        android:id="@+id/segment_track_max_speed"
+	        android:layout_width="wrap_content"  
+	        android:layout_height="wrap_content"
+			android:layout_below="@id/segment_track_name"
+			android:layout_toRightOf="@id/segment_track_avg_speed"
+	        android:paddingLeft="20dp"
+	        android:textColor="#454545"
+	        android:textSize="@dimen/text_medium" />
+
+		<TextView
+			android:id="@+id/track_date"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/segment_track_time"
+			android:layout_alignParentEnd="true"
+			android:layout_alignParentRight="true"
+			android:textColor="#454545"
+			android:textSize="@dimen/text_small" />
+	
+	</RelativeLayout>
+
+</LinearLayout>

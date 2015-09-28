@@ -266,7 +266,7 @@ public class MainActivity extends FragmentActivity implements
 		//libresportgpsView.setKeepScreenOn(true);
 		mDrawerLayout.setKeepScreenOn(true);
 
-		checkRecoveryTracks();
+		//checkRecoveryTracks();
 	}
 
 	/**
@@ -388,6 +388,7 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	protected void onStop() {
 		super.onStop();
+		/*
 		if (Session.isTrackingStarted()) {
 			Track track = new Track();
 			track.setId(Session.getTrackId());
@@ -417,6 +418,7 @@ public class MainActivity extends FragmentActivity implements
 			DBModel.endRecordingTrack(this,
 					Session.getTrackId(), Track.OPEN_TRACK, track);
 		}
+		*/
 	}
 
 	/**
@@ -493,6 +495,7 @@ public class MainActivity extends FragmentActivity implements
 	 *
 	 * Only the last track can be recovered.
 	 */
+	/*
 	private void checkRecoveryTracks() {
 		List<Track> trackList = DBModel.getOpenTracks(this);
 		if (trackList.size() > 0) {
@@ -520,6 +523,10 @@ public class MainActivity extends FragmentActivity implements
 									Session.setLastTimeStamp(track.getFinishTime());
 									Session.setActivityTimeStamp(track.getActivityTime());
 									Session.setFileName(track.getTitle());
+									Session.setAltitudeGain(track.getElevationGain());
+									Session.setAltitudeLoss(track.getElevationLoss());
+									Session.setMaxAltitude(track.getMaxElevation());
+									Session.setMinAltitude(track.getMinElevation());
 									onNavigationDrawerItemSelected(DrawerMenu.DATAVIEW.ordinal());
 								}
 							})
@@ -534,6 +541,7 @@ public class MainActivity extends FragmentActivity implements
 							}).create().show();
 		}
 	}
+	*/
 
 	/**
 	 * Set gpsService.
@@ -662,19 +670,9 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	@Override
 	public void onSegmentSelected(Segment segment) {
-		/*
-		TrackFragment fragment = TrackFragment.newInstance(track);
-		FragmentManager fragmentManager = getSupportFragmentManager();
-		// clear back stack
-		//for (int i = 0; i < fragmentManager.getBackStackEntryCount(); i++) {
-		//    fragmentManager.popBackStack();
-		//}
-		FragmentTransaction t = fragmentManager.beginTransaction();
-		t.replace(R.id.container, fragment);
-		//fragmentManager.popBackStack();
-		t.addToBackStack(null);
-		t.commit();
-		*/
+		Intent intent = new Intent(mContext, SegmentTrackActivity.class);
+		intent.putExtra(SegmentTrackActivity.EXTRA_SEGMENT_ID, segment.getId());
+		startActivity(intent);
 	}
 
 	/**

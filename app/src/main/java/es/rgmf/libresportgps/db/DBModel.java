@@ -390,11 +390,26 @@ public class DBModel {
 		dbAdapter.close();
 		return list;
 	}
+
+	/**
+	 * Return all segment tracks or null.
+	 *
+	 * @param context The context.
+	 * @param segmentId the id of the segment.
+	 * @return The list of segment tracks or null.
+	 */
+	public static List<SegmentTrack> getTrackSegments(Context context, Long segmentId) {
+		DBAdapter dbAdapter = new DBAdapter(context);
+		dbAdapter.open();
+		List<SegmentTrack> list = dbAdapter.getTrackSegments(segmentId);
+		dbAdapter.close();
+		return list;
+	}
 	
 	/**
 	 * Get stats by sport filtering by paramethers. if they are not null.
 	 * 
-	 * @param conext The context.
+	 * @param context The context.
 	 * @param year Year.
 	 * @param month Month.
 	 * @param sport Sport id.
@@ -546,10 +561,8 @@ public class DBModel {
 				// COMPLETE THE INTERMEDIATE TRACK POINTS.
 				// LATER, CHECK IF THESE TRACK POINTS ARE THE SEGMENT AND CREATE THE RESULT TO RETURN.
 				// ONLY ADD TO RESULT IF ALL SEGMENT POINTS ARE INSIDE TRACK POINTS.
-				float maxSpeedSegmentTrack;
 				for (Track track : begin.values()) {
 					if (track.getTrackPointList() != null && track.getTrackPointList().size() == 2) {
-						maxSpeedSegmentTrack = 0f;
 						List<TrackPoint> aux = dbAdapter.getPointsInTrackFromBeginToEnd(
 								track.getId(),
 								track.getTrackPointList().get(0).getId(),
@@ -558,19 +571,13 @@ public class DBModel {
 							int count = 0, countPointsBetween = 0;
 							double distanceBetween = Double.MAX_VALUE;
 							for (SegmentPoint segmentPoint : spList) {
-								//Log.v("SegmentPoint", segmentPoint.getLat() + " / " + segmentPoint.getLng());
 								while (distanceBetween > 20 && count < aux.size()) {
-									//Log.v("Count", count + "");
-									//Log.v("Lat1/Lng1 - Lat2/Lng2", segmentPoint.getLat() + "/" + segmentPoint.getLng() + " - " +  aux.get(count).getLat() + "/" + aux.get(count).getLng());
 									distanceBetween = Utilities.CalculateDistance(
 											segmentPoint.getLat(),
 											segmentPoint.getLng(),
 											aux.get(count).getLat(),
 											aux.get(count).getLng()
 									);
-
-									if (aux.get(count).getSpeed() > maxSpeedSegmentTrack)
-										maxSpeedSegmentTrack = aux.get(count).getSpeed();
 
 									//Log.v("DistanceBetween", distanceBetween + "");
 									count++;
@@ -592,10 +599,22 @@ public class DBModel {
 						// Add segment track information.
 						TrackPoint firstPoint = track.getTrackPointList().get(0);
 						TrackPoint lastPoint = track.getTrackPointList().get(track.getTrackPointList().size() - 1);
+						float maxSpeedSegmentTrack = Float.MIN_VALUE;
+						Log.v("---- Track:", track.getId() + " - " + track.getTitle());
+						Log.v("First Point:", firstPoint.getId() + "");
+						for (TrackPoint tp : track.getTrackPointList()) {
+							Log.v("TrackPoint id:", tp.getId() + "");
+							if (maxSpeedSegmentTrack < tp.getSpeed()) {
+								maxSpeedSegmentTrack = tp.getSpeed();
+							}
+						}
+						Log.v("Last Point:", lastPoint.getId() + "");
+						Log.v("---- End Track", "----------------------");
+
 						if (firstPoint.getTime() < lastPoint.getTime()) {
 							long timeSegmentTrack = lastPoint.getTime() - firstPoint.getTime();
 							float distanceSegmentTrack = lastPoint.getDistance() - firstPoint.getDistance();
-							float avgSpeedSegmentTrack = (((float) timeSegmentTrack) / (float) 1000.0) / distanceSegmentTrack;
+							float avgSpeedSegmentTrack = distanceSegmentTrack / (((float) timeSegmentTrack) / (float) 1000.0);
 
 							SegmentTrack segmentTrack = new SegmentTrack();
 							segmentTrack.setTime(timeSegmentTrack);

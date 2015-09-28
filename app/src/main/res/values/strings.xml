@@ -33,7 +33,7 @@
     <array name="nav_drawer_icons">
         <item>@drawable/ic_action_storage</item>
         <item>@drawable/ic_action_play</item>
-        <item>@drawable/ic_action_edit</item>
+        <item>@drawable/ic_segments</item>
         <item>@drawable/ic_stats</item>
     </array>
 
@@ -109,7 +109,7 @@
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
     <string name="unknown_sport">Unknown Sport</string>
-    <string name="import_file">Import</string>
+    <string name="import_file">Add</string>
     <string name="elevation">Elevation</string>
     <string name="distance">Distance</string>
     <string name="route_profile">Profile</string>
@@ -144,5 +144,8 @@
     <string name="finding_segment_track">Searching the segment in your activities.</string>
     <string name="add_segment_ok">Segment added.</string>
     <string name="add_segment_fail">Add segment failed. Try again.</string>
+    <string name="delete_segment">Delete segment</string>
+    <string name="delete_segment_selected_hint">Do you really like to delete all selected segments? This action cannot be undone.</string>
+    <string name="title_activity_segment_track">SegmentTrackActivity</string>
 
 </resources>
